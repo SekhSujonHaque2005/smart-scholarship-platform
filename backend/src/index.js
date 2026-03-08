@@ -8,15 +8,18 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
+// Routes
+const authRoutes = require('./routes/auth.routes');
+app.use('/api/auth', authRoutes);
+
+// Health check
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'Smart Scholarship API is running!',
-    version: '1.0.0'
-  });
+  res.json({ message: 'Smart Scholarship API is running!', version: '1.0.0' });
 });
 
 app.listen(PORT, () => {

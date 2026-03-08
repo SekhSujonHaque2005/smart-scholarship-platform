@@ -15,7 +15,10 @@ app.use(express.json());
 
 // Routes
 const authRoutes = require('./routes/auth.routes');
+const scholarshipRoutes = require('./routes/scholarship.routes');
+
 app.use('/api/auth', authRoutes);
+app.use('/api/scholarships', scholarshipRoutes);
 
 // Health check
 app.get('/', (req, res) => {

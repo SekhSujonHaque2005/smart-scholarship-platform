@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String?
+  role      Role     @default(STUDENT)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  student       Student?
+  provider      Provider?
+  notifications Notification[]
+  auditLogs     AuditLog[]
+}
+
+enum Role {
+  STUDENT
+  PROVIDER
+  ADMIN
+}
+
+model Student {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+  name            String
+  cgpa            Float?
+  incomeLevel     String?
+  fieldOfStudy    String?
+  location        String?
+  profileComplete Boolean @default(false)
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  applications Application[]
+  documents    Document[]
+  reviews      Review[]
+}
+
+model Provider {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  orgName            String
+  orgType            String?
+  trustScore         Int                @default(0)
+  verificationStatus VerificationStatus @default(PENDING)
+  approvedAt         DateTime?
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  scholarships Scholarship[]
+  reviews      Review[]
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Scholarship {
+  id           String            @id @default(cuid())
+  providerId   String
+  title        String
+  description  String?
+  amount       Float?
+  deadline     DateTime?
+  criteriaJson Json?
+  status       ScholarshipStatus @default(DRAFT)
+  createdAt    DateTime          @default(now())
+
+  provider     Provider      @relation(fields: [providerId], references: [id])
+  applications Application[]
+}
+
+enum ScholarshipStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+model Application {
+  id            String            @id @default(cuid())
+  studentId     String
+  scholarshipId String
+  status        ApplicationStatus @default(PENDING)
+  formData      Json?
+  submittedAt   DateTime          @default(now())
+  reviewedAt    DateTime?
+  remarks       String?
+
+  student     Student     @relation(fields: [studentId], references: [id])
+  scholarship Scholarship @relation(fields: [scholarshipId], references: [id])
+  documents   Document[]
+  fraudFlag   FraudFlag?
+
+  @@unique([studentId, scholarshipId])
+}
+
+enum ApplicationStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+model Document {
+  id          String   @id @default(cuid())
+  studentId   String
+  appId       String?
+  fileUrl     String
+  fileHash    String
+  docType     String
+  uploadedAt  DateTime @default(now())
+
+  student     Student      @relation(fields: [studentId], references: [id])
+  application Application? @relation(fields: [appId], references: [id])
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  studentId   String
+  providerId  String
+  rating      Int
+  comment     String?
+  isModerated Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  student  Student  @relation(fields: [studentId], references: [id])
+  provider Provider @relation(fields: [providerId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model FraudFlag {
+  id            String   @id @default(cuid())
+  applicationId String   @unique
+  fraudScore    Float
+  featuresJson  Json?
+  status        String   @default("FLAGGED")
+  flaggedAt     DateTime @default(now())
+
+  application Application @relation(fields: [applicationId], references: [id])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  action     String
+  oldVal     Json?
+  newVal     Json?
+  actorId    String
+  timestamp  DateTime @default(now())
+
+  actor User @relation(fields: [actorId], references: [id])
+}

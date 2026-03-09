@@ -1,4 +1,5 @@
 const prisma = require('../lib/prisma');
+const { notifyProviderVerified } = require('../services/notification.service');
 
 // GET ALL PROVIDERS (Public)
 const getAllProviders = async (req, res) => {
@@ -182,6 +183,9 @@ const verifyProvider = async (req, res) => {
         actorId: req.user.userId
       }
     });
+
+    // Fire unawaited notification
+    notifyProviderVerified(provider.userId, status).catch(console.error);
 
     res.status(200).json({
       message: `Provider ${status.toLowerCase()} successfully`,

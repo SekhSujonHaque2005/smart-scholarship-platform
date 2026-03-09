@@ -1,4 +1,5 @@
 const prisma = require('../lib/prisma');
+const { notifyApplicationSubmitted, notifyApplicationStatus } = require('../services/notification.service');
 
 // SUBMIT APPLICATION (Student only)
 const submitApplication = async (req, res) => {
@@ -62,6 +63,9 @@ const submitApplication = async (req, res) => {
         scholarship: { select: { title: true, amount: true } }
       }
     });
+
+    // Fire unawaited notification to avoid blocking the response
+    notifyApplicationSubmitted(student.userId, application.scholarship.title).catch(console.error);
 
     res.status(201).json({
       message: 'Application submitted successfully',
@@ -200,7 +204,7 @@ const reviewApplication = async (req, res) => {
 
     const application = await prisma.application.findUnique({
       where: { id },
-      include: { scholarship: true }
+      include: { scholarship: true, student: true }
     });
 
     if (!application) {
@@ -219,6 +223,9 @@ const reviewApplication = async (req, res) => {
         reviewedAt: new Date()
       }
     });
+
+    // Fire unawaited notification for Status Change
+    notifyApplicationStatus(application.student.userId, application.scholarship.title, status, remarks).catch(console.error);
 
     res.status(200).json({
       message: `Application ${status.toLowerCase()} successfully`,

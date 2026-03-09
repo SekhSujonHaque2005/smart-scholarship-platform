@@ -163,4 +163,55 @@ const getMe = async (req, res) => {
   }
 };
 
-module.exports = { register, login, refreshToken, getMe };
+// GOOGLE AUTH
+const googleAuth = async (req, res) => {
+  try {
+    const { email, name, googleId } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ message: 'Email is required' });
+    }
+
+    // Check if user exists
+    let user = await prisma.user.findUnique({ where: { email } });
+
+    if (!user) {
+      // Create new user
+      user = await prisma.$transaction(async (tx) => {
+        // We use a dummy password fallback in case the schema strictly requires password
+        const randomHash = await bcrypt.hash(Math.random().toString(36), 10);
+        const newUser = await tx.user.create({
+          data: {
+            email,
+            role: 'STUDENT',
+            password: randomHash
+          }
+        });
+
+        await tx.student.create({
+          data: {
+            userId: newUser.id,
+            name: name || email.split('@')[0]
+          }
+        });
+
+        return newUser;
+      });
+    }
+
+    const { accessToken, refreshToken } = generateTokens(user.id, user.role);
+
+    res.status(200).json({
+      message: 'Google auth successful',
+      accessToken,
+      refreshToken,
+      user: { id: user.id, email: user.email, role: user.role }
+    });
+
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+module.exports = { register, login, refreshToken, getMe, googleAuth };

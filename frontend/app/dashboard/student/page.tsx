@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { signOut } from 'next-auth/react';
 import gsap from 'gsap';
 import { useAuthStore } from '@/app/store/auth.store';
 import { Button } from '@/components/ui/button';
@@ -38,7 +39,7 @@ export default function StudentDashboard() {
 
   const handleLogout = () => {
     logout();
-    router.push('/login');
+    signOut({ callbackUrl: '/login' });
   };
 
   if (!isAuthenticated) return null;

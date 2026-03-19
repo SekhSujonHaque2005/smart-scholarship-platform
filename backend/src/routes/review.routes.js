@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const {
   createReview,
+  getPublicReviews,
   getProviderReviews,
   getMyReviews,
   updateReview,
@@ -12,6 +13,7 @@ const {
 const { authenticate, authorize } = require('../middleware/auth.middleware');
 
 // Public routes
+router.get('/public', getPublicReviews);
 router.get('/provider/:providerId', getProviderReviews);
 
 // Student routes

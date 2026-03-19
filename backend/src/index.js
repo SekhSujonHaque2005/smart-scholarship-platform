@@ -19,6 +19,8 @@ const applicationRoutes = require('./routes/application.routes');
 const providerRoutes = require('./routes/provider.routes');
 const reviewRoutes = require('./routes/review.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const statsRoutes = require('./routes/stats.routes');
+const newsletterRoutes = require('./routes/newsletter.routes');
 
 const cron = require('node-cron');
 const { sendDeadlineReminders } = require('./services/notification.service');
@@ -29,6 +31,8 @@ app.use('/api/applications', applicationRoutes);
 app.use('/api/providers', providerRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
 // Run deadline reminders every day at 9 AM
 cron.schedule('0 9 * * *', () => {

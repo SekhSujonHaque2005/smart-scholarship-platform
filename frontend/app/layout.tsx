@@ -3,6 +3,8 @@ import "./globals.css";
 import { LenisProvider } from "@/components/providers/lenis-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "next-themes";
+import { GlobalLoaderProvider } from "@/components/providers/global-loader";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "ScholarHub — AI-Powered Scholarship Matching Platform",
@@ -39,7 +41,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="antialiased font-serif" style={{ fontFamily: '"Times New Roman", Times, serif' }}>
+      <body className="antialiased">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -47,9 +49,13 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-            <LenisProvider>
-              {children}
-            </LenisProvider>
+            <Suspense fallback={null}>
+              <GlobalLoaderProvider>
+                <LenisProvider>
+                  {children}
+                </LenisProvider>
+              </GlobalLoaderProvider>
+            </Suspense>
           </AuthProvider>
         </ThemeProvider>
       </body>

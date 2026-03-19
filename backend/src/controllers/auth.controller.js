@@ -157,6 +157,8 @@ const getMe = async (req, res) => {
       id: user.id,
       email: user.email,
       role: user.role,
+      preferences: user.preferences,
+      profilePicture: user.profilePicture,
       profile: user.student || user.provider
     });
 
@@ -313,4 +315,78 @@ const resetPassword = async (req, res) => {
   }
 };
 
-module.exports = { register, login, refreshToken, getMe, googleAuth, forgotPassword, resetPassword };
+// UPDATE PROFILE
+const updateProfile = async (req, res) => {
+  try {
+    const { name, cgpa, fieldOfStudy, location, incomeLevel, profilePicture } = req.body;
+
+    if (req.user.role === 'STUDENT') {
+      await prisma.student.update({
+        where: { userId: req.user.userId },
+        data: {
+          name,
+          cgpa: cgpa ? parseFloat(cgpa) : null,
+          fieldOfStudy,
+          location,
+          incomeLevel
+        }
+      });
+    }
+
+    if (profilePicture !== undefined) {
+      await prisma.user.update({
+        where: { id: req.user.userId },
+        data: { profilePicture }
+      });
+    }
+
+    res.status(200).json({ message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// UPDATE PASSWORD
+const updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const user = await prisma.user.findUnique({ where: { id: req.user.userId } });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password || '');
+    if (!isPasswordValid) return res.status(401).json({ message: 'Invalid current password' });
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 12);
+
+    await prisma.user.update({
+      where: { id: req.user.userId },
+      data: { password: hashedNewPassword }
+    });
+
+    res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Update password error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// UPDATE PREFERENCES
+const updatePreferences = async (req, res) => {
+  try {
+    const preferences = req.body;
+
+    await prisma.user.update({
+      where: { id: req.user.userId },
+      data: { preferences }
+    });
+
+    res.status(200).json({ message: 'Preferences updated successfully', preferences });
+  } catch (error) {
+    console.error('Update preferences error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+module.exports = { register, login, refreshToken, getMe, googleAuth, forgotPassword, resetPassword, updateProfile, updatePassword, updatePreferences };

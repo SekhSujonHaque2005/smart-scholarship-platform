@@ -110,7 +110,7 @@ export default function Hero() {
                 <Link href="/register" className="w-full sm:w-auto">
                     <NeonButton className="w-full h-[3.5rem] text-base group z-20">
                         Get started free
-                        <Sparkles size={18} className="ml-1 group-hover:rotate-12 group-hover:text-[#ffdf4e] transition-all" />
+                        {/* <Sparkles size={18} className="ml-1 group-hover:rotate-12 group-hover:text-[#ffdf4e] transition-all" /> */}
                     </NeonButton>
                 </Link>
                 <Link href="/scholarships" className="w-full sm:w-auto">

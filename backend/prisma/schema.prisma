@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
 model User {
@@ -15,6 +15,8 @@ model User {
   resetPasswordToken   String?  @unique
   resetPasswordExpires DateTime?
   createdAt            DateTime @default(now())
+  preferences          Json?    @default("{}")
+  profilePicture       String?
 
   student       Student?
   provider      Provider?
@@ -115,7 +117,10 @@ model Document {
   studentId   String
   appId       String?
   fileUrl     String
-  fileHash    String
+  publicId    String?
+  fileName    String?
+  fileSize    Int?
+  fileHash    String?
   docType     String
   uploadedAt  DateTime @default(now())
 

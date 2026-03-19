@@ -12,7 +12,9 @@ model User {
   password  String?
   role      Role     @default(STUDENT)
   isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
+  resetPasswordToken   String?  @unique
+  resetPasswordExpires DateTime?
+  createdAt            DateTime @default(now())
 
   student       Student?
   provider      Provider?
@@ -168,4 +170,11 @@ model AuditLog {
   timestamp  DateTime @default(now())
 
   actor User @relation(fields: [actorId], references: [id])
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
 }

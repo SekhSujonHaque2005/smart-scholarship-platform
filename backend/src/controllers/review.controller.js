@@ -80,6 +80,26 @@ const createReview = async (req, res) => {
   }
 };
 
+// GET ALL PUBLIC REVIEWS (for landing page testimonials)
+const getPublicReviews = async (req, res) => {
+  try {
+    const reviews = await prisma.review.findMany({
+      where: { isModerated: false },
+      include: {
+        student: { select: { name: true } },
+        provider: { select: { orgName: true } }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 20
+    });
+
+    res.status(200).json({ reviews });
+  } catch (error) {
+    console.error('Get public reviews error:', error.message);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 // GET REVIEWS FOR A PROVIDER (Public)
 const getProviderReviews = async (req, res) => {
   try {
@@ -294,6 +314,7 @@ const getAllReviews = async (req, res) => {
 
 module.exports = {
   createReview,
+  getPublicReviews,
   getProviderReviews,
   getMyReviews,
   updateReview,

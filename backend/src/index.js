@@ -23,6 +23,7 @@ const notificationRoutes = require('./routes/notification.routes');
 const statsRoutes = require('./routes/stats.routes');
 const newsletterRoutes = require('./routes/newsletter.routes');
 const documentRoutes = require('./routes/document.routes');
+const scraperRoutes = require('./routes/scraper.routes');
 
 const cron = require('node-cron');
 const { sendDeadlineReminders } = require('./services/notification.service');
@@ -36,11 +37,27 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/scraper', scraperRoutes);
 
 // Run deadline reminders every day at 9 AM
 cron.schedule('0 9 * * *', () => {
   console.log('Running deadline reminder cron job...');
   sendDeadlineReminders();
+});
+
+// Run scholarship scraper every day at 6 AM
+cron.schedule('0 6 * * *', () => {
+  console.log('[Cron] Triggering scholarship scraper...');
+  const { exec } = require('child_process');
+  const scraperDir = require('path').join(__dirname, '..', '..', 'scraper_service');
+  exec(`python main.py --live`, { cwd: scraperDir }, (error, stdout, stderr) => {
+    if (error) {
+      console.error('[Cron] Scraper error:', error.message);
+      return;
+    }
+    console.log('[Cron] Scraper output:', stdout);
+    if (stderr) console.error('[Cron] Scraper stderr:', stderr);
+  });
 });
 
 app.get('/', (req, res) => {

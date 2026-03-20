@@ -5,6 +5,7 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 });
 
+
 // Request interceptor - add token
 api.interceptors.request.use((config) => {
   if (typeof window !== 'undefined') {
@@ -18,7 +19,9 @@ api.interceptors.request.use((config) => {
 
 // Response interceptor - handle token refresh
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    return response;
+  },
   async (error) => {
     const original = error.config;
     if (error.response?.status === 401 && !original._retry) {

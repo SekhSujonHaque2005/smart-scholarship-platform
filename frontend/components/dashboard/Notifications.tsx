@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, CheckCircle2, AlertCircle, Info, XCircle, Trash2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import api from '@/app/lib/api';
+import { cn } from '@/lib/utils';
 
 interface Notification {
   id: string;
@@ -29,7 +30,7 @@ export const Notifications = () => {
 
   const fetchNotifications = async () => {
     try {
-      const { data } = await api.get('/notifications');
+      const { data } = await api.get('notifications');
       setNotifications(data.notifications || []);
       setUnreadCount(data.unreadCount || 0);
     } catch (error) {
@@ -45,7 +46,7 @@ export const Notifications = () => {
 
   const markAsRead = async (id: string) => {
     try {
-      await api.patch(`/notifications/${id}/read`);
+      await api.patch(`notifications/${id}/read`);
       setNotifications(prev =>
         prev.map(n => n.id === id ? { ...n, isRead: true } : n)
       );
@@ -57,7 +58,7 @@ export const Notifications = () => {
 
   const markAllAsRead = async () => {
     try {
-      await api.patch('/notifications/read-all');
+      await api.patch('notifications/read-all');
       setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
       setUnreadCount(0);
     } catch (error) {
@@ -68,7 +69,7 @@ export const Notifications = () => {
   const deleteNotification = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation(); // prevent markAsRead trigger
     try {
-      await api.delete(`/notifications/${id}`);
+      await api.delete(`notifications/${id}`);
       setNotifications(prev => prev.filter(n => n.id !== id));
       // Re-fetch count, or just dec if unread
       const removed = notifications.find(n => n.id === id);
@@ -81,26 +82,27 @@ export const Notifications = () => {
   };
 
   return (
-    <div className="space-y-12 pb-10">
-      {/* Premium Header */}
+    <div className="space-y-16 py-8">
+      {/* Vercel-Style Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-20">
-        <div className="space-y-1">
+        <div className="space-y-4">
           <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-4xl md:text-5xl font-serif font-black tracking-tighter text-foreground drop-shadow-sm"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-foreground leading-[0.9]"
           >
             Notifications
           </motion.h1>
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-muted-foreground font-medium tracking-wide flex items-center gap-2"
+            className="flex items-center gap-4 text-muted-foreground font-mono text-[11px] uppercase tracking-widest"
           >
-            Stay informed <div className="w-1 h-1 rounded-full bg-border" />
-            <span className="text-[10px] uppercase tracking-[0.2em] font-black text-blue-600 dark:text-blue-400/80">
-              {unreadCount > 0 ? `${unreadCount} Unread Alerts` : 'All caught up!'}
+            <span>Stay informed</span>
+            <div className="h-px w-8 bg-border/40" />
+            <span className="text-blue-500 font-black">
+              {unreadCount > 0 ? `${unreadCount} New Alerts` : 'All caught up'}
             </span>
           </motion.div>
         </div>
@@ -108,10 +110,9 @@ export const Notifications = () => {
         {unreadCount > 0 && (
           <Button 
             onClick={markAllAsRead}
-            variant="outline" 
-            className="h-10 px-5 border-blue-500/20 bg-blue-500/10 text-blue-600 dark:text-blue-400 hover:text-white hover:bg-blue-600 dark:hover:bg-blue-600 rounded-xl flex items-center gap-2 tracking-widest text-[10px] uppercase font-black transition-all shadow-sm"
+            className="h-14 px-8 bg-foreground text-background font-mono font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 shadow-xl"
           >
-            <Check size={14} />
+            <Check size={16} />
             Mark All As Read
           </Button>
         )}
@@ -120,78 +121,90 @@ export const Notifications = () => {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-[40px] border border-border bg-card backdrop-blur-3xl p-6 md:p-10 shadow-2xl dark:shadow-none relative overflow-hidden min-h-[400px]"
+        className="rounded-[48px] border border-dashed border-border/60 bg-white/[0.01] p-12 shadow-2xl relative overflow-hidden min-h-[500px]"
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-purple-500/5 pointer-events-none" />
-
         {loading ? (
-          <div className="space-y-4 relative z-10">
+          <div className="space-y-8 relative z-10">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-24 bg-secondary/50 border border-border rounded-2xl animate-pulse" />
+              <div key={i} className="h-28 bg-white/5 border border-dashed border-border/40 rounded-[32px] animate-pulse" />
             ))}
           </div>
         ) : notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 relative z-10 opacity-60">
-            <div className="w-20 h-20 rounded-t-full rounded-b-3xl bg-gradient-to-b from-blue-500/20 to-transparent border border-blue-500/20 flex flex-col items-center justify-center mb-6 shadow-sm">
-               <Bell size={32} className="text-blue-600 dark:text-blue-400 animate-pulse" />
+          <div className="flex flex-col items-center justify-center py-24 relative z-10 opacity-60 space-y-8">
+            <div className="w-24 h-24 rounded-[32px] bg-white/[0.02] border border-dashed border-blue-500/30 flex items-center justify-center shadow-inner">
+               <Bell size={40} className="text-blue-500 animate-pulse" />
             </div>
-            <h3 className="text-xl font-black text-foreground mb-2 uppercase tracking-tight">You're all set!</h3>
-            <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">No new notifications to show right now.</p>
+            <div className="text-center space-y-2">
+              <h3 className="text-2xl font-black text-foreground uppercase tracking-tight">Queue Empty</h3>
+              <p className="text-muted-foreground font-mono font-black uppercase tracking-widest text-[10px]">No pending alerts in current node</p>
+            </div>
           </div>
         ) : (
-          <div className="space-y-4 relative z-10">
-            <AnimatePresence>
+          <div className="space-y-6 relative z-10">
+            <AnimatePresence mode="popLayout">
               {notifications.map((notif, i) => {
                 const config = typeConfig[notif.type] || typeConfig.INFO;
                 return (
                   <motion.div
                     key={notif.id}
                     layout
-                    initial={{ opacity: 0, scale: 0.95 }}
+                    initial={{ opacity: 0, scale: 0.98 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95, height: 0, marginBottom: 0 }}
+                    exit={{ opacity: 0, scale: 0.98, height: 0, marginBottom: 0 }}
                     onClick={() => !notif.isRead && markAsRead(notif.id)}
-                    className={`group relative p-6 rounded-2xl border backdrop-blur-sm transition-all duration-300 flex flex-col sm:flex-row gap-5 items-start sm:items-center ${
+                    className={cn(
+                      "group relative p-8 rounded-[32px] border border-dashed backdrop-blur-md transition-all duration-500 flex flex-col sm:flex-row gap-8 items-start sm:items-center",
                       notif.isRead
-                        ? 'bg-secondary/10 border-border/50 hover:bg-secondary/20'
-                        : `bg-secondary/40 border-border shadow-lg dark:shadow-none cursor-pointer overflow-hidden`
-                    }`}
+                        ? 'bg-white/[0.01] border-border/40 opacity-70 grayscale'
+                        : 'bg-white/[0.03] border-blue-500/30 shadow-2xl cursor-pointer hover:border-blue-500/60'
+                    )}
                   >
                     {!notif.isRead && (
-                      <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-600 to-indigo-700 dark:from-blue-400 dark:to-indigo-500 shadow-sm" />
+                      <div className="absolute right-8 top-8 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)] animate-pulse" />
                     )}
                     
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-300 ${config.bg} ${config.color} ${config.border} group-hover:scale-110 shadow-inner`}>
-                      <config.icon size={24} strokeWidth={1.5} />
+                    <div className={cn(
+                      "w-16 h-16 rounded-[24px] flex items-center justify-center shrink-0 border border-dashed transition-all duration-500",
+                      config.bg, config.color, config.border,
+                      "group-hover:scale-110"
+                    )}>
+                      <config.icon size={28} strokeWidth={1} />
                     </div>
                     
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-1">
-                        <h3 className={`font-black tracking-tight text-lg transition-colors uppercase ${notif.isRead ? 'text-muted-foreground/60' : 'text-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400'}`}>
+                    <div className="flex-1 space-y-2">
+                      <div className="flex items-center gap-4">
+                        <h3 className={cn(
+                          "font-black tracking-tight text-xl uppercase font-sans",
+                          notif.isRead ? 'text-muted-foreground' : 'text-foreground group-hover:text-blue-500 transition-colors'
+                        )}>
                           {notif.title}
                         </h3>
-                        {!notif.isRead && (
-                          <span className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-500 animate-pulse shadow-sm" />
-                        )}
                       </div>
-                      <p className={`text-sm tracking-tight ${notif.isRead ? 'text-muted-foreground/50' : 'text-muted-foreground font-bold'}`}>
+                      <p className={cn(
+                        "text-sm tracking-tight leading-relaxed max-w-2xl font-mono",
+                        notif.isRead ? 'text-muted-foreground/60' : 'text-muted-foreground'
+                      )}>
                         {notif.message}
                       </p>
-                      <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/40 mt-3">
-                        {new Date(notif.createdAt).toLocaleString(undefined, {
-                          month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
-                        })}
-                      </p>
+                      <div className="flex items-center gap-4 pt-2">
+                        <p className="text-[10px] font-mono font-black uppercase tracking-widest text-muted-foreground/40">
+                          {new Date(notif.createdAt).toLocaleString(undefined, {
+                            month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+                          })}
+                        </p>
+                        <div className="h-px w-8 bg-border/20" />
+                        <span className="text-[9px] font-mono uppercase text-muted-foreground/30">Entry {notif.id.slice(0, 8)}</span>
+                      </div>
                     </div>
 
-                    <div className="flex gap-2 sm:opacity-0 group-hover:opacity-100 transition-opacity absolute top-6 right-6 sm:relative sm:top-auto sm:right-auto">
+                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                       <Button
                         variant="ghost" 
                         size="icon"
                         onClick={(e) => deleteNotification(notif.id, e)}
-                        className="h-8 w-8 text-muted-foreground hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-all"
+                        className="h-10 w-10 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/5 rounded-xl transition-all"
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={18} />
                       </Button>
                     </div>
                   </motion.div>

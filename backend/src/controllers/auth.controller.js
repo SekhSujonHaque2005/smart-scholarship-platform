@@ -101,6 +101,54 @@ const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
+    // 2FA Check
+    if (user.is2FAEnabled) {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const hashedOTP = await bcrypt.hash(otp, 10);
+      const otpExpires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          twoFactorOTP: hashedOTP,
+          twoFactorExpires: otpExpires
+        }
+      });
+
+      // Send OTP Email
+      await sendEmail(
+        user.email,
+        '🛡️ Your 2FA Verification Code - ScholarHub',
+        `
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+          <h2 style="color: #2563eb; text-align: center;">Two-Factor Authentication</h2>
+          <p>Hello,</p>
+          <p>Your verification code is below. This code will expire in 10 minutes.</p>
+          <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1e293b;">${otp}</span>
+          </div>
+          <p style="font-size: 12px; color: #64748b;">If you didn't attempt to log in, please secure your account immediately.</p>
+          <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 20px 0;" />
+          <p style="font-size: 11px; color: #94a3b8; text-align: center;">ScholarHub — Secure Education Access</p>
+        </div>
+        `
+      );
+
+      // Issue temporary token for 2FA step
+      const tempToken = jwt.sign(
+        { userId: user.id, is2FA: true },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' }
+      );
+
+      return res.status(200).json({
+        message: '2FA required',
+        requires2FA: true,
+        tempToken,
+        email: user.email
+      });
+    }
+
     const { accessToken, refreshToken } = generateTokens(user.id, user.role);
 
     res.status(200).json({
@@ -200,6 +248,50 @@ const googleAuth = async (req, res) => {
         });
 
         return newUser;
+      });
+    }
+
+    // 2FA Check for Google Auth
+    if (user.is2FAEnabled) {
+      const otp = Math.floor(100000 + Math.random() * 900000).toString();
+      const hashedOTP = await bcrypt.hash(otp, 10);
+      const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          twoFactorOTP: hashedOTP,
+          twoFactorExpires: otpExpires
+        }
+      });
+
+      await sendEmail(
+        user.email,
+        '🛡️ Your 2FA Verification Code - ScholarHub',
+        `
+        <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px;">
+          <h2 style="color: #2563eb; text-align: center;">Two-Factor Authentication (Google Login)</h2>
+          <p>Hello,</p>
+          <p>You just logged in via Google. Since you have 2FA enabled, please use the code below to complete your login.</p>
+          <div style="background-color: #f8fafc; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #1e293b;">${otp}</span>
+          </div>
+          <p style="font-size: 12px; color: #64748b;">If you didn't attempt to log in, please secure your account immediately.</p>
+        </div>
+        `
+      );
+
+      const tempToken = jwt.sign(
+        { userId: user.id, is2FA: true },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' }
+      );
+
+      return res.status(200).json({
+        message: '2FA required',
+        requires2FA: true,
+        tempToken,
+        email: user.email
       });
     }
 
@@ -389,4 +481,74 @@ const updatePreferences = async (req, res) => {
   }
 };
 
-module.exports = { register, login, refreshToken, getMe, googleAuth, forgotPassword, resetPassword, updateProfile, updatePassword, updatePreferences };
+// VERIFY 2FA
+const verify2FA = async (req, res) => {
+  try {
+    const { email, otp, tempToken } = req.body;
+
+    // Verify temp token
+    const decoded = jwt.verify(tempToken, process.env.JWT_SECRET);
+    if (!decoded.is2FA) {
+      return res.status(401).json({ message: 'Invalid 2FA session' });
+    }
+
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || user.id !== decoded.userId) {
+      return res.status(401).json({ message: 'Invalid 2FA session' });
+    }
+
+    // Check OTP
+    if (!user.twoFactorOTP || !user.twoFactorExpires || user.twoFactorExpires < new Date()) {
+      return res.status(401).json({ message: 'OTP expired or not found' });
+    }
+
+    const isOTPValid = await bcrypt.compare(otp, user.twoFactorOTP);
+    if (!isOTPValid) {
+      return res.status(401).json({ message: 'Invalid verification code' });
+    }
+
+    // Clear OTP and issue tokens
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        twoFactorOTP: null,
+        twoFactorExpires: null
+      }
+    });
+
+    const { accessToken, refreshToken } = generateTokens(user.id, user.role);
+
+    res.status(200).json({
+      message: 'Logged in successfully',
+      accessToken,
+      refreshToken,
+      user: { id: user.id, email: user.email, role: user.role }
+    });
+
+  } catch (error) {
+    console.error('2FA verification error:', error);
+    res.status(401).json({ message: 'Invalid or expired session' });
+  }
+};
+
+// TOGGLE 2FA
+const toggle2FA = async (req, res) => {
+  try {
+    const { enable } = req.body;
+
+    await prisma.user.update({
+      where: { id: req.user.userId },
+      data: { is2FAEnabled: enable }
+    });
+
+    res.status(200).json({
+      message: `2FA ${enable ? 'enabled' : 'disabled'} successfully`,
+      is2FAEnabled: enable
+    });
+  } catch (error) {
+    console.error('Toggle 2FA error:', error);
+    res.status(500).json({ message: 'Failed to update 2FA settings' });
+  }
+};
+
+module.exports = { register, login, refreshToken, getMe, googleAuth, forgotPassword, resetPassword, updateProfile, updatePassword, updatePreferences, verify2FA, toggle2FA };

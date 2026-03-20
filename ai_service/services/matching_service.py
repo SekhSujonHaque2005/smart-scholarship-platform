@@ -1,5 +1,5 @@
 from typing import List
-from ai_service.models.schemas import StudentProfile, Scholarship, MatchResult
+from models.schemas import StudentProfile, Scholarship, MatchResult
 
 # Income level mapping
 INCOME_WEIGHTS = {

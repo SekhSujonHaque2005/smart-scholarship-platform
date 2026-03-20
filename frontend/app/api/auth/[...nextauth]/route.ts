@@ -22,15 +22,20 @@ export const authOptions: NextAuthOptions = {
                             googleId: account.providerAccountId
                         }
                     );
+                    // Detect if 2FA is required
+                    if (response.data.requires2FA) {
+                        return `/login?2fa=true&email=${encodeURIComponent(user.email)}&tempToken=${response.data.tempToken}`;
+                    }
+
                     // Store our backend tokens
                     user.backendToken = response.data.accessToken;
                     user.refreshToken = response.data.refreshToken;
                     user.role = response.data.user.role;
                     user.backendId = response.data.user.id;
                     return true;
-                } catch (error) {
+                } catch (error: any) {
                     console.error('Backend sync error:', error);
-                    return true; // Still allow login even if backend sync fails
+                    return true; // Still allow login even if backend sync fails (default)
                 }
             }
             return true;

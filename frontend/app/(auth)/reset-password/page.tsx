@@ -66,7 +66,7 @@ function ResetPasswordFormInner() {
     }
 
     try {
-      await api.post('/auth/reset-password', {
+      await api.post('auth/reset-password', {
         token,
         password: data.password
       });

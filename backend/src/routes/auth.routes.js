@@ -1,17 +1,21 @@
 const express = require('express');
 const router = express.Router();
-const { register, login, refreshToken, getMe, googleAuth, forgotPassword, resetPassword, updateProfile, updatePassword, updatePreferences } = require('../controllers/auth.controller');
+const { register, login, refreshToken, getMe, googleAuth, forgotPassword, resetPassword, updateProfile, updatePassword, updatePreferences, verify2FA, toggle2FA } = require('../controllers/auth.controller');
 const { authenticate } = require('../middleware/auth.middleware');
+const validate = require('../middleware/validate.middleware');
+const { registerSchema, loginSchema, forgotPasswordSchema, resetPasswordSchema, updateProfileSchema, updatePasswordSchema, updatePreferencesSchema, verify2FASchema, toggle2FASchema } = require('../schemas/auth.schema');
 
-router.post('/register', register);
-router.post('/login', login);
+router.post('/register', validate(registerSchema), register);
+router.post('/login', validate(loginSchema), login);
 router.post('/refresh', refreshToken);
 router.get('/me', authenticate, getMe);
-router.put('/me/profile', authenticate, updateProfile);
-router.put('/me/password', authenticate, updatePassword);
-router.put('/me/preferences', authenticate, updatePreferences);
+router.put('/me/profile', authenticate, validate(updateProfileSchema), updateProfile);
+router.put('/me/password', authenticate, validate(updatePasswordSchema), updatePassword);
+router.put('/me/preferences', authenticate, validate(updatePreferencesSchema), updatePreferences);
+router.post('/verify-2fa', validate(verify2FASchema), verify2FA);
+router.put('/me/2fa', authenticate, validate(toggle2FASchema), toggle2FA);
 router.post('/google', googleAuth);
-router.post('/forgot-password', forgotPassword);
-router.post('/reset-password', resetPassword);
+router.post('/forgot-password', validate(forgotPasswordSchema), forgotPassword);
+router.post('/reset-password', validate(resetPasswordSchema), resetPassword);
 
 module.exports = router;

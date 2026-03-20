@@ -17,6 +17,9 @@ model User {
   createdAt            DateTime @default(now())
   preferences          Json?    @default("{}")
   profilePicture       String?
+  is2FAEnabled         Boolean  @default(false)
+  twoFactorOTP         String?
+  twoFactorExpires     DateTime?
 
   student       Student?
   provider      Provider?
@@ -38,6 +41,7 @@ model Student {
   incomeLevel     String?
   fieldOfStudy    String?
   location        String?
+  gender          String?
   profileComplete Boolean @default(false)
 
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)

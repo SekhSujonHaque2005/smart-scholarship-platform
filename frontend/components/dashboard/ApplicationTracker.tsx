@@ -42,7 +42,7 @@ export const ApplicationTracker = ({ onDataLoaded }: { onDataLoaded?: (apps: any
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const response = await api.get('/applications/my');
+        const response = await api.get('applications/my');
         const apps = response.data.applications || [];
         setApplications(apps);
         onDataLoaded?.(apps);
@@ -71,164 +71,157 @@ export const ApplicationTracker = ({ onDataLoaded }: { onDataLoaded?: (apps: any
     : applications.filter((a) => a.status === filter);
 
   return (
-    <div className="space-y-12">
-      {/* Premium Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-20">
-        <div className="space-y-1">
+    <div className="space-y-16 py-8">
+      {/* Welcome Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-20 px-4">
+        <div className="space-y-4">
           <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-4xl md:text-5xl font-serif font-black tracking-tighter text-foreground drop-shadow-sm"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-foreground leading-[0.9]"
           >
-            My Applications
+            Applications
           </motion.h1>
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-muted-foreground font-medium tracking-wide flex items-center gap-2"
+            className="flex items-center gap-4 text-muted-foreground font-mono text-[11px] uppercase tracking-widest"
           >
-            Track your progress <div className="w-1 h-1 rounded-full bg-border" />
-            <span className="text-[10px] uppercase tracking-[0.2em] font-black text-blue-600 dark:text-blue-400/80">{applications.length} Active Submissions</span>
+            <span>My History</span>
+            <div className="h-px w-8 bg-border/40" />
+            <span className="text-blue-500 font-black">Track your progress</span>
           </motion.div>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-4 py-2 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-             <div className="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-500 animate-pulse shadow-sm" />
-             <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">Live Status Tracking</span>
-          </div>
-        </div>
       </div>
 
-      {/* Premium Filter Tabs */}
-      <div className="flex gap-3 mb-8 flex-wrap relative z-20">
-        {['ALL', 'PENDING', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'].map((status) => {
-          const isActive = filter === status;
-          return (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={cn(
-                "px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 border flex items-center gap-2",
-                isActive
-                  ? "bg-blue-600 border-blue-500 text-white shadow-lg shadow-blue-500/20"
-                  : "bg-secondary/50 hover:bg-secondary border-border text-muted-foreground hover:text-foreground backdrop-blur-md"
-              )}
-            >
-              {status === 'ALL' ? 'All Applications' : status.replace('_', ' ')}
-              <span className={cn(
-                "ml-1 w-5 h-5 rounded-full flex items-center justify-center text-[9px]",
-                isActive ? "bg-white/20" : "bg-muted"
-              )}>
-                {status === 'ALL'
-                  ? applications.length
-                  : applications.filter((a) => a.status === status).length}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="group relative rounded-[40px] border border-border bg-card backdrop-blur-3xl shadow-2xl dark:shadow-none overflow-hidden min-h-[400px]">
-        {/* Glow Flare */}
-        <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-blue-500/5 blur-[120px] rounded-full -mr-40 -mt-40 pointer-events-none" />
-        
-        <div className="p-10 border-b border-border/50 flex justify-between items-center relative z-10">
-          <h2 className="text-2xl font-black tracking-tight text-foreground flex items-center gap-3">
-            Active Applications
-            <div className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-500 animate-pulse" />
-          </h2>
-          <Badge variant="outline" className="px-4 py-1 rounded-full border-border bg-secondary/50 text-muted-foreground font-black text-[10px] uppercase tracking-widest shadow-sm">
-            {applications.length} Total
-          </Badge>
-        </div>
-        
-        {filtered.length === 0 ? (
-          <div className="p-20 text-center">
-            <FileText className="mx-auto text-muted-foreground/30 mb-4" size={48} />
-            <p className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">No applications found matching this criteria.</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-border/50">
-            {filtered.map((app, index) => (
-              <motion.div
-                key={app.id || index}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.05 }}
-                className="p-6 hover:bg-secondary/30 transition-colors group cursor-pointer relative overflow-hidden"
-              >
-                {/* Active flare */}
-                {app.status === 'UNDER_REVIEW' && (
-                  <div className="absolute inset-0 bg-blue-500/[0.02] animate-pulse pointer-events-none" />
+      <div className="space-y-12">
+        {/* Filter Actions */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 px-4">
+          <div className="flex flex-wrap gap-3">
+            {['ALL', 'PENDING', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'].map((status) => (
+              <button
+                key={status}
+                onClick={() => setFilter(status)}
+                className={cn(
+                  "px-6 py-3 rounded-2xl text-[10px] font-mono font-black uppercase tracking-[0.2em] transition-all border border-dashed",
+                  filter === status 
+                    ? "bg-foreground text-background border-foreground shadow-[0_0_20px_rgba(255,255,255,0.1)] scale-105" 
+                    : "bg-white/[0.02] text-muted-foreground border-border/40 hover:bg-white/10"
                 )}
-
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
-                  <div className="flex items-start gap-5">
-                    <div className={cn(
-                      "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border transition-all duration-500 shadow-lg",
-                      app.status === 'APPROVED' 
-                        ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-emerald-500/10' 
-                        : 'bg-blue-500/10 border-blue-500/20 text-blue-400 shadow-blue-500/10'
-                    )}>
-                      <FileText size={28} strokeWidth={1.5} />
-                    </div>
-                    <div>
-                      <h3 className="text-foreground font-black text-xl group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors tracking-tight">
-                        {app.scholarship?.title || 'Unknown Scholarship'}
-                      </h3>
-                      <div className="flex items-center gap-3 mt-1.5">
-                        <span className="text-muted-foreground text-[10px] font-black uppercase tracking-widest">
-                          Applied {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'N/A'}
-                        </span>
-                        <span className="w-1 h-1 rounded-full bg-border" />
-                        <span className="text-muted-foreground/80 text-[13px] font-bold tracking-tight">{app.scholarship?.provider?.orgName || 'Provider'}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-10">
-                    <div className="hidden lg:block w-56">
-                      <div className="flex justify-between text-[10px] mb-2 font-black uppercase tracking-[0.15em]">
-                        <span className="text-muted-foreground">Progress</span>
-                        <span className="text-foreground">{getProgress(app.status || 'PENDING')}%</span>
-                      </div>
-                      <div className="h-2 w-full bg-secondary rounded-full overflow-hidden border border-border shadow-inner">
-                        <motion.div 
-                          initial={{ width: 0 }}
-                          animate={{ width: `${getProgress(app.status || 'PENDING')}%` }}
-                          transition={{ duration: 1, delay: 0.5 }}
-                          className={cn(
-                            "h-full rounded-full transition-all duration-1000",
-                            app.status === 'APPROVED' 
-                              ? 'bg-gradient-to-r from-emerald-600 to-teal-500 dark:from-emerald-500 dark:to-teal-400 shadow-sm' 
-                              : 'bg-gradient-to-r from-blue-600 to-cyan-500 dark:from-blue-500 dark:to-cyan-400 shadow-sm'
-                          )}
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-6 shrink-0">
-                      <Badge className={cn(
-                        "px-5 py-2 rounded-full font-bold text-[10px] uppercase tracking-widest border shadow-lg transition-all duration-300",
-                        getStatusColor(app.status || 'PENDING')
-                      )}>
-                        <div className="flex items-center gap-2">
-                          <StatusIcon status={app.status || 'PENDING'} />
-                          {(app.status || 'PENDING').replace('_', ' ')}
-                        </div>
-                      </Badge>
-                      <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center group-hover:bg-blue-600/10 group-hover:text-blue-600 dark:group-hover:bg-blue-500/20 dark:group-hover:text-blue-400 transition-all border border-border">
-                        <ChevronRight size={20} />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
+              >
+                {status === 'ALL' ? 'Everything' : status.replace('_', ' ')}
+                <span className={cn(
+                  "ml-3 px-1.5 py-0.5 rounded-md text-[8px]",
+                  filter === status ? "bg-background/20 text-background" : "bg-white/5 text-muted-foreground"
+                )}>
+                  {status === 'ALL' ? applications.length : applications.filter(a => a.status === status).length}
+                </span>
+              </button>
             ))}
           </div>
-        )}
+
+          <div className="flex items-center gap-4 px-6 py-3 bg-white/[0.01] border border-dashed border-emerald-500/20 rounded-2xl">
+            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+            <span className="text-[10px] font-mono font-black uppercase tracking-widest text-emerald-500">Live Sync Active</span>
+          </div>
+        </div>
+
+        {/* Application List Container */}
+        <div className="group relative rounded-[48px] border border-dashed border-border/60 bg-white/[0.01] shadow-2xl overflow-hidden min-h-[500px]">
+          {/* Table Header */}
+          <div className="p-10 border-b border-dashed border-border/60 flex justify-between items-center bg-white/[0.02]">
+            <div className="flex items-center gap-4">
+              <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]" />
+              <h2 className="text-sm font-mono font-black uppercase tracking-[0.3em] text-foreground">
+                Application Matrix
+              </h2>
+            </div>
+            <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
+              Sync Level: v2.4.0
+            </div>
+          </div>
+          
+          {filtered.length === 0 ? (
+            <div className="p-32 text-center space-y-4">
+              <div className="w-16 h-16 rounded-full border border-dashed border-border/40 flex items-center justify-center mx-auto opacity-20">
+                <FileText size={32} className="text-muted-foreground" />
+              </div>
+              <p className="text-muted-foreground font-mono font-black uppercase tracking-widest text-[10px]">No nodes found in current branch</p>
+            </div>
+          ) : (
+            <div className="divide-y divide-dashed divide-border/40">
+              {filtered.map((app, index) => (
+                <motion.div
+                  key={app.id || index}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="p-8 hover:bg-white/[0.02] transition-all group/node cursor-pointer relative"
+                >
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                    <div className="flex items-start gap-8">
+                      <div className={cn(
+                        "w-16 h-16 rounded-[24px] flex items-center justify-center shrink-0 border border-dashed transition-all duration-500",
+                        app.status === 'APPROVED' 
+                          ? 'bg-emerald-500/5 border-emerald-500/30 text-emerald-500' 
+                          : 'bg-blue-500/5 border-blue-500/30 text-blue-500'
+                      )}>
+                        <FileText size={28} strokeWidth={1} />
+                      </div>
+                      <div className="space-y-2">
+                        <h3 className="text-foreground font-black text-2xl tracking-tighter group-hover/node:text-blue-500 transition-colors">
+                          {app.scholarship?.title || 'Unknown Scholarship'}
+                        </h3>
+                        <div className="flex items-center gap-4 font-mono">
+                          <span className="text-muted-foreground text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-sm">
+                            {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'N/A'}
+                          </span>
+                          <div className="h-4 w-px bg-border/40 mx-1" />
+                          <span className="text-muted-foreground/60 text-[11px] uppercase tracking-widest">{app.scholarship?.provider?.orgName}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-16">
+                      <div className="hidden lg:block w-64 space-y-4">
+                        <div className="flex justify-between font-mono text-[9px] font-black uppercase tracking-[0.2em]">
+                          <span className="text-muted-foreground">Progression</span>
+                          <span className="text-foreground">{getProgress(app.status || 'PENDING')}%</span>
+                        </div>
+                        <div className="h-1.5 w-full bg-white/[0.03] rounded-full overflow-hidden border border-dashed border-border/40">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${getProgress(app.status || 'PENDING')}%` }}
+                            transition={{ duration: 1.5, ease: "circOut" }}
+                            className={cn(
+                              "h-full rounded-full",
+                              app.status === 'APPROVED' 
+                                ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' 
+                                : 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]'
+                            )}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-8 shrink-0">
+                        <div className={cn(
+                          "px-6 py-3 rounded-full font-mono font-black text-[10px] uppercase tracking-widest border border-dashed",
+                          getStatusColor(app.status || 'PENDING')
+                        )}>
+                          {(app.status || 'PENDING').replace('_', ' ')}
+                        </div>
+                        <div className="w-12 h-12 rounded-full border border-dashed border-border/60 flex items-center justify-center group-hover/node:border-blue-500/40 group-hover/node:text-blue-500 transition-all">
+                          <ChevronRight size={20} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

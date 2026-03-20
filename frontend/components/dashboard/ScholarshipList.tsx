@@ -22,6 +22,7 @@ import {
   ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '../ui/badge';
@@ -29,6 +30,7 @@ import api from '@/app/lib/api';
 import { cn } from '@/lib/utils';
 
 export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTerm?: string }) => {
+  const router = useRouter();
   const [scholarships, setScholarships] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(externalSearch);
@@ -105,7 +107,7 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTer
       // Request 1000 if "Show All" is active, else default 10
       params.append('limit', showAll ? '1000' : '10');
 
-      const response = await api.get(`/scholarships?${params.toString()}`);
+      const response = await api.get(`scholarships?${params.toString()}`);
       let results = response.data.scholarships || [];
       const total = response.data.pagination?.total || 0;
       setTotalCount(total);
@@ -155,7 +157,7 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTer
     
     setApplyingId(scholarshipId);
     try {
-      await api.post('/applications', { 
+      await api.post('applications', { 
         scholarshipId,
         formData: {} 
       });
@@ -177,125 +179,142 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTer
 
   return (
     <div className="space-y-12">
-      {/* Premium Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-20">
-        <div className="space-y-1">
-          <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="text-4xl md:text-5xl font-serif font-black tracking-tighter text-foreground drop-shadow-sm"
-          >
-            Scholarships
-          </motion.h1>
+      {/* Sticky Header Section */}
+      <div className="sticky top-0 md:top-0 z-30 pt-4 pb-6 bg-background/80 backdrop-blur-xl -mt-4 -mx-10 px-10 border-b border-border/50">
+        <div className="space-y-12">
+          {/* Premium Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-20">
+            <div className="space-y-1">
+              <motion.h1 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-4xl md:text-5xl font-serif font-black tracking-tighter text-foreground drop-shadow-sm"
+              >
+                Scholarships
+              </motion.h1>
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-muted-foreground font-medium tracking-wide flex items-center gap-2"
+              >
+                Discover your future <div className="w-1 h-1 rounded-full bg-border" />
+                <span className="text-[10px] uppercase tracking-[0.2em] font-black text-blue-600 dark:text-blue-400/80">
+                  {scholarships.length} of {totalCount || scholarships.length} Opportunities Available
+                </span>
+              </motion.div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowAll(!showAll)}
+                className={cn(
+                  "rounded-xl border-border bg-card backdrop-blur-md transition-all h-11 px-5 font-bold text-xs uppercase tracking-widest shadow-sm",
+                  showAll ? "text-blue-600 dark:text-blue-400 border-blue-500/30 bg-blue-500/5" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                )}
+              >
+                {showAll ? 'Show Less' : 'Show All'}
+              </Button>
+
+              <Button 
+                variant="outline" 
+                onClick={fetchScholarships}
+                className="rounded-xl border-border bg-card backdrop-blur-md text-muted-foreground hover:text-foreground hover:bg-muted transition-all h-11 px-5 font-bold text-xs uppercase tracking-widest shadow-sm"
+              >
+                Refresh List
+              </Button>
+            </div>
+          </div>
+
+          {/* Premium Search and Filters - Industry Standard Capsule Design */}
           <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 }}
-            className="text-muted-foreground font-medium tracking-wide flex items-center gap-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="group relative flex flex-wrap md:flex-nowrap items-center bg-card/60 backdrop-blur-3xl p-2 md:p-3 rounded-[32px] md:rounded-full border border-white/10 shadow-2xl transition-all duration-500 hover:border-blue-500/20"
           >
-            Discover your future <div className="w-1 h-1 rounded-full bg-border" />
-            <span className="text-[10px] uppercase tracking-[0.2em] font-black text-blue-600 dark:text-blue-400/80">
-              {scholarships.length} of {totalCount || scholarships.length} Opportunities Available
-            </span>
+            {/* Glossy Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-full" />
+            
+            {/* Search Input Section */}
+            <div className="relative flex-1 min-w-[300px] group/search">
+              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within/search:text-blue-500 transition-all duration-300" size={18} />
+              <Input 
+                placeholder="Search scholarships, providers, or fields..." 
+                className="h-12 pl-14 pr-4 bg-transparent border-none rounded-full text-foreground placeholder:text-muted-foreground/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all text-sm font-medium"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              {searchTerm !== debouncedSearch && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 px-2 py-1 bg-blue-500/5 rounded-lg border border-blue-500/10"
+                >
+                  <Loader2 className="animate-spin text-blue-500" size={12} />
+                  <span className="text-[9px] uppercase font-black tracking-widest text-blue-500/70">Syncing</span>
+                </motion.div>
+              )}
+            </div>
+            
+            {/* Divider 1 */}
+            <div className="hidden md:block w-px h-8 bg-border/40 mx-2" />
+            
+            {/* Filter Section */}
+            <div className="flex items-center gap-2 px-2">
+              <Button 
+                variant="ghost" 
+                className={cn(
+                  "h-12 px-5 rounded-full hover:bg-white/5 transition-all gap-2.5 font-bold uppercase tracking-widest text-[10px] border border-transparent",
+                  activeFilters > 0 ? "text-blue-500 bg-blue-500/5 border-blue-500/20" : "text-muted-foreground/60"
+                )}
+                onClick={() => {
+                  setTempFilters({ ...filters });
+                  setShowFilterModal(true);
+                }}
+              >
+                <Filter size={16} className={cn("transition-transform duration-300", activeFilters > 0 && "scale-110")} /> 
+                Filters
+                { activeFilters > 0 && (
+                  <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-blue-500 text-white text-[9px] font-black shadow-lg shadow-blue-500/30">
+                    {activeFilters}
+                  </span>
+                )}
+              </Button>
+            </div>
+            
+            {/* Divider 2 */}
+            <div className="hidden md:block w-px h-8 bg-border/40 mx-2" />
+            
+            {/* Sort Section */}
+            <div className="relative group/sort px-2 min-w-[160px]">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                <ChevronDown size={14} className="text-muted-foreground/30 group-hover/sort:text-muted-foreground/60 transition-colors" />
+              </div>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full h-12 pl-10 pr-6 bg-transparent border-none rounded-full text-foreground hover:text-foreground focus:ring-0 outline-none transition-all font-bold appearance-none cursor-pointer uppercase tracking-widest text-[10px] text-muted-foreground/70"
+              >
+                <option value="newest" className="bg-background">Newest First</option>
+                <option value="amount_high" className="bg-background">Highest Amount</option>
+                <option value="amount_low" className="bg-background">Lowest Amount</option>
+                <option value="deadline" className="bg-background">Deadline Soon</option>
+              </select>
+            </div>
+            
+            {/* AI Status Pulsar */}
+            <div className="hidden lg:flex items-center gap-3 px-6 py-2 ml-2 bg-blue-500/5 border border-blue-500/10 rounded-full group/ai transition-all hover:bg-blue-500/10 hover:border-blue-500/30">
+               <div className="relative flex h-2 w-2">
+                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+               </div>
+               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-500/80 group-hover/ai:text-blue-500 transition-colors">Match AI v2.0</span>
+            </div>
           </motion.div>
         </div>
-        
-        <div className="flex items-center gap-3">
-          <Button 
-            variant="outline" 
-            onClick={() => setShowAll(!showAll)}
-            className={cn(
-              "rounded-xl border-border bg-card backdrop-blur-md transition-all h-11 px-5 font-bold text-xs uppercase tracking-widest shadow-sm",
-              showAll ? "text-blue-600 dark:text-blue-400 border-blue-500/30 bg-blue-500/5" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-            )}
-          >
-            {showAll ? 'Show Less' : 'Show All'}
-          </Button>
-
-          <Button 
-            variant="outline" 
-            onClick={fetchScholarships}
-            className="rounded-xl border-border bg-card backdrop-blur-md text-muted-foreground hover:text-foreground hover:bg-muted transition-all h-11 px-5 font-bold text-xs uppercase tracking-widest shadow-sm"
-          >
-            Refresh List
-          </Button>
-        </div>
       </div>
-
-      {/* Advanced Search and Filters Portfolio Grade - Theme Aware */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        className="group relative flex flex-col md:flex-row gap-6 items-center bg-card backdrop-blur-3xl p-8 rounded-[32px] border border-border shadow-2xl dark:shadow-none"
-      >
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-        
-        <div className="relative w-full md:flex-1">
-          <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-blue-500 transition-colors" size={20} />
-          <Input 
-            placeholder="Search by title, provider, or category..." 
-            className="h-14 pl-14 bg-secondary/50 border-input rounded-2xl text-foreground placeholder:text-muted-foreground/50 focus:ring-blue-500/20 focus:border-blue-500/40 transition-all text-base font-medium"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          {searchTerm !== debouncedSearch && (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2"
-            >
-              <Loader2 className="animate-spin text-blue-600 dark:text-blue-500" size={14} />
-              <span className="text-[10px] uppercase font-black tracking-widest text-muted-foreground">Searching</span>
-            </motion.div>
-          )}
-        </div>
-        
-        <div className="flex flex-wrap md:flex-nowrap items-center gap-4 w-full md:w-auto shrink-0 relative z-10">
-          <Button 
-            variant="outline" 
-            className={cn(
-              "h-14 px-8 border-border bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary hover:border-border/50 rounded-2xl gap-3 flex-1 md:flex-none font-black uppercase tracking-widest text-[10px]",
-              activeFilters > 0 && "border-blue-500/30 bg-blue-500/5 text-blue-600 dark:text-blue-400"
-            )}
-            onClick={() => {
-              setTempFilters({ ...filters });
-              setShowFilterModal(true);
-            }}
-          >
-            <Filter size={18} className={activeFilters > 0 ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground"} /> 
-            Filters
-            { activeFilters > 0 && (
-              <span className="ml-1 w-5 h-5 rounded-full bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center text-[10px] font-black">
-                {activeFilters}
-              </span>
-            )}
-          </Button>
-          
-          <div className="hidden md:flex h-10 w-px bg-white/10 mx-2" />
-          
-          <div className="relative group/field flex-1 md:flex-none">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full md:w-auto h-14 pl-6 pr-10 bg-secondary/50 hover:bg-secondary border border-border rounded-2xl text-foreground focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-black appearance-none cursor-pointer uppercase tracking-widest text-[10px]"
-            >
-              <option value="newest" className="bg-background text-foreground">Newest First</option>
-              <option value="amount_high" className="bg-background text-foreground">Highest Amount</option>
-              <option value="amount_low" className="bg-background text-foreground">Lowest Amount</option>
-              <option value="deadline" className="bg-background text-foreground">Deadline Soon</option>
-            </select>
-            <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
-          </div>
-          
-          <div className="hidden md:flex h-10 w-px bg-white/10 mx-2" />
-          
-          <div className="flex items-center gap-1.5 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-xl hidden xl:flex">
-             <div className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-500 animate-pulse" />
-             <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Match AI v2.0</span>
-          </div>
-        </div>
-      </motion.div>
 
       {/* Results Content */}
       {loading ? (
@@ -328,160 +347,110 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTer
                 key={scholarship.id || index}
                 className="group relative h-full"
               >
-                <div className="h-full bg-card border border-border hover:border-blue-500/50 rounded-[32px] p-8 transition-all duration-500 group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:group-hover:shadow-none flex flex-col relative overflow-hidden shadow-sm">
-                  {/* Save Toggle */}
+                <div className="h-full bg-white/[0.01] border border-dashed border-border/60 hover:border-blue-500/40 rounded-[40px] p-10 transition-all duration-700 group-hover:bg-white/[0.02] flex flex-col relative overflow-hidden backdrop-blur-sm">
+                  {/* Save Toggle - Premium Style */}
                   <button 
                     onClick={() => toggleSave(scholarship.id)}
                     className={cn(
-                      "absolute top-5 right-5 p-2 rounded-xl transition-all duration-300 z-20 group/save",
-                      isSaved ? "bg-rose-500/10 text-rose-500 shadow-sm" : "bg-secondary border border-border text-muted-foreground hover:text-rose-500 hover:bg-rose-500/5"
+                      "absolute top-8 right-8 p-3 rounded-full transition-all duration-500 z-20 group/save",
+                      isSaved ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20" : "bg-white/[0.03] border border-dashed border-border/60 text-muted-foreground hover:text-rose-500 hover:border-rose-500/40"
                     )}
                   >
-                    <Heart size={18} fill={isSaved ? "currentColor" : "none"} className={cn(isSaved && "animate-pulse")} />
+                    <Heart size={16} fill={isSaved ? "currentColor" : "none"} className={cn("transition-transform duration-500", !isSaved && "group-hover/save:scale-125")} />
                   </button>
 
-                  <div>
-                    <div className="flex justify-between items-start mb-5 relative z-10">
-                      <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-400/10 border border-blue-400/20 text-blue-600 dark:text-cyan-400 shadow-sm group-hover:scale-110 transition-all duration-500">
-                        <Award size={22} strokeWidth={1.5} />
-                      </div>
-                        <div className="flex gap-2 flex-col items-end pr-10">
-                          {daysLeft !== null && (
-                            <Badge variant="outline" className={cn(
-                              "text-[9px] font-black uppercase tracking-widest border px-2 py-0.5 shadow-sm",
-                              daysLeft <= 0 ? "bg-muted text-muted-foreground border-border" :
-                              daysLeft <= 7 ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20" : 
-                              "bg-secondary/50 text-muted-foreground border-border"
-                            )}>
-                              {daysLeft <= 0 ? 'Expired' : `${daysLeft}d left`}
-                            </Badge>
-                          )}
-                          {scholarship.isExternal ? (
-                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 shadow-sm">
-                              <TrendingUp size={10} />
-                              <span className="text-[9px] font-black uppercase">Outer Agency</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-sm">
-                              <Users size={10} />
-                              <span className="text-[9px] font-black uppercase">Verified Provider</span>
-                            </div>
-                          )}
+                  <div className="flex-1 space-y-8">
+                    {/* Top Status Belt */}
+                    <div className="flex items-center gap-3 flex-wrap relative z-10 font-mono text-[9px] uppercase tracking-[0.2em]">
+                      {daysLeft !== null && (
+                        <div className={cn(
+                          "px-3 py-1 border border-dashed rounded-sm",
+                          daysLeft <= 0 ? "border-border text-muted-foreground" :
+                          daysLeft <= 7 ? "border-rose-500/40 text-rose-500 bg-rose-500/5 animate-pulse" : 
+                          "border-emerald-500/30 text-emerald-500 bg-emerald-500/5"
+                        )}>
+                          {daysLeft <= 0 ? 'STATUS: EXPIRED' : `${daysLeft}D LEFT`}
                         </div>
+                      )}
+                      <div className="px-3 py-1 border border-dashed border-blue-500/30 text-blue-400 bg-blue-500/5 rounded-sm">
+                        {scholarship.isExternal ? 'SOURCE: REMOTE' : 'SOURCE: VERIFIED'}
+                      </div>
                     </div>
 
-                    <div className="relative z-10 mb-5">
-                      <h3 className="text-foreground text-lg font-black leading-tight mb-2 tracking-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors line-clamp-1">
+                    {/* Metadata Section */}
+                    <div className="relative z-10 space-y-3">
+                      <h3 className="text-foreground text-2xl font-black leading-[1.1] tracking-tighter group-hover:text-blue-500 transition-colors duration-500 min-h-[52px] line-clamp-2">
                         {scholarship.title || 'Untitled Scholarship'}
                       </h3>
-                      <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest">
-                        {scholarship.category || 'General'}
+                      <p className="text-muted-foreground font-mono text-[10px] uppercase tracking-[0.3em] font-bold">
+                        {scholarship.category || 'General Field'}
                       </p>
-                      
-                      {/* Match Probability */}
-                      {(scholarship.matchScore != null || matchScore != null) && (
-                        <div className="bg-secondary/30 rounded-2xl p-4 border border-border space-y-3 mt-4 shadow-inner">
-                          <div className="flex justify-between items-center text-[10px] uppercase font-black tracking-[0.15em] mb-1">
-                            <span className="text-muted-foreground">🤖 AI Match</span>
-                            <span className={cn(
-                              "font-black",
-                              (scholarship.matchScore ?? matchScore) >= 80 ? "text-green-500" :
-                              (scholarship.matchScore ?? matchScore) >= 60 ? "text-blue-500" :
-                              "text-yellow-500"
-                            )}>
-                              {scholarship.matchScore ?? matchScore}%
-                            </span>
+                    </div>
+
+                    {/* Intelligence Module */}
+                    {(scholarship.matchScore != null || matchScore != null) && (
+                      <div className="bg-white/[0.02] border border-dashed border-border/40 rounded-3xl p-6 space-y-4 relative group/ai overflow-hidden">
+                        <div className="absolute inset-0 bg-blue-500/[0.01] opacity-0 group-hover/ai:opacity-100 transition-opacity duration-700 pointer-events-none" />
+                        <div className="flex justify-between items-end relative z-10">
+                          <div className="space-y-1">
+                            <h4 className="text-[9px] font-mono font-black text-blue-400/80 uppercase tracking-[0.3em]">AI Matching Index</h4>
+                            <p className="text-[8px] text-muted-foreground/60 font-mono uppercase tracking-widest leading-none">V2.0 PROBABILISTIC ENGINE</p>
                           </div>
-                          <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
-                            <motion.div 
-                              initial={{ width: 0 }}
-                              animate={{ width: `${scholarship.matchScore ?? matchScore}%` }}
-                              transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
-                              className={cn(
-                                "h-full rounded-full shadow-sm",
-                                (scholarship.matchScore ?? matchScore) >= 80 ? "bg-gradient-to-r from-green-500 to-emerald-400" :
-                                (scholarship.matchScore ?? matchScore) >= 60 ? "bg-gradient-to-r from-blue-500 to-purple-500" :
-                                "bg-gradient-to-r from-yellow-500 to-orange-400"
-                              )}
-                            />
-                          </div>
-                          {/* Match reasons tooltip */}
-                          {scholarship.matchReasons && scholarship.matchReasons.length > 0 && (
-                            <div className="mt-1 flex flex-wrap gap-1">
-                              {scholarship.matchReasons.slice(0, 2).map((reason: string, i: number) => (
-                                <span key={i} className="text-[9px] text-muted-foreground font-medium">
-                                  • {reason}
-                                </span>
-                              ))}
-                            </div>
-                          )}
+                          <span className="text-2xl font-mono font-black text-blue-500 tracking-tighter">
+                            {scholarship.matchScore ?? matchScore}%
+                          </span>
                         </div>
-                      )}
+                        
+                        <div className="w-full bg-white/[0.05] h-1.5 rounded-full overflow-hidden relative border border-white/[0.02]">
+                          <motion.div 
+                            initial={{ width: 0 }}
+                            animate={{ width: `${scholarship.matchScore ?? matchScore}%` }}
+                            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                            className="h-full bg-blue-500 relative"
+                          >
+                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
+                          </motion.div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Pricing & Deadline Matrix */}
+                  <div className="mt-12 shrink-0 relative z-10 pt-8 border-t border-dashed border-border/60 grid grid-cols-2 gap-8 mb-8">
+                    <div className="space-y-2">
+                       <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.3em]">Grant amount</p>
+                       <p className="text-2xl font-mono font-black text-foreground tracking-tighter shadow-blue-500/20">
+                         {typeof scholarship.amount === 'number' 
+                           ? `₹${scholarship.amount.toLocaleString()}` 
+                           : 'N/A'}
+                       </p>
+                    </div>
+                    <div className="space-y-2 text-right">
+                       <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.3em]">Submission window</p>
+                       <p className="text-xl font-mono font-black text-foreground tracking-tighter">
+                         {scholarship.deadline 
+                           ? new Date(scholarship.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toUpperCase()
+                           : 'OPEN'}
+                       </p>
                     </div>
                   </div>
 
-                  <div className="mt-auto shrink-0 relative z-10">
-                    <div className="flex items-center justify-between border-t border-border/50 pt-4 mb-6">
-                      <div className="flex flex-col">
-                        <div className="flex items-center gap-1.5 text-muted-foreground mb-0.5">
-                          <DollarSign size={10} />
-                          <span className="text-[9px] uppercase font-black tracking-widest">Grant Amount</span>
-                        </div>
-                        <span className="text-foreground text-xl font-black tracking-tighter">
-                          {typeof scholarship.amount === 'number' 
-                            ? `₹${scholarship.amount.toLocaleString()}` 
-                            : scholarship.amount || 'N/A'}
-                        </span>
-                      </div>
-                      <div className="flex flex-col items-end">
-                        <div className="flex items-center gap-1.5 text-muted-foreground mb-0.5">
-                          <Clock size={10} />
-                          <span className="text-[9px] uppercase font-black tracking-widest text-right">Deadline</span>
-                        </div>
-                        <span className="text-foreground text-xs font-black tracking-tight">
-                          {scholarship.deadline 
-                            ? new Date(scholarship.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) 
-                            : 'Ongoing'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <Button 
-                      onClick={() => {
-                        if (scholarship.isExternal) {
-                          setSelectedScholarship(scholarship);
-                          setShowDetailModal(true);
-                        } else {
-                          handleApply(scholarship.id);
-                        }
-                      }}
-                      disabled={!scholarship.isExternal && (isApplied || isApplying || (daysLeft !== null && daysLeft <= 0))}
-                      className={cn(
-                        "w-full font-black uppercase tracking-widest text-[10px] rounded-xl h-12 flex items-center justify-center gap-2 transition-all duration-300",
-                        isApplied ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 cursor-default" :
-                        isApplying ? "bg-blue-600/50 text-white cursor-wait" :
-                        "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 active:scale-95"
-                      )}
-                    >
-                      {scholarship.isExternal ? (
-                        <>
-                          Apply on Source <ArrowRight size={14} />
-                        </>
-                      ) : isApplied ? (
-                        <>
-                          <CheckCircle2 size={14} /> Submitted
-                        </>
-                      ) : isApplying ? (
-                        <>
-                          <Loader2 size={14} className="animate-spin" /> Applying
-                        </>
-                      ) : (
-                        <>
-                          Apply Now <ArrowRight size={14} />
-                        </>
-                      )}
-                    </Button>
-                  </div>
+                  <Button 
+                    onClick={() => router.push(`/dashboard/student/scholarships/${scholarship.id}`)}
+                    className={cn(
+                      "w-full font-mono font-black uppercase tracking-[0.3em] text-[10px] rounded-full h-14 flex items-center justify-center gap-3 transition-all duration-500",
+                      isApplied ? "bg-white/5 text-emerald-500 border border-dashed border-emerald-500/30 cursor-default" :
+                      "bg-foreground text-background hover:scale-[1.02] shadow-xl hover:shadow-black/20"
+                    )}
+                  >
+                    {scholarship.isExternal ? (
+                      <>Deploy Application <ArrowRight size={14} /></>
+                    ) : isApplied ? (
+                      <>Analysis Registered <CheckCircle2 size={14} /></>
+                    ) : (
+                      <>Initiate Process <ArrowRight size={14} /></>
+                    )}
+                  </Button>
                 </div>
               </motion.div>
             );

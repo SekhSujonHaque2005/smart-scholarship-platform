@@ -20,6 +20,7 @@ const profileSchema = z.object({
   fieldOfStudy: z.string().optional(),
   incomeLevel: z.string().optional(),
   location: z.string().optional(),
+  gender: z.string().optional(),
 });
 
 type ProfileForm = z.infer<typeof profileSchema>;
@@ -49,7 +50,7 @@ export const Profile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const { data } = await api.get('/auth/me');
+        const { data } = await api.get('auth/me');
         setProfileData(data.profile);
         setProfilePicture(data.profilePicture || null);
         reset({
@@ -58,6 +59,7 @@ export const Profile = () => {
           fieldOfStudy: data.profile?.fieldOfStudy || '',
           incomeLevel: data.profile?.incomeLevel || '',
           location: data.profile?.location || '',
+          gender: data.profile?.gender || '',
         });
       } catch (error) {
         console.error('Failed to fetch profile', error);
@@ -74,7 +76,7 @@ export const Profile = () => {
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const { data } = await api.post('/documents/avatar', formData, {
+      const { data } = await api.post('documents/avatar', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       setProfilePicture(data.avatarUrl);
@@ -138,7 +140,7 @@ export const Profile = () => {
     try {
       setSaving(true);
       setSaveError('');
-      await api.put('/auth/me/profile', data);
+      await api.put('auth/me/profile', data);
       updateUser({ name: data.name });
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
@@ -153,71 +155,56 @@ export const Profile = () => {
   const displayInitial = (profileData?.name?.[0] || user?.email?.[0] || 'S').toUpperCase();
 
   return (
-    <div className="space-y-12">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-20">
-        <div className="space-y-1">
-          <motion.h1
-            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-            className="text-4xl md:text-5xl font-serif font-black tracking-tighter text-foreground drop-shadow-sm"
-          >
-            My Profile
-          </motion.h1>
-          <motion.div
-            initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}
-            className="text-muted-foreground font-medium tracking-wide flex items-center gap-2"
-          >
-            Manage your academic identity <div className="w-1 h-1 rounded-full bg-border" />
-            <span className="text-[10px] uppercase tracking-[0.2em] font-black text-blue-600 dark:text-blue-400/80">Public profile is active</span>
-          </motion.div>
-        </div>
-      </div>
-
-      {/* Camera Modal */}
+    <div className="space-y-16 py-8 text-foreground selection:bg-blue-500/30">
+      {/* Camera Modal - Premium Design */}
       <AnimatePresence>
         {showCamera && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-[100] bg-background/90 backdrop-blur-md flex items-center justify-center p-6"
             onClick={(e) => e.target === e.currentTarget && stopCamera()}
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-card border border-border rounded-[40px] p-8 w-full max-w-md shadow-2xl space-y-6"
+              initial={{ scale: 0.95, opacity: 0, y: 20 }} animate={{ scale: 1, opacity: 1, y: 0 }} exit={{ scale: 0.95, opacity: 0, y: 20 }}
+              className="bg-card border border-dashed border-border/60 rounded-[48px] p-10 w-full max-w-lg shadow-2xl space-y-8"
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-foreground font-black text-lg uppercase tracking-widest">Take a Photo</h3>
-                <button onClick={stopCamera} className="w-10 h-10 rounded-2xl bg-secondary border border-border flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors shadow-sm">
-                  <X size={18} />
+                <div className="space-y-1">
+                  <h3 className="text-foreground font-black text-xl uppercase tracking-widest leading-none font-mono">Capture Node</h3>
+                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest">Biometric entry initiation</p>
+                </div>
+                <button onClick={stopCamera} className="w-12 h-12 rounded-2xl bg-white/5 border border-dashed border-border/40 flex items-center justify-center text-muted-foreground hover:text-foreground transition-all hover:scale-105">
+                  <X size={20} />
                 </button>
               </div>
 
-              <div className="rounded-3xl overflow-hidden bg-muted aspect-video relative shadow-inner">
+              <div className="rounded-[32px] overflow-hidden bg-white/[0.02] border border-dashed border-border/40 aspect-video relative shadow-inner group/camera">
                 <video
                   ref={videoRef} autoPlay muted playsInline
                   onCanPlay={() => setCameraReady(true)}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover grayscale contrast-125 brightness-90 group-hover/camera:grayscale-0 transition-all duration-700"
                 />
                 {!cameraReady && (
-                  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground text-[10px] font-black uppercase tracking-widest gap-2">
-                    <Loader2 size={18} className="animate-spin" /> Starting camera...
+                  <div className="absolute inset-0 flex flex-col items-center justify-center text-muted-foreground text-[10px] font-mono font-black uppercase tracking-widest gap-4">
+                    <Loader2 size={24} className="animate-spin text-blue-500" />
+                    Initializing Lens...
                   </div>
                 )}
                 {cameraReady && (
                   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="w-32 h-32 rounded-full border-2 border-white/30" />
+                    <div className="w-48 h-48 rounded-full border border-dashed border-white/20" />
                   </div>
                 )}
               </div>
 
-              <div className="flex gap-4">
+              <div className="flex gap-6">
                 <Button type="button" onClick={stopCamera}
-                  className="flex-1 h-12 bg-secondary border border-border hover:bg-muted text-muted-foreground font-black uppercase tracking-widest text-[10px] rounded-2xl">
-                  Cancel
+                  className="flex-1 h-16 bg-white/5 border border-dashed border-border/40 hover:bg-white/10 text-muted-foreground font-mono font-black uppercase tracking-widest text-[10px] rounded-2xl transition-all">
+                  Abort
                 </Button>
                 <Button type="button" onClick={takePicture} disabled={!cameraReady}
-                  className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-lg shadow-blue-500/20 disabled:opacity-50">
-                  Capture Photo
+                  className="flex-1 h-16 bg-foreground text-background font-mono font-black uppercase tracking-widest text-[10px] rounded-2xl shadow-xl disabled:opacity-50 hover:scale-[1.02] transition-all">
+                  Commit Capture
                 </Button>
               </div>
             </motion.div>
@@ -225,216 +212,222 @@ export const Profile = () => {
         )}
       </AnimatePresence>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        {/* Avatar Card */}
+      {/* Header - Vercel Design */}
+      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-dashed border-border/60 py-8 -mt-8 -mx-10 px-10">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-4">
+            <motion.h1
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+              className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-foreground leading-[0.9]"
+            >
+              Academic ID
+            </motion.h1>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+              className="flex items-center gap-4 text-muted-foreground font-mono text-[11px] uppercase tracking-widest"
+            >
+              <span>Identity Console</span>
+              <div className="h-px w-8 bg-border/40" />
+              <span className="text-blue-500 font-black">Public profile is active</span>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+        
+        {/* Profile Sidebar */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-          className="lg:col-span-1 group relative rounded-[40px] border border-border bg-card backdrop-blur-3xl p-10 shadow-2xl dark:shadow-none flex flex-col items-center text-center overflow-visible h-fit"
+          initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
+          className="lg:col-span-4 p-10 border border-dashed border-border/60 bg-white/[0.01] rounded-[48px] space-y-10 group"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-[40px]" />
+          <div className="relative flex flex-col items-center">
+            {/* Avatar Frame - Vercel Style */}
+            <div className="relative w-40 h-40">
+              <div className="absolute inset-0 border border-dashed border-blue-500/30 rounded-[40px] animate-[spin_20s_linear_infinite]" />
+              <div className="absolute inset-3 rounded-[32px] overflow-hidden bg-white/[0.03] border border-border/40 flex items-center justify-center text-5xl font-mono font-black text-foreground shadow-2xl transition-transform duration-500 group-hover:scale-105">
+                {uploadingAvatar ? (
+                  <Loader2 size={32} className="animate-spin text-blue-500" />
+                ) : profilePicture ? (
+                  <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
+                ) : (
+                  displayInitial
+                )}
+              </div>
 
-          {/* Hidden file input */}
-          <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
-
-          <div className="relative mb-8">
-            {/* Avatar */}
-            <div className="w-32 h-32 rounded-[40px] overflow-hidden bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-5xl font-black text-white shadow-[0_0_30px_rgba(59,130,246,0.5)] group-hover:scale-105 transition-transform duration-500">
-              {uploadingAvatar ? (
-                <Loader2 size={32} className="animate-spin text-white" />
-              ) : profilePicture ? (
-                <img src={profilePicture} alt="Profile" className="w-full h-full object-cover" />
-              ) : (
-                displayInitial
-              )}
-            </div>
-
-            {/* Camera toggle button */}
-            <div className="relative">
+              {/* Action Button */}
               <button
                 type="button"
                 onClick={() => setShowAvatarMenu(!showAvatarMenu)}
-                className="absolute -bottom-2 -right-2 w-10 h-10 rounded-2xl bg-secondary border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-blue-500/50 hover:bg-blue-500/10 transition-all shadow-xl z-10"
+                className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-foreground text-background flex items-center justify-center hover:scale-110 transition-all shadow-xl z-20"
               >
-                <Camera size={18} />
+                <Camera size={20} />
               </button>
 
-              {/* Mini dropdown */}
+              {/* Avatar Menu */}
               <AnimatePresence>
                 {showAvatarMenu && (
                   <motion.div
-                    initial={{ opacity: 0, scale: 0.8, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                    className="absolute top-10 right-0 z-20 w-48 bg-card border border-border rounded-[20px] shadow-2xl overflow-hidden"
+                    initial={{ opacity: 0, scale: 0.9, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.9, y: 10 }}
+                    className="absolute top-full right-0 mt-4 z-30 w-56 bg-card border border-dashed border-border/60 rounded-3xl shadow-2xl overflow-hidden backdrop-blur-xl"
                   >
                     <button
                       type="button"
                       onClick={() => { fileInputRef.current?.click(); setShowAvatarMenu(false); }}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                      className="flex items-center gap-3 w-full px-6 py-4 text-[10px] font-mono font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5 hover:text-foreground transition-colors border-b border-dashed border-border/40"
                     >
-                      <Upload size={16} className="text-blue-600 dark:text-blue-400" /> Upload Photo
+                      <Upload size={14} className="text-blue-500" /> Upload File
                     </button>
-                    <div className="h-px bg-border mx-3" />
                     <button
                       type="button"
                       onClick={() => { setShowAvatarMenu(false); startCamera(); }}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
+                      className="flex items-center gap-3 w-full px-6 py-4 text-[10px] font-mono font-black uppercase tracking-widest text-muted-foreground hover:bg-white/5 hover:text-foreground transition-colors border-b border-dashed border-border/40"
                     >
-                      <Video size={16} className="text-emerald-600 dark:text-emerald-400" /> Take Photo
+                      <Video size={14} className="text-emerald-500" /> Open Camera
                     </button>
                     {profilePicture && (
-                      <>
-                        <div className="h-px bg-white/5 mx-3" />
-                        <button
-                          type="button"
-                          onClick={() => { setProfilePicture(null); setShowAvatarMenu(false); }}
-                          className="flex items-center gap-3 w-full px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 transition-colors font-medium"
-                        >
-                          <X size={16} /> Remove Photo
-                        </button>
-                      </>
+                      <button
+                        type="button"
+                        onClick={() => { setProfilePicture(null); setShowAvatarMenu(false); }}
+                        className="flex items-center gap-3 w-full px-6 py-4 text-[10px] font-mono font-black uppercase tracking-widest text-rose-500 hover:bg-rose-500/5 transition-colors"
+                      >
+                        <X size={14} /> Remove Entry
+                      </button>
                     )}
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
+            
+            <div className="mt-8 text-center space-y-2">
+              <h3 className="text-2xl font-black tracking-tighter leading-none">{profileData?.name || user?.name}</h3>
+              <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.3em] truncate max-w-full px-4">{user?.email}</p>
+            </div>
           </div>
 
-          <h3 className="text-2xl font-black text-foreground mb-2 uppercase tracking-tight">{profileData?.name || user?.name || 'Scholar'}</h3>
-          <p className="text-muted-foreground text-xs font-bold mb-8 line-clamp-1">{user?.email}</p>
-
-          {uploadingAvatar && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-              className="mb-4 text-[10px] text-blue-600 dark:text-blue-400 font-black uppercase tracking-widest flex items-center gap-2">
-              <Loader2 size={12} className="animate-spin" /> Uploading to cloud...
-            </motion.div>
-          )}
-
-          <div className="grid grid-cols-2 gap-4 w-full border-t border-border/50 pt-8">
-            <div className="space-y-1 text-left">
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-black">Role</span>
-              <p className="text-lg font-black text-emerald-600 dark:text-emerald-400 capitalize">{user?.role?.toLowerCase() || 'Student'}</p>
+          <div className="grid grid-cols-1 gap-4 pt-10 border-t border-dashed border-border/60">
+            <div className="flex items-center justify-between font-mono">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Global Role</span>
+              <span className="text-[10px] font-black text-emerald-500 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-sm">{user?.role}</span>
             </div>
-            <div className="space-y-1 text-right">
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground/60 font-black">Account ID</span>
-              <p className="text-[10px] font-mono font-bold text-muted-foreground truncate w-full">{user?.id || '---'}</p>
+            <div className="flex items-center justify-between font-mono">
+              <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Entry ID</span>
+              <span className="text-[9px] text-muted-foreground/60">{String(user?.id).slice(0, 12)}...</span>
             </div>
           </div>
         </motion.div>
 
-        {/* Edit Form */}
+        {/* Main Configuration Card */}
         <motion.div
-          initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-2 rounded-[40px] border border-border bg-card backdrop-blur-3xl p-10 shadow-2xl dark:shadow-none"
+           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+           className="lg:col-span-8 p-12 border border-dashed border-border/60 bg-white/[0.01] rounded-[48px]"
         >
           {loading ? (
-            <div className="space-y-8 animate-pulse">
-              <div className="h-10 w-40 bg-muted rounded-xl mb-8" />
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {[...Array(4)].map((_, i) => <div key={i} className="h-14 bg-muted rounded-2xl" />)}
-              </div>
-            </div>
+             <div className="space-y-8 animate-pulse">
+               <div className="h-4 w-48 bg-white/5 rounded-full" />
+               <div className="grid grid-cols-2 gap-8">
+                 {[...Array(4)].map((_, i) => <div key={i} className="h-14 bg-white/5 rounded-2xl" />)}
+               </div>
+             </div>
           ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Full Name */}
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-black text-muted-foreground ml-2">Full Name</label>
-                  <div className="relative group/field">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/field:text-blue-600 dark:group-focus-within/field:text-blue-400 transition-colors" size={18} />
-                    <Input {...register('name')}
-                      className="h-14 pl-12 bg-secondary/50 border-input rounded-2xl text-foreground focus:ring-blue-500/20 transition-all font-bold tracking-tight"
-                      placeholder="Your full name" />
-                    {errors.name && <p className="text-rose-600 dark:text-rose-400 text-[10px] mt-1 ml-2 font-black uppercase tracking-widest">{errors.name.message}</p>}
-                  </div>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
+              <section className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]" />
+                  <h4 className="text-[10px] font-mono font-black text-muted-foreground uppercase tracking-[0.4em]">Personal Details</h4>
                 </div>
 
-                {/* Email (read-only) */}
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-black text-muted-foreground ml-2">Email Address</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40" size={18} />
-                    <Input disabled value={user?.email || ''}
-                      className="h-14 pl-12 bg-muted/30 border-transparent rounded-2xl text-muted-foreground/60 font-bold tracking-tight" />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest ml-1">Full Name</label>
+                    <div className="relative group/field">
+                      <Input {...register('name')}
+                        className="h-14 pl-6 bg-white/[0.03] border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 transition-all font-mono text-xs uppercase tracking-tight"
+                        placeholder="ENTER FULL NAME" />
+                      {errors.name && <p className="text-rose-500 text-[9px] font-mono mt-2 ml-1 uppercase tracking-widest">{errors.name.message}</p>}
+                    </div>
                   </div>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Field of Study */}
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-black text-muted-foreground ml-2">Field of Study</label>
-                  <div className="relative group/field">
-                    <GraduationCap className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/field:text-blue-600 dark:group-focus-within/field:text-blue-400 transition-colors" size={18} />
-                    <Input {...register('fieldOfStudy')}
-                      className="h-14 pl-12 bg-secondary/50 border-input rounded-2xl text-foreground focus:ring-blue-500/20 font-bold tracking-tight"
-                      placeholder="e.g. Computer Science" />
-                  </div>
-                </div>
-
-                {/* CGPA */}
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-black text-muted-foreground ml-2">CGPA</label>
-                  <div className="relative group/field flex items-center">
-                    <span className="absolute left-4 font-black text-muted-foreground group-focus-within/field:text-blue-600 dark:group-focus-within/field:text-blue-400 transition-colors">#</span>
-                    <Input {...register('cgpa')} type="number" step="0.01" min="0" max="10"
-                      className="h-14 pl-12 bg-secondary/50 border-input rounded-2xl text-foreground focus:ring-blue-500/20 font-bold tracking-tight"
-                      placeholder="e.g. 8.5" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Location */}
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-black text-muted-foreground ml-2">Location (State)</label>
-                  <div className="relative group/field">
-                    <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/field:text-blue-600 dark:group-focus-within/field:text-blue-400 transition-colors" size={18} />
-                    <Input {...register('location')}
-                      className="h-14 pl-12 bg-secondary/50 border-input rounded-2xl text-foreground focus:ring-blue-500/20 font-bold tracking-tight"
-                      placeholder="e.g. West Bengal" />
-                  </div>
-                </div>
-
-                {/* Income Level */}
-                <div className="space-y-2">
-                  <label className="text-[10px] uppercase tracking-widest font-black text-muted-foreground ml-2">Annual Family Income</label>
-                  <div className="relative group/field">
-                    <Wallet className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within/field:text-blue-600 dark:group-focus-within/field:text-blue-400 transition-colors z-10" size={18} />
-                    <select {...register('incomeLevel')}
-                      className="w-full h-14 pl-12 pr-4 bg-secondary/50 hover:bg-secondary border border-input rounded-2xl text-foreground focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all font-black uppercase tracking-widest text-[10px] appearance-none cursor-pointer"
-                    >
-                      <option value="" className="bg-background text-muted-foreground">Select income range</option>
-                      <option value="below_1L" className="bg-background">Below ₹1 Lakh</option>
-                      <option value="1L_3L" className="bg-background">₹1L - ₹3L</option>
-                      <option value="3L_6L" className="bg-background">₹3L - ₹6L</option>
-                      <option value="6L_10L" className="bg-background">₹6L - ₹10L</option>
-                      <option value="above_10L" className="bg-background">Above ₹10L</option>
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <ChevronDown size={18} className="text-muted-foreground" />
+                  <div className="space-y-3">
+                    <label className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest ml-1">Primary Email</label>
+                    <div className="relative">
+                      <Input disabled value={user?.email || ''}
+                        className="h-14 pl-6 bg-transparent border-dashed border-border/30 rounded-xl text-muted-foreground/40 font-mono text-xs uppercase tracking-tight" />
                     </div>
                   </div>
                 </div>
-              </div>
+              </section>
 
-              <div className="flex items-center justify-end gap-4 pt-4 border-t border-border/50">
-                {saveError && (
-                  <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-                    className="text-[10px] font-black tracking-widest text-rose-600 dark:text-rose-400 uppercase flex items-center gap-2">
-                    <X size={14} /> {saveError}
-                  </motion.span>
-                )}
-                {saved && (
-                  <motion.span initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }}
-                    className="text-[10px] font-black tracking-widest text-emerald-600 dark:text-emerald-400 uppercase flex items-center gap-2">
-                    <Check size={14} /> Profile Updated
-                  </motion.span>
-                )}
+              <div className="h-px bg-border/40 border-dashed border-b" />
+
+              <section className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.6)]" />
+                  <h4 className="text-[10px] font-mono font-black text-muted-foreground uppercase tracking-[0.4em]">Academic Info</h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest ml-1">Field of Study</label>
+                    <Input {...register('fieldOfStudy')}
+                      className="h-14 pl-6 bg-white/[0.03] border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 font-mono text-xs uppercase"
+                      placeholder="e.g. Computer Science" />
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest ml-1">Current CGPA</label>
+                    <Input {...register('cgpa')} type="number" step="0.01" min="0" max="10"
+                      className="h-14 pl-6 bg-white/[0.03] border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 font-mono text-xs"
+                      placeholder="0.00" />
+                  </div>
+                </div>
+              </section>
+
+              <div className="h-px bg-border/40 border-dashed border-b" />
+
+              <section className="space-y-8">
+                <div className="flex items-center gap-4">
+                  <div className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.6)]" />
+                  <h4 className="text-[10px] font-mono font-black text-muted-foreground uppercase tracking-[0.4em]">Economic Details</h4>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-3">
+                    <label className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest ml-1">Location</label>
+                    <Input {...register('location')}
+                      className="h-14 pl-6 bg-white/[0.03] border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 font-mono text-xs uppercase"
+                      placeholder="City, Country" />
+                  </div>
+
+                  <div className="space-y-3">
+                    <label className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest ml-1">Annual Family Income</label>
+                    <div className="relative">
+                      <select {...register('incomeLevel')}
+                        className="w-full h-14 pl-6 pr-10 bg-white/[0.03] border border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 outline-none transition-all font-mono text-[10px] uppercase tracking-widest appearance-none cursor-pointer"
+                      >
+                        <option value="" className="bg-background">NOT SPECIFIED</option>
+                        <option value="below_1L" className="bg-background">BELOW ₹1 LAKH</option>
+                        <option value="1L_3L" className="bg-background">₹1L — ₹3L</option>
+                        <option value="3L_6L" className="bg-background">₹3L — ₹6L</option>
+                        <option value="6L_10L" className="bg-background">₹6L — ₹10L</option>
+                        <option value="above_10L" className="bg-background">ABOVE ₹10L</option>
+                      </select>
+                      <ChevronDown size={14} className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <div className="flex items-center justify-between pt-8 border-t border-dashed border-border/60">
+                <div className="flex items-center gap-4">
+                   {saveError && <span className="text-[9px] font-mono font-black text-rose-500 uppercase tracking-widest">ERROR: {saveError}</span>}
+                   {saved && <span className="text-[9px] font-mono font-black text-emerald-500 uppercase tracking-widest animate-pulse">PROFILE UPDATED</span>}
+                </div>
                 <Button
                   type="submit" disabled={saving}
-                  className="h-14 px-10 bg-blue-600 hover:bg-blue-700 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl gap-3 shadow-lg shadow-blue-500/20 disabled:opacity-50 transition-all border border-blue-500/20"
+                  className="h-14 px-12 bg-foreground text-background font-mono font-black uppercase tracking-[0.2em] text-[10px] rounded-full hover:scale-[1.02] transition-transform active:scale-95 disabled:opacity-50"
                 >
-                  <Save size={18} className={saving ? 'animate-bounce' : ''} />
-                  {saving ? 'Saving...' : 'Save Changes'}
+                  {saving ? 'SAVING...' : 'SAVE CHANGES →'}
                 </Button>
               </div>
             </form>

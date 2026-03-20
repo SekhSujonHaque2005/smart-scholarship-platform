@@ -4,8 +4,15 @@ import { useEffect } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 
+import { usePathname } from "next/navigation";
+
 export function LenisProvider({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
+    const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password';
+
     useEffect(() => {
+        if (isAuthPage) return;
+
         const lenis = new Lenis({
             duration: 1.5,
             easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

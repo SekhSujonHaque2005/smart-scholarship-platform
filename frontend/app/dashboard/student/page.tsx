@@ -11,6 +11,8 @@ import { ApplicationTracker } from '@/components/dashboard/ApplicationTracker';
 import { Profile } from '@/components/dashboard/Profile';
 import { Settings } from '@/components/dashboard/Settings';
 import { Notifications } from '@/components/dashboard/Notifications';
+import { NotificationsDropdown } from '@/components/dashboard/NotificationsDropdown';
+import { ProfileDropdown } from '@/components/dashboard/ProfileDropdown';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -61,6 +63,9 @@ export default function StudentDashboard() {
   const [globalSearch, setGlobalSearch] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [isWindows, setIsWindows] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showProfile, setShowProfile] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -94,9 +99,9 @@ export default function StudentDashboard() {
       try {
         setLoading(true);
         const [scholarshipsRes, applicationsRes, profileRes] = await Promise.all([
-          api.get('/scholarships'),
-          api.get('/applications/my'),
-          api.get('/auth/me')
+          api.get('scholarships'),
+          api.get('applications/my'),
+          api.get('auth/me')
         ]);
         
         setScholarshipCount(scholarshipsRes.data.scholarships?.length || 0);
@@ -110,6 +115,10 @@ export default function StudentDashboard() {
             profilePicture: profileRes.data.profilePicture
           });
         }
+
+        // Fetch unread notifications
+        const notifRes = await api.get('notifications');
+        setUnreadCount(notifRes.data.unreadCount || 0);
       } catch (err) {
         console.error('Failed to fetch dashboard data:', err);
       } finally {
@@ -148,12 +157,16 @@ export default function StudentDashboard() {
       }));
   }, [applications]);
 
-  // Redirect if not authenticated
+  // Redirect if not authenticated or not a student
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/login');
+    } else if (user?.role && user.role !== 'STUDENT') {
+      // Redirect to correct dashboard based on role
+      const dashboardPath = `/dashboard/${user.role.toLowerCase()}`;
+      router.push(dashboardPath);
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, user?.role, router]);
 
   const handleLogout = () => {
     logout();
@@ -227,75 +240,121 @@ export default function StudentDashboard() {
                     {mounted && (theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />)}
                   </div>
 
-                  <div className="w-8 h-8 rounded-full bg-pink-500 overflow-hidden flex items-center justify-center text-white font-bold text-xs ring-2 ring-border shadow-lg">
-                    {user?.profilePicture ? (
-                      <img src={user.profilePicture} alt={user?.name || 'User'} className="w-full h-full object-cover" />
-                    ) : (
-                      (user?.name?.[0] || user?.email?.[0] || 'S').toUpperCase()
-                    )}
-                  </div>
-                  <div className="w-8 h-8 rounded-full bg-secondary/50 flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors cursor-pointer border border-input">
-                    <Bell size={14} />
+                    <div className="relative">
+                      <div 
+                        onClick={() => setShowProfile(!showProfile)}
+                        className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 overflow-hidden flex items-center justify-center text-white font-black text-xs ring-2 ring-border shadow-lg cursor-pointer hover:scale-105 transition-transform"
+                      >
+                        {user?.profilePicture ? (
+                          <img src={user.profilePicture} alt={user?.name || 'User'} className="w-full h-full object-cover" />
+                        ) : (
+                          (user?.name?.[0] || user?.email?.[0] || 'S').toUpperCase()
+                        )}
+                      </div>
+                      <AnimatePresence>
+                        {showProfile && (
+                          <div className="absolute right-0 top-full pt-2 z-[100]">
+                            <ProfileDropdown 
+                              onClose={() => setShowProfile(false)} 
+                              onTabChange={(tab) => {
+                                setActiveTab(tab);
+                                setShowProfile(false);
+                              }}
+                            />
+                          </div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
+                  <div className="relative">
+                    <div 
+                      onClick={() => setShowNotifications(!showNotifications)}
+                      className={cn(
+                        "w-8 h-8 rounded-full bg-secondary/50 border flex items-center justify-center cursor-pointer transition-all hover:scale-105 active:scale-95 group relative",
+                        showNotifications ? "bg-secondary border-blue-500/30 text-blue-500" : "border-input text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      )}
+                    >
+                      <Bell size={14} className={cn(showNotifications && "animate-none")} />
+                      {unreadCount > 0 && (
+                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white text-[8px] font-black flex items-center justify-center rounded-full border-2 border-background animate-bounce-slow">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </span>
+                      )}
+                    </div>
+                    <AnimatePresence>
+                      {showNotifications && (
+                        <div className="absolute right-0 top-full pt-2 z-[100]">
+                          <NotificationsDropdown onClose={() => setShowNotifications(false)} />
+                        </div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </div>
               </div>
             </div>            {/* Welcome Header */}
-            <div className="space-y-1 text-left">
-              <h1 className="text-3xl font-bold tracking-tight text-foreground">Hi, {profileData?.name || user?.name || 'Scholar'} 👋</h1>
-              <p className="text-xs text-muted-foreground font-medium">
-                {profileData?.fieldOfStudy ? `${profileData.fieldOfStudy} Student` : "Keep track of your scholarship progress here."}
-              </p>
+            <div className="space-y-4 text-left">
+              <h1 className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-foreground leading-[0.9]">
+                Overview
+              </h1>
+              <div className="flex items-center gap-4 text-muted-foreground font-mono text-[11px] uppercase tracking-widest">
+                <span>Welcome back, {profileData?.name || user?.name}</span>
+                <div className="h-px w-8 bg-border/40" />
+                <span className="text-blue-500 font-black">{profileData?.fieldOfStudy ? profileData.fieldOfStudy : "Student"}</span>
+              </div>
             </div>
 
-            {/* Academic Snapshot Card - Theme Aware */}
-            <div className="bg-gradient-to-br from-blue-600/10 to-indigo-600/5 dark:to-indigo-600/5 border border-blue-500/20 rounded-2xl p-6 flex flex-wrap items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400 font-bold">
-                  <GraduationCap size={24} />
+            {/* Academic Snapshot Card - Vercel Design */}
+            <div className="bg-white/[0.01] border border-dashed border-blue-500/30 rounded-[48px] p-10 flex flex-wrap items-center justify-between gap-10">
+              <div className="flex items-center gap-6">
+                <div className="w-16 h-16 rounded-[24px] bg-blue-500/10 border border-dashed border-blue-500/30 flex items-center justify-center text-blue-500 font-bold">
+                  <GraduationCap size={32} />
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold text-foreground tracking-tight">Academic Profile</h4>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black mt-0.5">Verified Identity</p>
+                <div className="space-y-1">
+                  <h4 className="text-xl font-black text-foreground tracking-tighter">Academic Profile</h4>
+                  <p className="text-[10px] text-muted-foreground uppercase tracking-[0.3em] font-mono font-black">Verified Identity</p>
                 </div>
               </div>
               
-              <div className="flex items-center gap-12">
-                <div className="space-y-1 text-right">
-                  <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">CGPA</p>
-                  <p className="text-xl font-black text-foreground">{profileData?.cgpa || '---'}</p>
+              <div className="flex items-center gap-16">
+                <div className="space-y-2 text-right">
+                  <p className="text-[10px] text-muted-foreground uppercase font-mono font-black tracking-widest">CGPA</p>
+                  <p className="text-3xl font-mono font-black text-foreground tracking-tighter">{profileData?.cgpa || '0.00'}</p>
                 </div>
-                <div className="space-y-1 text-right">
-                  <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Location</p>
-                  <p className="text-xl font-black text-foreground">{profileData?.location || '---'}</p>
+                <div className="space-y-2 text-right">
+                  <p className="text-[10px] text-muted-foreground uppercase font-mono font-black tracking-widest">Location</p>
+                  <p className="text-2xl font-black text-foreground tracking-tighter uppercase">{profileData?.location || '---'}</p>
                 </div>
-                <div className="space-y-1 text-right">
-                  <p className="text-[10px] text-muted-foreground uppercase font-black tracking-widest">Income Proof</p>
-                  <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">{profileData?.incomeLevel?.replace('_', ' ') || 'NOT SET'}</p>
+                <div className="space-y-2 text-right">
+                  <p className="text-[10px] text-muted-foreground uppercase font-mono font-black tracking-widest">Income Level</p>
+                  <p className="text-sm font-mono font-black text-emerald-500 border border-dashed border-emerald-500/30 px-3 py-1 rounded-sm">
+                    {profileData?.incomeLevel ? profileData.incomeLevel.replace('_', ' ').toUpperCase() : 'NOT SPECIFIED'}
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Summary Cards Grid - Theme Aware */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Summary Cards Grid - Vercel Design */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[
-                { title: 'Scholarships Matched', value: scholarshipCount.toString(), sub: 'Scholarships available', footer: 'Updated live from database', icon: Award },
-                { title: 'Applications Sent', value: stats.total.toString(), sub: 'Total submissions', footer: 'Tracked in Applications tab', icon: Layers },
-                { title: 'Pending Review', value: stats.pending.toString(), sub: 'Awaiting response', footer: 'Updated by providers', icon: Clock },
-                { title: 'Success Rate', value: `${stats.successRate}%`, sub: 'Approval progress', footer: 'Your current acceptance rate', icon: CheckCircle },
+                { title: 'Scholarships Matched', value: scholarshipCount.toString(), sub: 'Available for you', footer: 'Updated live', icon: Award, color: 'blue' },
+                { title: 'Applications Sent', value: stats.total.toString(), sub: 'Total submissions', footer: 'Tracked in Apps', icon: Layers, color: 'indigo' },
+                { title: 'Pending Review', value: stats.pending.toString(), sub: 'Awaiting response', footer: 'By providers', icon: Clock, color: 'purple' },
+                { title: 'Success Rate', value: `${stats.successRate}%`, sub: 'Approval progress', footer: 'Your performance', icon: CheckCircle, color: 'emerald' },
               ].map((card, i) => (
-                <div key={i} className="bg-card border border-border p-6 rounded-xl hover:shadow-lg dark:hover:border-white/10 transition-all group overflow-hidden relative shadow-sm">
-                  <div className="flex justify-between items-start mb-4">
-                    <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{card.title}</span>
-                    <div className="p-2 rounded-lg bg-secondary text-muted-foreground group-hover:bg-blue-500/10 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                      <card.icon size={14} />
+                <div key={i} className="bg-white/[0.01] border border-dashed border-border/60 p-10 rounded-[48px] hover:border-blue-500/40 transition-all group relative overflow-hidden">
+                  <div className="flex justify-between items-start mb-8">
+                    <span className="text-[10px] font-mono font-black text-muted-foreground uppercase tracking-widest">{card.title}</span>
+                    <div className="p-3 rounded-2xl bg-white/5 border border-dashed border-border/40 text-muted-foreground group-hover:text-blue-500 transition-colors">
+                      <card.icon size={18} />
                     </div>
                   </div>
-                  <div className="text-2xl font-black text-foreground mb-6 tracking-tight">{card.value}</div>
-                  <div className="space-y-1">
-                    <p className="text-[11px] text-foreground font-medium flex items-center gap-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <div className="text-4xl font-mono font-black text-foreground mb-10 tracking-tighter">{card.value}</div>
+                  <div className="space-y-2">
+                    <p className="text-[10px] text-foreground font-mono font-black uppercase tracking-widest flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-blue-500" />
                       {card.sub}
                     </p>
-                    <p className="text-[10px] text-muted-foreground leading-tight font-medium">
+                    <p className="text-[9px] text-muted-foreground font-mono uppercase tracking-[0.2em]">
                       {card.footer}
                     </p>
                   </div>
@@ -303,56 +362,62 @@ export default function StudentDashboard() {
               ))}
             </div>
 
-            {/* Main Content: Chart + Activity */}
-            {/* Main Content: Chart + Activity - Theme Aware */}
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+            {/* Main Content: Chart + Activity - Vercel Design */}
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
               {/* Interactive Bar Chart */}
-              <div className="lg:col-span-3 bg-card border border-border rounded-xl p-8 relative overflow-hidden group shadow-sm hover:shadow-md transition-shadow">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-                  <div className="space-y-1">
-                    <h3 className="text-sm font-black text-foreground uppercase tracking-widest">Application Analysis</h3>
-                    <p className="text-[10px] text-muted-foreground font-medium">Live distribution of your submitted requests</p>
+              <div className="lg:col-span-12 bg-white/[0.01] border border-dashed border-border/60 rounded-[48px] p-12 relative overflow-hidden shadow-2xl">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-12">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-black text-foreground uppercase tracking-tighter">Application Analysis</h3>
+                    <p className="text-[11px] font-mono text-muted-foreground uppercase tracking-[0.2em]">Distribution of your submissions</p>
                   </div>
-                  <div className="flex items-center gap-8 text-right">
-                    <div className="space-y-0.5">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Ongoing</p>
-                      <p className="text-xl font-black text-blue-600 dark:text-blue-400">{stats.total}</p>
+                  <div className="flex items-center gap-12 font-mono">
+                    <div className="space-y-1 text-right">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Total</p>
+                      <p className="text-3xl font-black text-blue-500 tracking-tighter">{stats.total}</p>
                     </div>
-                    <div className="space-y-0.5">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-black">Approved</p>
-                      <p className="text-xl font-black text-emerald-600 dark:text-emerald-400">{stats.approved}</p>
+                    <div className="h-10 w-px bg-border/40 border-dashed border-r" />
+                    <div className="space-y-1 text-right">
+                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest">Approved</p>
+                      <p className="text-3xl font-black text-emerald-500 tracking-tighter">{stats.approved}</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="h-[300px] w-full mt-4">
+
+                <div className="h-[350px] w-full mt-8">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="currentColor" className="text-border" />
+                      <CartesianGrid strokeDasharray="5 5" vertical={false} stroke="currentColor" className="text-border/40" />
                       <XAxis 
                         dataKey="name" 
                         axisLine={false} 
                         tickLine={false} 
-                        tick={{ fill: 'currentColor', fontSize: 10 }} 
-                        className="text-muted-foreground"
-                        dy={10}
+                        tick={{ fill: 'currentColor', fontSize: 10, fontFamily: 'monospace' }} 
+                        className="text-muted-foreground uppercase"
+                        dy={12}
                       />
                       <YAxis hide />
                       <Tooltip 
-                        cursor={{ fill: 'currentColor', radius: 4 }}
+                        cursor={{ fill: 'white', opacity: '0.05', radius: 4 }}
                         contentStyle={{ 
-                          backgroundColor: 'var(--card)', 
-                          border: '1px solid var(--border)', 
-                          borderRadius: '8px',
-                          fontSize: '12px',
+                          backgroundColor: 'var(--background)', 
+                          border: '1px dashed var(--border)', 
+                          borderRadius: '16px',
+                          fontSize: '11px',
+                          fontFamily: 'monospace',
                           color: 'var(--foreground)'
                         }}
                       />
                       <Bar 
                         dataKey="total" 
                         radius={[4, 4, 0, 0]} 
-                        barSize={40}
-                      />
+                        barSize={60}
+                      >
+                        {chartData.map((entry, index) => (
+                           <Cell key={`cell-${index}`} fill={entry.total > 0 ? 'currentColor' : '#1e293b'} className="text-blue-500/80 hover:text-blue-500 transition-all duration-500" />
+                        ))}
+                      </Bar>
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -423,7 +488,7 @@ export default function StudentDashboard() {
         onClose={() => setMobileSidebarOpen(false)}
       />
 
-      <main className="flex-1 p-6 md:p-10 relative z-10 overflow-y-auto">
+      <main className="flex-1 p-6 md:p-10 relative z-10">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}

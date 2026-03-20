@@ -5,6 +5,17 @@ const dotenv = require('dotenv');
 
 dotenv.config();
 
+const scraperRoutes = require('./routes/scraper.routes');
+const rateLimit = require('express-rate-limit');
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // limit each IP to 20 requests per windowMs (for login/register)
+  message: { message: 'Too many requests from this IP, please try again after 15 minutes' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -23,12 +34,11 @@ const notificationRoutes = require('./routes/notification.routes');
 const statsRoutes = require('./routes/stats.routes');
 const newsletterRoutes = require('./routes/newsletter.routes');
 const documentRoutes = require('./routes/document.routes');
-const scraperRoutes = require('./routes/scraper.routes');
 
 const cron = require('node-cron');
 const { sendDeadlineReminders } = require('./services/notification.service');
 
-app.use('/api/auth', authRoutes);
+app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/scholarships', scholarshipRoutes);
 app.use('/api/applications', applicationRoutes);
 app.use('/api/providers', providerRoutes);

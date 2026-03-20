@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from ai_service.models.schemas import MatchRequest, MatchResponse, MatchResult
-from ai_service.services.matching_service import get_matches
+from models.schemas import MatchRequest, MatchResponse, MatchResult
+from services.matching_service import get_matches
 
 router = APIRouter(
     prefix="/matching",

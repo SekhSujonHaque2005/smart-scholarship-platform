@@ -208,12 +208,25 @@ body {
 }
 
 @layer base {
+  html {
+    /* Prevent conflict with Lenis */
+    scroll-behavior: auto !important;
+    height: auto !important;
+    min-height: 100%;
+  }
+
   * {
     @apply border-border outline-ring/50;
   }
 
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden !important;
+    /* Native scroll must be enabled for Lenis */
+    overflow-y: visible !important;
+    height: auto !important;
+    min-height: 100vh;
+    position: relative;
   }
 }
 

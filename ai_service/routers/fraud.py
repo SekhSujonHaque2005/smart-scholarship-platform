@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
-from ai_service.models.schemas import FraudCheckRequest, FraudCheckResponse
-from ai_service.services.fraud_service import check_fraud
+from models.schemas import FraudCheckRequest, FraudCheckResponse
+from services.fraud_service import check_fraud
 
 router = APIRouter(
     prefix="/fraud",

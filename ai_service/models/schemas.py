@@ -6,6 +6,7 @@ class StudentProfile(BaseModel):
     fieldOfStudy: Optional[str] = None
     incomeLevel: Optional[str] = None
     location: Optional[str] = None
+    gender: Optional[str] = None
 
 class Scholarship(BaseModel):
     id: str
@@ -32,6 +33,8 @@ class FraudCheckRequest(BaseModel):
     scholarshipId: str
     formData: Optional[dict] = None
     submittedAt: Optional[str] = None
+    studentGender: Optional[str] = None
+    criteria: Optional[dict] = None
 
 class FraudCheckResponse(BaseModel):
     applicationId: str

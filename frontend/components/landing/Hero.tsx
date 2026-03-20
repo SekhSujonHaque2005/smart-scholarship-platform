@@ -35,7 +35,7 @@ export default function Hero() {
     const [stats, setStats] = useState<PlatformStats | null>(null);
 
     useEffect(() => {
-        api.get('/stats')
+        api.get('stats')
             .then((res) => setStats(res.data))
             .catch((err) => console.error('Failed to fetch stats:', err));
     }, []);

@@ -34,9 +34,15 @@ export default function Stats() {
     const [stats, setStats] = useState<PlatformStats | null>(null);
 
     useEffect(() => {
-        api.get('/stats')
-            .then((res) => setStats(res.data))
-            .catch((err) => console.error('Failed to fetch stats:', err));
+        const fetchStats = async () => {
+            try {
+                const { data } = await api.get('stats');
+                setStats(data);
+            } catch (error) {
+                console.error('Failed to fetch stats:', error);
+            }
+        };
+        fetchStats();
     }, []);
 
     useEffect(() => {

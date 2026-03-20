@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from ai_service.routers import matching, fraud
+from routers import matching, fraud
 
 app = FastAPI(
     title="ScholarHub AI Service",

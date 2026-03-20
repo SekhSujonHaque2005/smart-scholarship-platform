@@ -57,6 +57,8 @@ const submitApplication = async (req, res) => {
       applicationId: `temp-${Date.now()}`,
       studentId: student.id,
       scholarshipId,
+      studentGender: student.gender,
+      criteria: scholarship.criteriaJson,
       formData: {
         ...formData,
         name: student.name,
@@ -129,7 +131,8 @@ const getMyApplications = async (req, res) => {
     });
 
     if (!student) {
-      return res.status(404).json({ message: 'Student profile not found' });
+      // Return empty applications instead of 404 for resilience
+      return res.status(200).json({ applications: [] });
     }
 
     const applications = await prisma.application.findMany({

@@ -61,14 +61,8 @@ export function GlobalLoaderProvider({ children }: { children: React.ReactNode }
         )}
       </AnimatePresence>
       
-      {/* The actual content */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isInitialMount ? 0 : 1 }}
-        transition={{ duration: 0.8 }}
-      >
-        {children}
-      </motion.div>
+      {/* Render children directly to prevent height trapping or scroll conflicts */}
+      {children}
     </GlobalLoaderContext.Provider>
   );
 }

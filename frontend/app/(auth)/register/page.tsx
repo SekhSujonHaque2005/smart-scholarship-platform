@@ -89,10 +89,10 @@ export default function RegisterPage() {
 
   const onSubmit = async (data: RegisterForm) => {
     try {
-      const response = await api.post('/auth/register', {
-        name: data.name,
+      const response = await api.post('auth/register', {
         email: data.email,
         password: data.password,
+        name: data.name,
         role: data.role
       });
       const { user, accessToken, refreshToken } = response.data;
@@ -109,7 +109,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div ref={containerRef} className="w-full min-h-screen bg-slate-50 dark:bg-black transition-colors duration-500 flex items-center justify-center p-4 relative overflow-x-hidden isolate">
+    <div ref={containerRef} className="w-full min-h-full bg-slate-50 dark:bg-black transition-colors duration-500 flex items-center justify-center p-4 relative isolate">
       {/* Spotlight Effect - Top Left Aligned */}
       <div className="absolute inset-0 z-10 w-full h-full pointer-events-none opacity-50 dark:opacity-100 mix-blend-multiply dark:mix-blend-normal">
         <Spotlight className="-top-40 -left-10 md:left-0 md:-top-20 h-[150%] w-[150%] md:w-[200%]" fill="rgba(31, 23, 121, 0.4)" />
@@ -151,7 +151,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Right Panel */}
-        <div className="flex-[1.2] p-8 md:p-12 lg:p-16 flex flex-col justify-center overflow-y-auto">
+        <div className="flex-[1.2] p-8 md:p-12 lg:p-16 flex flex-col justify-center">
           <div className="mb-8 form-field">
             <div className="flex items-center justify-between mb-8">
               <ScholarHubLogo className="w-10 h-10 md:w-12 md:h-12" />

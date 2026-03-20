@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ScholarHubLogo } from '@/components/ui/logo';
 import { useAuthStore } from '@/app/store/auth.store';
 
@@ -92,9 +93,15 @@ export const DashboardSidebar = ({
   onClose?: () => void;
 }) => {
   const { user } = useAuthStore();
+  const pathname = usePathname();
   const [isPinned, setIsPinned] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   
+  // Guard: Don't render sidebar on auth pages
+  const isAuthPage = pathname === '/login' || pathname === '/register' || pathname === '/forgot-password' || pathname === '/reset-password';
+  
+  if (isAuthPage) return null;
+
   // On mobile, expanded state is tied strictly to isOpen
   // On desktop, it's tied to hover or pin
   const [isMobile, setIsMobile] = useState(false);

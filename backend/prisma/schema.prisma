@@ -76,6 +76,10 @@ model Scholarship {
   criteriaJson Json?
   status       ScholarshipStatus @default(DRAFT)
   createdAt    DateTime          @default(now())
+  sourceUrl    String?
+  isExternal   Boolean           @default(false)
+  externalId   String?           @unique
+  category     String?
 
   provider     Provider      @relation(fields: [providerId], references: [id])
   applications Application[]

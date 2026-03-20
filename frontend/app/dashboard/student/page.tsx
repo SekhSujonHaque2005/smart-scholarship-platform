@@ -58,9 +58,25 @@ export default function StudentDashboard() {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
+  const [globalSearch, setGlobalSearch] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [isWindows, setIsWindows] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+    setIsWindows(navigator.platform.toUpperCase().indexOf('WIN') > -1);
+  }, []);
+
+  // Handle Keyboard Shortcut (Cmd+K / Ctrl+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   // Calculate stats from applications
@@ -149,7 +165,7 @@ export default function StudentDashboard() {
   const renderContent = () => {
     switch (activeTab) {
       case 'scholarships':
-        return <ScholarshipList />;
+        return <ScholarshipList searchTerm={globalSearch} />;
       case 'applications':
         return <ApplicationTracker onDataLoaded={setApplications} />;
       case 'notifications':
@@ -184,12 +200,20 @@ export default function StudentDashboard() {
                 <div className="relative group hidden md:block">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-blue-500 transition-colors" size={14} />
                   <input 
+                    ref={searchInputRef}
                     type="text" 
-                    placeholder="Search..." 
+                    placeholder="Search scholarships..." 
+                    value={globalSearch}
+                    onChange={(e) => {
+                      setGlobalSearch(e.target.value);
+                      if (activeTab !== 'scholarships' && e.target.value.length > 0) {
+                        setActiveTab('scholarships');
+                      }
+                    }}
                     className="h-9 w-64 bg-secondary/50 border border-input rounded-lg pl-9 pr-12 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500/50 transition-all font-medium text-foreground"
                   />
-                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-input bg-secondary/50 text-[10px] text-muted-foreground font-bold">
-                    <span>⌘</span>
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-0.5 rounded border border-input bg-secondary/50 text-[10px] text-muted-foreground font-bold pointer-events-none">
+                    <span>{isWindows ? 'Ctrl' : '⌘'}</span>
                     <span>K</span>
                   </div>
                 </div>

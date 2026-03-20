@@ -15,7 +15,11 @@ import {
   DollarSign,
   TrendingUp,
   X,
-  CheckCircle2
+  CheckCircle2,
+  BookOpen,
+  Info,
+  ExternalLink,
+  ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Input } from '@/components/ui/input';
@@ -24,10 +28,10 @@ import { Badge } from '../ui/badge';
 import api from '@/app/lib/api';
 import { cn } from '@/lib/utils';
 
-export const ScholarshipList = () => {
+export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTerm?: string }) => {
   const [scholarships, setScholarships] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState(externalSearch);
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [filters, setFilters] = useState({
     minAmount: '',
@@ -41,8 +45,17 @@ export const ScholarshipList = () => {
   const [savedIds, setSavedIds] = useState<Set<string>>(new Set());
   const [applyingId, setApplyingId] = useState<string | null>(null);
   const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
+  const [showAll, setShowAll] = useState(false);
+  const [totalCount, setTotalCount] = useState(0);
+  const [selectedScholarship, setSelectedScholarship] = useState<any | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
   
   const debounceRef = useRef<any>(null);
+
+  // Sync internal searchTerm with prop
+  useEffect(() => {
+    setSearchTerm(externalSearch);
+  }, [externalSearch]);
 
   // Debounced search logic
   useEffect(() => {
@@ -52,6 +65,22 @@ export const ScholarshipList = () => {
     }, 600);
     return () => clearTimeout(debounceRef.current);
   }, [searchTerm]);
+
+  // Handle body scroll lock with layout shift protection
+  useEffect(() => {
+    if (showDetailModal || showFilterModal) {
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth;
+      document.body.style.overflow = 'hidden';
+      document.body.style.paddingRight = `${scrollBarWidth}px`;
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+    };
+  }, [showDetailModal, showFilterModal]);
 
   // Load persistence
   useEffect(() => {
@@ -73,8 +102,13 @@ export const ScholarshipList = () => {
       if (filters.minAmount) params.append('minAmount', filters.minAmount);
       if (filters.maxAmount) params.append('maxAmount', filters.maxAmount);
       
+      // Request 1000 if "Show All" is active, else default 10
+      params.append('limit', showAll ? '1000' : '10');
+
       const response = await api.get(`/scholarships?${params.toString()}`);
       let results = response.data.scholarships || [];
+      const total = response.data.pagination?.total || 0;
+      setTotalCount(total);
       
       // Client-side category filter (if not handled by backend)
       if (filters.category !== 'All') {
@@ -100,7 +134,7 @@ export const ScholarshipList = () => {
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, filters, sortBy]);
+  }, [debouncedSearch, filters, sortBy, showAll]);
 
   useEffect(() => {
     fetchScholarships();
@@ -160,11 +194,24 @@ export const ScholarshipList = () => {
             className="text-muted-foreground font-medium tracking-wide flex items-center gap-2"
           >
             Discover your future <div className="w-1 h-1 rounded-full bg-border" />
-            <span className="text-[10px] uppercase tracking-[0.2em] font-black text-blue-600 dark:text-blue-400/80">{scholarships.length} Opportunities Available</span>
+            <span className="text-[10px] uppercase tracking-[0.2em] font-black text-blue-600 dark:text-blue-400/80">
+              {scholarships.length} of {totalCount || scholarships.length} Opportunities Available
+            </span>
           </motion.div>
         </div>
         
         <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAll(!showAll)}
+            className={cn(
+              "rounded-xl border-border bg-card backdrop-blur-md transition-all h-11 px-5 font-bold text-xs uppercase tracking-widest shadow-sm",
+              showAll ? "text-blue-600 dark:text-blue-400 border-blue-500/30 bg-blue-500/5" : "text-muted-foreground hover:text-foreground hover:bg-muted"
+            )}
+          >
+            {showAll ? 'Show Less' : 'Show All'}
+          </Button>
+
           <Button 
             variant="outline" 
             onClick={fetchScholarships}
@@ -332,28 +379,28 @@ export const ScholarshipList = () => {
                       </p>
                       
                       {/* Match Probability */}
-                      {scholarship.matchScore !== null && (
+                      {(scholarship.matchScore != null || matchScore != null) && (
                         <div className="bg-secondary/30 rounded-2xl p-4 border border-border space-y-3 mt-4 shadow-inner">
                           <div className="flex justify-between items-center text-[10px] uppercase font-black tracking-[0.15em] mb-1">
                             <span className="text-muted-foreground">🤖 AI Match</span>
                             <span className={cn(
                               "font-black",
-                              scholarship.matchScore >= 80 ? "text-green-500" :
-                              scholarship.matchScore >= 60 ? "text-blue-500" :
+                              (scholarship.matchScore ?? matchScore) >= 80 ? "text-green-500" :
+                              (scholarship.matchScore ?? matchScore) >= 60 ? "text-blue-500" :
                               "text-yellow-500"
                             )}>
-                              {scholarship.matchScore}%
+                              {scholarship.matchScore ?? matchScore}%
                             </span>
                           </div>
                           <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
                             <motion.div 
                               initial={{ width: 0 }}
-                              animate={{ width: `${scholarship.matchScore}%` }}
+                              animate={{ width: `${scholarship.matchScore ?? matchScore}%` }}
                               transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
                               className={cn(
                                 "h-full rounded-full shadow-sm",
-                                scholarship.matchScore >= 80 ? "bg-gradient-to-r from-green-500 to-emerald-400" :
-                                scholarship.matchScore >= 60 ? "bg-gradient-to-r from-blue-500 to-purple-500" :
+                                (scholarship.matchScore ?? matchScore) >= 80 ? "bg-gradient-to-r from-green-500 to-emerald-400" :
+                                (scholarship.matchScore ?? matchScore) >= 60 ? "bg-gradient-to-r from-blue-500 to-purple-500" :
                                 "bg-gradient-to-r from-yellow-500 to-orange-400"
                               )}
                             />
@@ -401,8 +448,9 @@ export const ScholarshipList = () => {
 
                     <Button 
                       onClick={() => {
-                        if (scholarship.isExternal && scholarship.sourceUrl) {
-                          window.open(scholarship.sourceUrl, '_blank');
+                        if (scholarship.isExternal) {
+                          setSelectedScholarship(scholarship);
+                          setShowDetailModal(true);
                         } else {
                           handleApply(scholarship.id);
                         }
@@ -552,6 +600,142 @@ export const ScholarshipList = () => {
                   }}
                 >
                   Apply Filters
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Scholarship Detail Modal */}
+      <AnimatePresence>
+        {showDetailModal && selectedScholarship && (
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowDetailModal(false)}
+              onWheel={(e) => e.stopPropagation()}
+              className="absolute inset-0 bg-background/80 backdrop-blur-xl cursor-default"
+              data-lenis-prevent
+            />
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              className="relative w-full max-w-2xl bg-card border border-border rounded-[32px] shadow-2xl overflow-hidden flex flex-col max-h-[90vh] cursor-default"
+            >
+              {/* Header */}
+              <div className="p-8 border-b border-border/50 bg-gradient-to-br from-blue-500/5 to-transparent">
+                <div className="flex justify-between items-start mb-6">
+                  <Badge variant="outline" className="bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 px-3 py-1">
+                    {selectedScholarship.category}
+                  </Badge>
+                  <button 
+                    onClick={() => setShowDetailModal(false)}
+                    className="p-2 hover:bg-muted rounded-full transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <h2 className="text-3xl font-black tracking-tight leading-tight mb-2">
+                  {selectedScholarship.title}
+                </h2>
+                <p className="text-muted-foreground flex items-center gap-2 font-medium">
+                  <Award size={16} className="text-blue-500" />
+                  {selectedScholarship.provider?.orgName || "Government Agency"}
+                </p>
+              </div>
+
+              {/* Body */}
+              <div 
+                className="flex-1 overflow-y-auto p-8 space-y-8 min-h-0 overscroll-contain"
+                onWheel={(e) => e.stopPropagation()}
+                data-lenis-prevent
+              >
+                {/* Metrics */}
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/50">
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1">Benefit</p>
+                    <p className="text-xl font-black text-blue-600 dark:text-blue-400">
+                      ₹{selectedScholarship.amount?.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-muted/30 border border-border/50">
+                    <p className="text-[10px] uppercase tracking-wider font-bold text-muted-foreground mb-1">Deadline</p>
+                    <p className="text-xl font-black">
+                      {selectedScholarship.deadline ? new Date(selectedScholarship.deadline).toLocaleDateString() : 'N/A'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* About Section */}
+                <div>
+                  <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground mb-4 flex items-center gap-2">
+                    <Info size={16} /> About Scholarship
+                  </h3>
+                  <div className="text-muted-foreground leading-relaxed font-medium bg-muted/20 p-6 rounded-2xl">
+                    {selectedScholarship.description}
+                  </div>
+                </div>
+
+                {/* Instructions Section */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
+                    <BookOpen size={16} /> How to Apply (Guide)
+                  </h3>
+                  <div className="grid gap-3">
+                    {[
+                      { step: 1, text: "Click the 'Go to Official Portal' button below." },
+                      { step: 2, text: "Wait for the scholarship landing page to load." },
+                      { step: 3, text: `Search for '${selectedScholarship.title}' on the portal.` },
+                      { step: 4, text: "Check the exact eligibility criteria (income, category, etc.)." },
+                      { step: 5, text: "Register and fill the application form with required documents." }
+                    ].map((item) => (
+                      <div key={item.step} className="flex gap-4 p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 hover:border-blue-500/20 transition-all">
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-black text-sm">
+                          {item.step}
+                        </div>
+                        <p className="font-semibold text-sm pt-1.5">{item.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Fallback Help */}
+                <div className="p-6 rounded-2xl border border-amber-500/20 bg-amber-500/5">
+                  <p className="text-xs font-bold text-amber-600 dark:text-amber-400 mb-2 uppercase tracking-widest">Link Failure Help</p>
+                  <p className="text-sm font-medium text-amber-700/80 dark:text-amber-300/80">
+                    If the portal link doesn't open, please visit the main website: 
+                    <span className="block font-black mt-1 underline">
+                      {selectedScholarship.sourceUrl?.split('/')[2] || "Official Portal"}
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="p-8 border-t border-border/50 bg-muted/20 flex flex-col md:flex-row gap-4">
+                <Button 
+                  onClick={() => {
+                    const url = selectedScholarship.sourceUrl;
+                    if (url) {
+                      const finalUrl = url.startsWith('http') ? url : `https://${url}`;
+                      window.open(finalUrl, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                  className="flex-1 h-14 rounded-2xl font-black uppercase tracking-widest bg-blue-600 hover:bg-blue-700 text-white shadow-xl shadow-blue-600/30 gap-2"
+                >
+                  Go to Official Portal <ExternalLink size={18} />
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => setShowDetailModal(false)}
+                  className="h-14 px-8 rounded-2xl font-black uppercase tracking-widest bg-card shadow-sm border-border/50 text-muted-foreground hover:text-foreground"
+                >
+                  Close
                 </Button>
               </div>
             </motion.div>

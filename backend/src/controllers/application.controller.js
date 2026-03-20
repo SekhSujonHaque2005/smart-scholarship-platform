@@ -1,5 +1,6 @@
 const prisma = require('../lib/prisma');
 const { notifyApplicationSubmitted, notifyApplicationStatus } = require('../services/notification.service');
+const { checkFraud } = require('../services/ai.service');
 
 // SUBMIT APPLICATION (Student only)
 const submitApplication = async (req, res) => {
@@ -51,25 +52,67 @@ const submitApplication = async (req, res) => {
       return res.status(409).json({ message: 'You have already applied for this scholarship' });
     }
 
+    // 🤖 AI FRAUD CHECK
+    const fraudResult = await checkFraud({
+      applicationId: `temp-${Date.now()}`,
+      studentId: student.id,
+      scholarshipId,
+      formData: {
+        ...formData,
+        name: student.name,
+        cgpa: student.cgpa,
+        annualIncome: formData?.annualIncome
+      }
+    });
+
+    // Block if high risk
+    if (fraudResult.isSuspicious && fraudResult.riskScore >= 70) {
+      return res.status(403).json({
+        message: 'Application flagged by fraud detection system',
+        riskScore: fraudResult.riskScore,
+        reasons: fraudResult.reasons
+      });
+    }
+
     // Create application
     const application = await prisma.application.create({
       data: {
         studentId: student.id,
         scholarshipId,
         formData,
-        status: 'PENDING'
+        status: 'PENDING',
+        // Store fraud score for admin review
+        ...(fraudResult.riskScore > 0 && {
+          remarks: `AI Risk Score: ${fraudResult.riskScore}`
+        })
       },
       include: {
         scholarship: { select: { title: true, amount: true } }
       }
     });
 
+    // Create fraud flag if suspicious but not blocked
+    if (fraudResult.isSuspicious) {
+      await prisma.fraudFlag.create({
+        data: {
+          applicationId: application.id,
+          riskScore: fraudResult.riskScore,
+          reasons: fraudResult.reasons,
+          flaggedAt: new Date()
+        }
+      }).catch(() => {}); // Don't fail if fraudFlag table has issues
+    }
+
     // Fire unawaited notification to avoid blocking the response
     notifyApplicationSubmitted(student.userId, application.scholarship.title).catch(console.error);
 
     res.status(201).json({
       message: 'Application submitted successfully',
-      application
+      application,
+      aiCheck: {
+        riskScore: fraudResult.riskScore,
+        clean: !fraudResult.isSuspicious
+      }
     });
 
   } catch (error) {

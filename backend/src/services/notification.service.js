@@ -189,11 +189,93 @@ const sendDeadlineReminders = async () => {
     }
 };
 
+// NOTIFY EXTERNAL SCHOLARSHIPS (Professional Grid Layout)
+const notifyExternalScholarships = async (newScholarships) => {
+    if (!newScholarships || newScholarships.length === 0) return;
+
+    // Get all students and newsletter subscribers
+    const [students, subscribers] = await Promise.all([
+        prisma.user.findMany({ where: { role: 'STUDENT', isActive: true }, select: { email: true, id: true } }),
+        prisma.newsletterSubscriber.findMany({ where: { isActive: true }, select: { email: true } })
+    ]);
+
+    const topScholarships = newScholarships.slice(0, 5); // Marketing limit for newsletter
+    const featured = topScholarships.slice(0, 4); // For the 2x2 grid
+
+    const generateHtml = (isFullAccess = false) => `
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
+      <div style="background-color: #2563eb; padding: 30px; text-align: center; color: white;">
+        <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -0.025em;">ScholarHub AI</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.9; font-size: 14px;">External Opportunity Alert</p>
+      </div>
+      
+      <div style="padding: 40px 30px;">
+        <h2 style="color: #0f172a; font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 30px;">What makes these programs unique:</h2>
+        
+        <div style="display: table; width: 100%; border-collapse: separate; border-spacing: 12px;">
+          <!-- Row 1 -->
+          <div style="display: table-row;">
+            <div style="display: table-cell; width: 50%; padding: 25px; background: white; border: 2px solid #ef4444; text-align: center; vertical-align: middle; border-radius: 8px;">
+              <p style="margin: 0; color: #0f172a; font-weight: 700; font-size: 14px;">${featured[0]?.title || 'Multi-Agency Support'}</p>
+            </div>
+            <div style="display: table-cell; width: 50%; padding: 25px; background: white; border: 2px solid #ef4444; text-align: center; vertical-align: middle; border-radius: 8px;">
+              <p style="margin: 0; color: #0f172a; font-weight: 700; font-size: 14px;">${featured[1]?.title || 'Direct-to-Bank Disbursement'}</p>
+            </div>
+          </div>
+          <!-- Row 2 -->
+          <div style="display: table-row;">
+            <div style="display: table-cell; width: 50%; padding: 25px; background: white; border: 2px solid #ef4444; text-align: center; vertical-align: middle; border-radius: 8px;">
+              <p style="margin: 0; color: #0f172a; font-weight: 700; font-size: 14px;">${featured[2]?.title || 'Simplified Verification'}</p>
+            </div>
+            <div style="display: table-cell; width: 50%; padding: 25px; background: white; border: 2px solid #ef4444; text-align: center; vertical-align: middle; border-radius: 8px;">
+              <p style="margin: 0; color: #0f172a; font-weight: 700; font-size: 14px;">${featured[3]?.title || 'Pan-India Eligibility'}</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px;">
+          <p style="color: #475569; font-size: 16px; font-weight: 600; margin-bottom: 25px;">Ready to build your future, apply and secure smartly?</p>
+          <a href="http://localhost:3000/dashboard" style="background-color: #ef4444; color: white; padding: 16px 45px; text-decoration: none; font-weight: 800; font-size: 16px; border-radius: 6px; display: inline-block;">Apply Now</a>
+        </div>
+
+        ${!isFullAccess ? `
+        <div style="margin-top: 50px; padding-top: 30px; border-top: 1px solid #e2e8f0; text-align: center;">
+          <p style="color: #64748b; font-size: 13px; font-weight: 600; margin-bottom: 15px;">Unlock 100+ more matches tailored to your profile.</p>
+          <a href="http://localhost:3000/register" style="color: #2563eb; font-weight: 700; text-decoration: none; font-size: 14px;">Join our world & Create an Account &rarr;</a>
+        </div>
+        ` : ''}
+      </div>
+
+      <div style="background-color: #f1f5f9; padding: 20px; text-align: center; color: #94a3b8; font-size: 12px;">
+        <p>If you'd like to unsubscribe and stop receiving these emails <a href="#" style="color: #64748b; text-decoration: underline;">click here</a>.</p>
+        <p>&copy; 2025 ScholarHub. All rights reserved.</p>
+      </div>
+    </div>
+    `;
+
+    // Send to Students (Full Access)
+    const studentHtml = generateHtml(true);
+    for (const student of students) {
+        await sendEmail(student.email, '🚀 New External Scholarships Launched!', studentHtml);
+    }
+
+    // Send to Newsletter (Limited Access)
+    const newsletterHtml = generateHtml(false);
+    for (const sub of subscribers) {
+        // Optimization: prevent double sending if they are also students
+        const isStudent = students.some(s => s.email === sub.email);
+        if (!isStudent) {
+            await sendEmail(sub.email, '🔥 Sneak Peek: Top 5 New Scholarships!', newsletterHtml);
+        }
+    }
+};
+
 module.exports = {
     createNotification,
     sendEmail,
     notifyApplicationSubmitted,
     notifyApplicationStatus,
     notifyProviderVerified,
-    sendDeadlineReminders
+    sendDeadlineReminders,
+    notifyExternalScholarships
 };

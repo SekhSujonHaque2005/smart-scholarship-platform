@@ -298,22 +298,29 @@ export const ScholarshipList = () => {
                       <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-400/10 border border-blue-400/20 text-blue-600 dark:text-cyan-400 shadow-sm group-hover:scale-110 transition-all duration-500">
                         <Award size={22} strokeWidth={1.5} />
                       </div>
-                      <div className="flex gap-2 flex-col items-end pr-10">
-                        {daysLeft !== null && (
-                          <Badge variant="outline" className={cn(
-                            "text-[9px] font-black uppercase tracking-widest border px-2 py-0.5 shadow-sm",
-                            daysLeft <= 0 ? "bg-muted text-muted-foreground border-border" :
-                            daysLeft <= 7 ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20" : 
-                            "bg-secondary/50 text-muted-foreground border-border"
-                          )}>
-                            {daysLeft <= 0 ? 'Expired' : `${daysLeft}d left`}
-                          </Badge>
-                        )}
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-sm">
-                          <Users size={10} />
-                          <span className="text-[9px] font-black uppercase">Verified</span>
+                        <div className="flex gap-2 flex-col items-end pr-10">
+                          {daysLeft !== null && (
+                            <Badge variant="outline" className={cn(
+                              "text-[9px] font-black uppercase tracking-widest border px-2 py-0.5 shadow-sm",
+                              daysLeft <= 0 ? "bg-muted text-muted-foreground border-border" :
+                              daysLeft <= 7 ? "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20" : 
+                              "bg-secondary/50 text-muted-foreground border-border"
+                            )}>
+                              {daysLeft <= 0 ? 'Expired' : `${daysLeft}d left`}
+                            </Badge>
+                          )}
+                          {scholarship.isExternal ? (
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-600 dark:text-blue-400 shadow-sm">
+                              <TrendingUp size={10} />
+                              <span className="text-[9px] font-black uppercase">Outer Agency</span>
+                            </div>
+                          ) : (
+                            <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 shadow-sm">
+                              <Users size={10} />
+                              <span className="text-[9px] font-black uppercase">Verified Provider</span>
+                            </div>
+                          )}
                         </div>
-                      </div>
                     </div>
 
                     <div className="relative z-10 mb-5">
@@ -325,20 +332,44 @@ export const ScholarshipList = () => {
                       </p>
                       
                       {/* Match Probability */}
-                      <div className="bg-secondary/30 rounded-2xl p-4 border border-border space-y-3 mt-4 shadow-inner">
-                        <div className="flex justify-between items-center text-[10px] uppercase font-black tracking-[0.15em] mb-1">
-                          <span className="text-muted-foreground">AI Compatibility</span>
-                          <span className="text-blue-600 dark:text-blue-400">{matchScore}%</span>
+                      {scholarship.matchScore !== null && (
+                        <div className="bg-secondary/30 rounded-2xl p-4 border border-border space-y-3 mt-4 shadow-inner">
+                          <div className="flex justify-between items-center text-[10px] uppercase font-black tracking-[0.15em] mb-1">
+                            <span className="text-muted-foreground">🤖 AI Match</span>
+                            <span className={cn(
+                              "font-black",
+                              scholarship.matchScore >= 80 ? "text-green-500" :
+                              scholarship.matchScore >= 60 ? "text-blue-500" :
+                              "text-yellow-500"
+                            )}>
+                              {scholarship.matchScore}%
+                            </span>
+                          </div>
+                          <div className="w-full bg-secondary rounded-full h-1.5 overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${scholarship.matchScore}%` }}
+                              transition={{ duration: 1, delay: 0.3, ease: 'easeOut' }}
+                              className={cn(
+                                "h-full rounded-full shadow-sm",
+                                scholarship.matchScore >= 80 ? "bg-gradient-to-r from-green-500 to-emerald-400" :
+                                scholarship.matchScore >= 60 ? "bg-gradient-to-r from-blue-500 to-purple-500" :
+                                "bg-gradient-to-r from-yellow-500 to-orange-400"
+                              )}
+                            />
+                          </div>
+                          {/* Match reasons tooltip */}
+                          {scholarship.matchReasons && scholarship.matchReasons.length > 0 && (
+                            <div className="mt-1 flex flex-wrap gap-1">
+                              {scholarship.matchReasons.slice(0, 2).map((reason: string, i: number) => (
+                                <span key={i} className="text-[9px] text-muted-foreground font-medium">
+                                  • {reason}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
-                        <div className="w-full bg-secondary rounded-full h-1 overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${matchScore}%` }}
-                            transition={{ duration: 1, delay: 0.5 }}
-                            className="bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 dark:from-blue-500 dark:via-indigo-400 dark:to-emerald-400 h-full rounded-full shadow-sm" 
-                          />
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
 
@@ -369,8 +400,14 @@ export const ScholarshipList = () => {
                     </div>
 
                     <Button 
-                      onClick={() => handleApply(scholarship.id)}
-                      disabled={isApplied || isApplying || (daysLeft !== null && daysLeft <= 0)}
+                      onClick={() => {
+                        if (scholarship.isExternal && scholarship.sourceUrl) {
+                          window.open(scholarship.sourceUrl, '_blank');
+                        } else {
+                          handleApply(scholarship.id);
+                        }
+                      }}
+                      disabled={!scholarship.isExternal && (isApplied || isApplying || (daysLeft !== null && daysLeft <= 0))}
                       className={cn(
                         "w-full font-black uppercase tracking-widest text-[10px] rounded-xl h-12 flex items-center justify-center gap-2 transition-all duration-300",
                         isApplied ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 cursor-default" :
@@ -378,7 +415,11 @@ export const ScholarshipList = () => {
                         "bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/20 active:scale-95"
                       )}
                     >
-                      {isApplied ? (
+                      {scholarship.isExternal ? (
+                        <>
+                          Apply on Source <ArrowRight size={14} />
+                        </>
+                      ) : isApplied ? (
                         <>
                           <CheckCircle2 size={14} /> Submitted
                         </>

@@ -6,12 +6,13 @@ const {
   createScholarship,
   updateScholarship,
   deleteScholarship,
-  updateScholarshipStatus
+  updateScholarshipStatus,
+  bulkUpsertScholarships
 } = require('../controllers/scholarship.controller');
-const { authenticate, authorize } = require('../middleware/auth.middleware');
+const { authenticate, authorize, optionalAuth } = require('../middleware/auth.middleware');
 
 // Public routes
-router.get('/', getAllScholarships);
+router.get('/', optionalAuth, getAllScholarships);
 router.get('/:id', getScholarshipById);
 
 // Provider routes
@@ -21,5 +22,6 @@ router.delete('/:id', authenticate, authorize('PROVIDER'), deleteScholarship);
 
 // Admin routes
 router.patch('/:id/status', authenticate, authorize('ADMIN'), updateScholarshipStatus);
+router.post('/bulk-upsert', authenticate, authorize('ADMIN'), bulkUpsertScholarships);
 
 module.exports = router;

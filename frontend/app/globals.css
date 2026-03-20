@@ -237,7 +237,7 @@ body {
 
 * {
   scrollbar-width: thin;
-  @apply scrollbar-color-muted-foreground/20 scrollbar-color-transparent;
+  scrollbar-color: gray transparent;
 }
 
 ::view-transition-old(root),

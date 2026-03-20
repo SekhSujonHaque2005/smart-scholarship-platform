@@ -1,15 +1,16 @@
 const prisma = require('../lib/prisma');
+const { getMatchScores } = require('../services/ai.service');
 
 // GET ALL SCHOLARSHIPS (Public - with search & filter)
 const getAllScholarships = async (req, res) => {
   try {
-    const { 
-      search, 
+    const {
+      search,
       status = 'ACTIVE',
-      minAmount, 
+      minAmount,
       maxAmount,
-      page = 1, 
-      limit = 10 
+      page = 1,
+      limit = 10
     } = req.query;
 
     const where = {
@@ -38,8 +39,41 @@ const getAllScholarships = async (req, res) => {
       prisma.scholarship.count({ where })
     ]);
 
+    // 🤖 Get AI match scores if student is logged in
+    let scholarshipsWithScores = scholarships;
+
+    if (req.user?.userId) {
+      try {
+        const student = await prisma.student.findUnique({
+          where: { userId: req.user.userId }
+        });
+
+        if (student && (student.cgpa || student.fieldOfStudy || student.location)) {
+          const { getMatchScores } = require('../services/ai.service');
+          const matchScores = await getMatchScores(student, scholarships);
+          const scoresArray = Array.isArray(matchScores) ? matchScores : [];
+
+          scholarshipsWithScores = scholarships.map(s => {
+            const match = scoresArray.find(m => m.scholarshipId === s.id);
+            return {
+              ...s,
+              matchScore: match?.matchScore || null,
+              matchReasons: match?.reasons || []
+            };
+          });
+
+          // Sort by match score if available
+          scholarshipsWithScores.sort((a, b) =>
+            (b.matchScore || 0) - (a.matchScore || 0)
+          );
+        }
+      } catch (error) {
+        console.error('AI match error:', error.message);
+      }
+    }
+
     res.status(200).json({
-      scholarships,
+      scholarships: scholarshipsWithScores,
       pagination: {
         total,
         page: parseInt(page),
@@ -49,8 +83,8 @@ const getAllScholarships = async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Get scholarships error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Get scholarships error:', error.message);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
   }
 };
 
@@ -222,6 +256,108 @@ const updateScholarshipStatus = async (req, res) => {
 
   } catch (error) {
     console.error('Update status error:', error);
+    res.status(500).json({ message: 'Internal server error', error: error.message });
+  }
+};
+
+// BULK UPSERT SCHOLARSHIPS (Admin/System only)
+const bulkUpsertScholarships = async (req, res) => {
+  try {
+    const { scholarships } = req.body;
+
+    if (!Array.isArray(scholarships)) {
+      return res.status(400).json({ message: 'Scholarships array is required' });
+    }
+
+    // Ensure we have a System Provider for external scholarships
+    let systemProvider = await prisma.provider.findFirst({
+      where: { orgName: 'Government & External Agencies' }
+    });
+
+    if (!systemProvider) {
+      // Find any admin to link it to
+      let admin = await prisma.user.findFirst({ where: { role: 'ADMIN' } });
+      
+      if (!admin) {
+        // Create a default system admin if none exist
+        admin = await prisma.user.create({
+          data: {
+            email: 'admin@scholarhub.com',
+            role: 'ADMIN',
+            password: 'system_generated_admin_pass', // In prod, this should be a secure hash
+            isActive: true,
+            preferences: {}
+          }
+        });
+        console.log('Created default system admin:', admin.email);
+      }
+
+      systemProvider = await prisma.provider.create({
+        data: {
+          userId: admin.id,
+          orgName: 'Government & External Agencies',
+          trustScore: 100,
+          verificationStatus: 'APPROVED'
+        }
+      });
+    }
+
+    const results = {
+      created: 0,
+      updated: 0,
+      skipped: 0,
+      errors: []
+    };
+
+    for (const s of scholarships) {
+      try {
+        if (!s.title || !s.externalId) {
+          results.skipped++;
+          continue;
+        }
+
+        const data = {
+          title: s.title,
+          description: s.description,
+          amount: s.amount ? parseFloat(s.amount) : null,
+          deadline: s.deadline ? new Date(s.deadline) : null,
+          category: s.category || 'General',
+          isExternal: true,
+          sourceUrl: s.sourceUrl,
+          providerId: systemProvider.id,
+          status: 'ACTIVE'
+        };
+
+        const upserted = await prisma.scholarship.upsert({
+          where: { externalId: s.externalId },
+          update: data,
+          create: {
+            ...data,
+            externalId: s.externalId
+          }
+        });
+
+        // Use a heuristic to detect if it was created or updated (not perfect with prisma upsert without select)
+        // For now just track total success
+        results.updated++; 
+      } catch (err) {
+        results.errors.push({ id: s.externalId, error: err.message });
+      }
+    }
+
+    // Trigger notifications if new scholarships were added/updated
+    if (results.updated > 0) {
+      const { notifyExternalScholarships } = require('../services/notification.service');
+      notifyExternalScholarships(scholarships.slice(0, 10)).catch(err => console.error('Notification error:', err));
+    }
+
+    res.status(200).json({
+      message: 'Bulk upsert complete',
+      results
+    });
+
+  } catch (error) {
+    console.error('Bulk upsert error:', error.message);
     res.status(500).json({ message: 'Internal server error' });
   }
 };
@@ -232,5 +368,6 @@ module.exports = {
   createScholarship,
   updateScholarship,
   deleteScholarship,
-  updateScholarshipStatus
+  updateScholarshipStatus,
+  bulkUpsertScholarships
 };

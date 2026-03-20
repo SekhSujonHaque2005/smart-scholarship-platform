@@ -1,0 +1,14 @@
+{
+  "include": [
+    "ai_service",
+    "backend",
+    "frontend"
+  ],
+  "extraPaths": [
+    "./ai_service"
+  ],
+  "venvPath": ".",
+  "venv": "ai_service/.venv",
+  "reportMissingImports": true,
+  "typeCheckingMode": "basic"
+}

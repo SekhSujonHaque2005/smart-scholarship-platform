@@ -7,7 +7,21 @@ import { useAuthStore } from '@/app/store/auth.store';
 import { signOut } from 'next-auth/react';
 import { cn } from '@/lib/utils';
 
-export const ProfileDropdown = ({ onClose, onTabChange }: { onClose: () => void, onTabChange?: (tab: string) => void }) => {
+export const ProfileDropdown = ({ 
+  onClose, 
+  onTabChange,
+  customName,
+  customRole,
+  customAvatar,
+  isProvider = false
+}: { 
+  onClose: () => void, 
+  onTabChange?: (tab: string) => void,
+  customName?: string,
+  customRole?: string,
+  customAvatar?: string,
+  isProvider?: boolean
+}) => {
   const { user, logout } = useAuthStore();
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -43,18 +57,22 @@ export const ProfileDropdown = ({ onClose, onTabChange }: { onClose: () => void,
       {/* User Info Header */}
       <div className="p-6 bg-secondary/30 border-b border-border">
         <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-lg ring-2 ring-white/10">
-            {user?.profilePicture ? (
-              <img src={user.profilePicture} alt={user.name} className="w-full h-full object-cover rounded-2xl" />
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-black text-lg shadow-lg ring-2 ring-white/10 overflow-hidden">
+            {customAvatar || user?.profilePicture ? (
+              <img src={customAvatar || user?.profilePicture} alt="Avatar" className="w-full h-full object-cover" />
             ) : (
-              user?.name?.[0]?.toUpperCase() || 'S'
+              (customName || user?.name || (isProvider ? 'P' : 'S'))?.[0]?.toUpperCase()
             )}
           </div>
           <div className="flex flex-col min-w-0">
-            <h4 className="text-xs font-black text-foreground truncate uppercase tracking-tight">{user?.name || 'Scholar'}</h4>
+            <h4 className="text-xs font-black text-foreground truncate uppercase tracking-tight">
+              {customName || user?.name || (isProvider ? 'Provider' : 'Scholar')}
+            </h4>
             <div className="flex items-center gap-1.5 mt-0.5">
                <ShieldCheck size={10} className="text-emerald-500" />
-               <span className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.1em]">Verified Student</span>
+               <span className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.1em]">
+                 {customRole || (isProvider ? 'Verified Provider' : 'Verified Student')}
+               </span>
             </div>
           </div>
         </div>

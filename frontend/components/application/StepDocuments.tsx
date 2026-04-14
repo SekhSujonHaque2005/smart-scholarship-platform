@@ -83,11 +83,9 @@ export default function StepDocuments({ formData, updateFormData, onNext, onBack
 
       const formPayload = new globalThis.FormData();
       formPayload.append('file', file);
-      formPayload.append('documentType', field.label);
+      formPayload.append('docType', field.label);
 
-      const { data } = await api.post('documents/upload', formPayload, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
+      const { data } = await api.post('documents/upload', formPayload);
 
       updateFormData({
         [field.key]: file,

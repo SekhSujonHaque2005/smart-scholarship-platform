@@ -119,19 +119,19 @@ export const Notifications = () => {
       </div>
 
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-[48px] border border-dashed border-border/60 bg-white/[0.01] p-12 shadow-2xl relative overflow-hidden min-h-[500px]"
+        className="rounded-[48px] border border-dashed border-border/60 bg-card/30 dark:bg-white/[0.01] p-12 shadow-2xl relative overflow-hidden min-h-[500px]"
       >
         {loading ? (
           <div className="space-y-8 relative z-10">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-28 bg-white/5 border border-dashed border-border/40 rounded-[32px] animate-pulse" />
+              <div key={i} className="h-28 bg-accent/50 dark:bg-white/5 border border-dashed border-border/40 rounded-[32px] animate-pulse" />
             ))}
           </div>
         ) : notifications.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 relative z-10 opacity-60 space-y-8">
-            <div className="w-24 h-24 rounded-[32px] bg-white/[0.02] border border-dashed border-blue-500/30 flex items-center justify-center shadow-inner">
+            <div className="w-24 h-24 rounded-[32px] bg-accent/30 dark:bg-white/[0.02] border border-dashed border-blue-500/30 flex items-center justify-center shadow-inner">
                <Bell size={40} className="text-blue-500 animate-pulse" />
             </div>
             <div className="text-center space-y-2">
@@ -155,8 +155,8 @@ export const Notifications = () => {
                     className={cn(
                       "group relative p-8 rounded-[32px] border border-dashed backdrop-blur-md transition-all duration-500 flex flex-col sm:flex-row gap-8 items-start sm:items-center",
                       notif.isRead
-                        ? 'bg-white/[0.01] border-border/40 opacity-70 grayscale'
-                        : 'bg-white/[0.03] border-blue-500/30 shadow-2xl cursor-pointer hover:border-blue-500/60'
+                        ? 'bg-card/30 dark:bg-white/[0.01] border-border/40 opacity-70 grayscale'
+                        : 'bg-card/80 dark:bg-white/[0.03] border-blue-500/30 shadow-2xl cursor-pointer hover:border-blue-500/60'
                     )}
                   >
                     {!notif.isRead && (

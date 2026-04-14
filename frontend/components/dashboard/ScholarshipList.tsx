@@ -12,7 +12,7 @@ import {
   Heart, 
   Users, 
   Clock, 
-  DollarSign,
+  IndianRupee,
   TrendingUp,
   X,
   CheckCircle2,
@@ -29,9 +29,9 @@ import { Badge } from '../ui/badge';
 import api from '@/app/lib/api';
 import { cn } from '@/lib/utils';
 
-export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTerm?: string }) => {
+export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = false }: { searchTerm?: string; onlySaved?: boolean }) => {
   const router = useRouter();
-  const [scholarships, setScholarships] = useState<any[]>([]);
+  const [rawScholarships, setRawScholarships] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState(externalSearch);
   const [debouncedSearch, setDebouncedSearch] = useState('');
@@ -49,6 +49,37 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTer
   const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
   const [showAll, setShowAll] = useState(false);
   const [totalCount, setTotalCount] = useState(0);
+  
+  // Memoized filtered scholarships for instant UI updates (Wishlist/Category/Sort)
+  const filteredScholarships = React.useMemo(() => {
+    let results = [...rawScholarships];
+
+    // Client-side category filter
+    if (filters.category !== 'All') {
+      results = results.filter((s: any) => s.category === filters.category);
+    }
+
+    // Client-side deadline filter
+    if (filters.deadlineWithin) {
+      const days = parseInt(filters.deadlineWithin);
+      const cutoff = Date.now() + days * 24 * 60 * 60 * 1000;
+      results = results.filter((s: any) => s.deadline && new Date(s.deadline).getTime() <= cutoff);
+    }
+
+    // Client-side saved/wishlist filter
+    if (onlySaved) {
+      results = results.filter((s: any) => savedIds.has(s.id));
+    }
+
+    // Client-side sort logic
+    if (sortBy === 'amount_high') results.sort((a: any, b: any) => (b.amount || 0) - (a.amount || 0));
+    else if (sortBy === 'amount_low') results.sort((a: any, b: any) => (a.amount || 0) - (b.amount || 0));
+    else if (sortBy === 'deadline') results.sort((a: any, b: any) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
+    else if (sortBy === 'newest') results.sort((a: any, b: any) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+
+    return results;
+  }, [rawScholarships, filters.category, filters.deadlineWithin, onlySaved, savedIds, sortBy]);
+
   const [selectedScholarship, setSelectedScholarship] = useState<any | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
   
@@ -108,35 +139,18 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTer
       params.append('limit', showAll ? '1000' : '10');
 
       const response = await api.get(`scholarships?${params.toString()}`);
-      let results = response.data.scholarships || [];
+      const results = response.data.scholarships || [];
       const total = response.data.pagination?.total || 0;
       setTotalCount(total);
       
-      // Client-side category filter (if not handled by backend)
-      if (filters.category !== 'All') {
-        results = results.filter((s: any) => s.category === filters.category);
-      }
-
-      // Deadline filter
-      if (filters.deadlineWithin) {
-        const days = parseInt(filters.deadlineWithin);
-        const cutoff = Date.now() + days * 24 * 60 * 60 * 1000;
-        results = results.filter((s: any) => s.deadline && new Date(s.deadline).getTime() <= cutoff);
-      }
-      
-      // Sort logic
-      if (sortBy === 'amount_high') results.sort((a: any, b: any) => (b.amount || 0) - (a.amount || 0));
-      if (sortBy === 'amount_low') results.sort((a: any, b: any) => (a.amount || 0) - (b.amount || 0));
-      if (sortBy === 'deadline') results.sort((a: any, b: any) => new Date(a.deadline).getTime() - new Date(b.deadline).getTime());
-      
-      setScholarships(results);
+      setRawScholarships(results);
     } catch (error) {
       console.error('Error fetching scholarships:', error);
-      setScholarships([]); 
+      setRawScholarships([]); 
     } finally {
       setLoading(false);
     }
-  }, [debouncedSearch, filters, sortBy, showAll]);
+  }, [debouncedSearch, filters.minAmount, filters.maxAmount, showAll]);
 
   useEffect(() => {
     fetchScholarships();
@@ -190,7 +204,7 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTer
                 animate={{ opacity: 1, x: 0 }}
                 className="text-4xl md:text-5xl font-serif font-black tracking-tighter text-foreground drop-shadow-sm"
               >
-                Scholarships
+                {onlySaved ? 'Wishlist' : 'Scholarships'}
               </motion.h1>
               <motion.div 
                 initial={{ opacity: 0, x: -20 }}
@@ -200,7 +214,7 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTer
               >
                 Discover your future <div className="w-1 h-1 rounded-full bg-border" />
                 <span className="text-[10px] uppercase tracking-[0.2em] font-black text-blue-600 dark:text-blue-400/80">
-                  {scholarships.length} of {totalCount || scholarships.length} Opportunities Available
+                  {filteredScholarships.length} of {totalCount || filteredScholarships.length} Opportunities Available
                 </span>
               </motion.div>
             </div>
@@ -413,27 +427,27 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '' }: { searchTer
                         </div>
                       </div>
                     )}
-                  </div>
+                    </div>
 
-                  {/* Pricing & Deadline Matrix */}
-                  <div className="mt-12 shrink-0 relative z-10 pt-8 border-t border-dashed border-border/60 grid grid-cols-2 gap-8 mb-8">
-                    <div className="space-y-2">
-                       <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.3em]">Grant amount</p>
-                       <p className="text-2xl font-mono font-black text-foreground tracking-tighter shadow-blue-500/20">
-                         {typeof scholarship.amount === 'number' 
-                           ? `₹${scholarship.amount.toLocaleString()}` 
-                           : 'N/A'}
-                       </p>
+                    {/* Pricing & Deadline Matrix */}
+                    <div className="mt-12 shrink-0 relative z-10 pt-8 border-t border-dashed border-border/60 grid grid-cols-2 gap-8 mb-8">
+                      <div className="space-y-2">
+                         <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.3em]">Grant amount</p>
+                         <p className="text-2xl font-mono font-black text-foreground tracking-tighter shadow-blue-500/20">
+                           {typeof scholarship.amount === 'number' 
+                             ? `₹${scholarship.amount.toLocaleString()}` 
+                             : 'N/A'}
+                         </p>
+                      </div>
+                      <div className="space-y-2 text-right">
+                         <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.3em]">Submission window</p>
+                         <p className="text-xl font-mono font-black text-foreground tracking-tighter">
+                           {scholarship.deadline 
+                             ? new Date(scholarship.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toUpperCase()
+                             : 'OPEN'}
+                         </p>
+                      </div>
                     </div>
-                    <div className="space-y-2 text-right">
-                       <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.3em]">Submission window</p>
-                       <p className="text-xl font-mono font-black text-foreground tracking-tighter">
-                         {scholarship.deadline 
-                           ? new Date(scholarship.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toUpperCase()
-                           : 'OPEN'}
-                       </p>
-                    </div>
-                  </div>
 
                   <Button 
                     onClick={() => router.push(`/dashboard/student/scholarships/${scholarship.id}`)}

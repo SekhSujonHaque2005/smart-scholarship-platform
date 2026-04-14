@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import gsap from 'gsap';
+import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { NeonButton } from '@/components/ui/neon-button';
-import { ArrowRight, Sparkles, Zap, ShieldCheck, GraduationCap } from 'lucide-react';
+import { ArrowRight, Sparkles, CheckCircle2, Search, SlidersHorizontal, ChevronRight, ShieldCheck, GraduationCap } from 'lucide-react';
 import api from '@/app/lib/api';
+import TextType from '@/components/TextType';
+import { SpotlightBackground } from '@/components/ui/spotlight-background';
+import VariableProximity from '@/components/VariableProximity';
 
 interface PlatformStats {
     totalStudents: number;
@@ -30,9 +32,23 @@ function formatAwarded(num: number): string {
     return `₹${num}`;
 }
 
+// Custom snapy easing for Vercel/Linear feel
+const SNAP_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+
 export default function Hero() {
-    const containerRef = useRef<HTMLDivElement>(null);
     const [stats, setStats] = useState<PlatformStats | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    // Mouse tracking for 3D card tilt
+    const mouseX = useMotionValue(0.5);
+    const mouseY = useMotionValue(0.5);
+
+    const springConfig = { damping: 30, stiffness: 200, mass: 0.5 };
+    const springX = useSpring(mouseX, springConfig);
+    const springY = useSpring(mouseY, springConfig);
+
+    const rotateX = useTransform(springY, [0, 1], [5, -5]);
+    const rotateY = useTransform(springX, [0, 1], [-5, 5]);
 
     useEffect(() => {
         api.get('stats')
@@ -40,18 +56,18 @@ export default function Hero() {
             .catch((err) => console.error('Failed to fetch stats:', err));
     }, []);
 
-    useEffect(() => {
-        const ctx = gsap.context(() => {
-            const tl = gsap.timeline();
-            tl.fromTo('.hero-badge', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
-                .fromTo('.hero-title', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, '-=0.2')
-                .fromTo('.hero-subtitle', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.6, ease: 'power2.out' }, '-=0.3')
-                .fromTo('.hero-buttons', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, '-=0.2')
-                .fromTo('.hero-image', { opacity: 0, scale: 0.95, y: 40 }, { opacity: 1, scale: 1, y: 0, duration: 1.2, ease: 'power3.out' }, '-=0.1')
-                .fromTo('.hero-stats', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: 'power2.out' }, '-=0.4');
-        }, containerRef);
-        return () => ctx.revert();
-    }, []);
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const xPos = (e.clientX - rect.left) / rect.width;
+        const yPos = (e.clientY - rect.top) / rect.height;
+        mouseX.set(xPos);
+        mouseY.set(yPos);
+    };
+
+    const handleMouseLeave = () => {
+        mouseX.set(0.5);
+        mouseY.set(0.5);
+    };
 
     const statItems = stats
         ? [
@@ -66,194 +82,262 @@ export default function Hero() {
         ];
 
     return (
-        <section
-            ref={containerRef}
-            className="relative flex flex-col items-center justify-start px-6 pt-32 pb-20 md:pt-40 overflow-hidden min-h-screen"
-        >
-            {/* Cinematic Aurora Background — CSS only, no parallax */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                <div className="absolute top-[-10%] left-[10%] w-[500px] h-[500px] bg-blue-600/15 blur-[140px] rounded-full mix-blend-screen animate-pulse" style={{ animationDuration: '8s' }} />
-                <div className="absolute top-[30%] right-[-5%] w-[600px] h-[600px] bg-purple-600/15 blur-[160px] rounded-full mix-blend-screen animate-pulse" style={{ animationDuration: '12s', animationDelay: '2s' }} />
-                <div className="absolute bottom-[-10%] left-[30%] w-[700px] h-[700px] bg-cyan-600/10 blur-[150px] rounded-full mix-blend-screen animate-pulse" style={{ animationDuration: '10s', animationDelay: '4s' }} />
-                
-                {/* Background Grid Pattern */}
-                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_40%,#000_30%,transparent_100%)] opacity-40 mix-blend-overlay" />
-            </div>
-
-            {/* Template Badge Style */}
-            <aside className="hero-badge mb-10 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-full border border-slate-200 dark:border-white/10 bg-white/50 dark:bg-white/5 backdrop-blur-md shadow-sm transition-all hover:bg-slate-100 dark:hover:bg-white/10 max-w-full z-10 cursor-pointer group">
-                <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse relative">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75 animate-ping"></span>
-                </span>
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200 text-center whitespace-nowrap">
-                    Introducing AI Matching 2.0
-                </span>
-                <ArrowRight size={14} className="text-blue-500 group-hover:translate-x-1 transition-transform" />
-            </aside>
-
-            {/* Template Title Style */}
-            <h1
-                className="hero-title text-5xl md:text-7xl lg:text-[5.5rem] font-extrabold text-center max-w-5xl px-2 leading-[1.1] tracking-tighter mb-8 text-slate-900 dark:text-transparent dark:bg-clip-text dark:bg-gradient-to-br dark:from-white dark:via-white/95 dark:to-white/40 z-10"
+        <SpotlightBackground>
+            <section 
+                ref={containerRef}
+                className="relative flex flex-col items-center justify-start px-6 pt-32 pb-20 md:pt-40 overflow-hidden min-h-screen"
             >
-                Find scholarships <br className="hidden md:block" />
-                matched to your profile
-            </h1>
 
-            {/* Subtitle */}
-            <p className="hero-subtitle text-lg md:text-xl text-center max-w-2xl px-6 mb-12 text-slate-600 dark:text-slate-400 font-light tracking-wide z-10">
-                ScholarHub uses AI to match students with verified scholarships across India. <br className="hidden lg:block" />
-                Apply in minutes, track your status in real-time, and fund your education.
-            </p>
 
-            {/* Buttons */}
-            <div className="hero-buttons flex items-center justify-center gap-4 relative z-20 mb-24 w-full sm:w-auto flex-col sm:flex-row">
-                <Link href="/register" className="w-full sm:w-auto">
-                    <NeonButton className="w-full h-[3.5rem] text-base group z-20">
-                        Get started free
-                        {/* <Sparkles size={18} className="ml-1 group-hover:rotate-12 group-hover:text-[#ffdf4e] transition-all" /> */}
-                    </NeonButton>
-                </Link>
-                <Link href="/scholarships" className="w-full sm:w-auto">
-                    <Button
-                        size="lg"
-                        variant="ghost"
-                        className="group w-full h-[3.5rem] px-8 text-base font-semibold text-slate-700 dark:text-white/80 hover:bg-slate-100 dark:hover:bg-white/10 dark:hover:text-white rounded-xl border border-transparent dark:hover:border-white/10 transition-all"
-                    >
-                        Browse Scholarships
-                        <ArrowRight size={18} className="ml-2 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
-                    </Button>
-                </Link>
-            </div>
-
-            {/* Premium Dynamic Hero Visual — CSS animations only */}
-            <div className="hero-image w-full max-w-6xl relative pb-20 min-h-[450px] md:min-h-[550px] flex items-center justify-center z-10">
+            <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col items-center">
                 
-                {/* Central AI matching Hub */}
-                <div className="relative z-20 w-56 h-56 md:w-72 md:h-72 rounded-full border border-white/10 bg-slate-950/40 backdrop-blur-2xl flex items-center justify-center shadow-[inset_0_0_60px_rgba(255,255,255,0.05),0_0_100px_rgba(59,130,246,0.2)] group animate-[float_6s_ease-in-out_infinite]">
-                    {/* Rotating Orbital Rings */}
-                    <div className="absolute inset-[-20px] rounded-full border border-blue-500/10 animate-[spin_24s_linear_infinite]" />
-                    <div className="absolute inset-3 md:inset-5 rounded-full border border-purple-500/20 animate-[spin_30s_linear_infinite_reverse] opacity-80" />
-                    <div className="absolute inset-8 md:inset-10 rounded-full border-2 border-emerald-400/20 border-dashed animate-[spin_24s_linear_infinite]" />
-                    
-                    {/* Glowing Core Orbiting Dot */}
-                    <div className="absolute inset-[-20px] animate-[spin_24s_linear_infinite]">
-                        <div className="w-2 h-2 rounded-full bg-blue-400 absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 shadow-[0_0_15px_rgba(96,165,250,1)]" />
-                    </div>
-
-                    {/* Core Icon Platform */}
-                    <div className="w-24 h-24 md:w-32 md:h-32 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-600 flex items-center justify-center shadow-[inset_0_2px_10px_rgba(255,255,255,0.3),0_0_60px_rgba(59,130,246,0.6)] relative overflow-hidden group-hover:scale-105 transition-transform duration-700">
-                        {/* High-end 3D glossy reflection */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-white/30 to-transparent opacity-60 rounded-full" />
-                        
-                        <Zap className="w-12 h-12 md:w-16 md:h-16 text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.6)]" strokeWidth={1.5} fill="currentColor" fillOpacity={0.2} />
-                    </div>
-
-                    {/* Laser Connecting Lines (SVG) */}
-                    <svg className="absolute w-[900px] h-[500px] top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 -z-10 opacity-40 pointer-events-none hidden md:block" viewBox="0 0 900 500">
-                        <path d="M 450 250 Q 250 100 120 280" fill="none" stroke="url(#blue-laser)" strokeWidth="3" strokeDasharray="8 8" className="animate-[dash_15s_linear_infinite]" />
-                        <path d="M 450 250 Q 650 350 780 180" fill="none" stroke="url(#purple-laser)" strokeWidth="3" strokeDasharray="8 8" className="animate-[dash_15s_linear_infinite_reverse]" />
-                        <defs>
-                            <linearGradient id="blue-laser"><stop offset="0%" stopColor="#60a5fa" /><stop offset="100%" stopColor="transparent" /></linearGradient>
-                            <linearGradient id="purple-laser"><stop offset="0%" stopColor="#a78bfa" /><stop offset="100%" stopColor="transparent" /></linearGradient>
-                        </defs>
-                    </svg>
-                </div>
-
-                {/* Left Floating Card: Realistic Student Profile */}
-                <div className="absolute top-[0%] md:top-[10%] left-[2%] md:left-[8%] w-64 md:w-72 p-5 rounded-[24px] border border-white/[0.12] bg-slate-950/70 backdrop-blur-3xl shadow-[0_30px_60px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)] -rotate-6 md:-rotate-12 group hover:rotate-0 hover:scale-105 transition-all duration-700 hidden sm:block z-30 animate-[float_5s_ease-in-out_1s_infinite]">
-                    {/* Gloss highlight */}
-                    <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                    
-                    <div className="flex items-center gap-4 mb-5">
-                        <div className="relative w-14 h-14 rounded-2xl bg-gradient-to-tr from-purple-500 via-pink-500 to-orange-400 p-[2px] shadow-[0_0_25px_rgba(236,72,153,0.4)]">
-                            <div className="w-full h-full rounded-[14px] bg-slate-900 flex items-center justify-center overflow-hidden">
-                               <img src="https://i.pravatar.cc/150?img=47" alt="Profile" className="w-full h-full object-cover opacity-90" />
-                            </div>
-                        </div>
-                        <div className="space-y-1">
-                            <p className="text-white text-[15px] font-semibold tracking-tight leading-none group-hover:text-pink-400 transition-colors">Sarah Jenkins</p>
-                            <p className="text-slate-400 text-[11px] font-medium uppercase tracking-widest break-words leading-tight">Computer Science</p>
-                            <div className="flex items-center gap-1.5 mt-1">
-                                <span className="text-[10px] text-slate-500 font-mono">GPA: 3.9</span>
-                                <span className="w-1 h-1 rounded-full bg-slate-600" />
-                                <span className="text-[10px] text-slate-500 font-mono">B.Tech</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div className="bg-white/[0.03] rounded-xl p-3 border border-white/5 space-y-2 mb-4">
-                        <div className="flex justify-between items-center text-[10px] uppercase font-bold tracking-wider mb-1">
-                            <span className="text-slate-400">Match Probability</span>
-                            <span className="text-emerald-400">98%</span>
-                        </div>
-                        <div className="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
-                            <div className="bg-gradient-to-r from-emerald-500 to-teal-400 h-2 rounded-full w-[98%] shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-                        </div>
-                    </div>
-
-                    <div className="flex gap-2">
-                        <span className="flex-1 text-center py-1.5 rounded-lg bg-emerald-500/10 text-emerald-400 text-[10px] font-bold uppercase tracking-widest border border-emerald-500/20">Verified</span>
-                        <span className="flex-1 text-center py-1.5 rounded-lg bg-blue-500/10 text-blue-400 text-[10px] font-bold uppercase tracking-widest border border-blue-500/20">Eligible</span>
-                    </div>
-                </div>
-
-                {/* Right Floating Card: Realistic Scholarship */}
-                <div className="absolute bottom-[2%] md:bottom-[10%] right-[2%] md:right-[8%] w-64 md:w-80 p-6 rounded-[24px] border border-white/[0.12] bg-slate-950/70 backdrop-blur-3xl shadow-[0_30px_60px_rgba(0,0,0,0.6),inset_0_1px_0_rgba(255,255,255,0.1)] rotate-6 md:rotate-12 group hover:rotate-0 hover:scale-105 transition-all duration-700 hidden sm:block z-30 animate-[float_7s_ease-in-out_0.5s_infinite]">
-                     {/* Gloss highlight */}
-                     <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                     
-                    <div className="flex justify-between items-start mb-5 relative">
-                        <div className="p-3.5 rounded-2xl bg-gradient-to-br from-blue-500/20 to-cyan-400/10 border border-blue-400/20 text-cyan-400 shadow-[inset_0_0_15px_rgba(56,189,248,0.1),0_0_20px_rgba(56,189,248,0.2)] group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(56,189,248,0.4)] transition-all duration-500">
-                            <GraduationCap className="w-6 h-6 md:w-7 md:h-7" strokeWidth={1.5} />
-                        </div>
-                        <span className="px-3 py-1.5 rounded-full bg-purple-500/15 text-purple-300 text-[9px] font-bold uppercase tracking-widest border border-purple-500/30 flex items-center gap-1.5 shadow-[0_0_10px_rgba(168,85,247,0.2)]">
-                            <span className="relative flex h-1.5 w-1.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-purple-400"></span>
+                {/* 1. Snappy Staggered Entrance Container */}
+                <motion.div 
+                    initial="hidden" 
+                    animate="visible" 
+                    variants={{
+                        hidden: {},
+                        visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } }
+                    }}
+                    className="flex flex-col items-center text-center max-w-4xl"
+                >
+                    {/* Badge */}
+                    <motion.div 
+                        variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}
+                        transition={{ duration: 0.5, ease: SNAP_EASE }}
+                        className="mb-8"
+                    >
+                        <Link href="/matching-engine" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted transition-colors group cursor-pointer shadow-sm">
+                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/20">
+                                <Sparkles className="w-3 h-3 text-blue-500 dark:text-blue-400" />
                             </span>
-                            Just Added
-                        </span>
-                    </div>
-                    
-                    <div className="mb-5">
-                        <h4 className="text-white text-base md:text-lg font-bold leading-tight mb-2 tracking-tight group-hover:text-blue-400 transition-colors">Women in STEM Excellence Grant</h4>
-                        <p className="text-slate-400 text-xs leading-relaxed line-clamp-2">Supporting aspiring female engineers leading innovation in technology and computer science.</p>
+                            <span className="text-xs font-medium text-muted-foreground tracking-wide group-hover:text-foreground transition-colors">Introducing AI Matching 2.0</span>
+                            <ArrowRight size={14} className="text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
+                        </Link>
+                    </motion.div>
+
+                    {/* Title */}
+                    <div className="relative" ref={useRef(null)}>
+                        <motion.h1 
+                            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                            transition={{ duration: 0.6, ease: SNAP_EASE }}
+                            className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-[-0.03em] leading-[1.05] text-foreground mb-6 drop-shadow-sm min-h-[2.1em] md:min-h-[auto]"
+                        >
+                            <VariableProximity
+                                label="Find scholarships matching"
+                                containerRef={containerRef}
+                                radius={150}
+                                fromScale={1}
+                                toScale={1.2}
+                                fromWeight={700}
+                                toWeight={900}
+                                className="block"
+                            />
+                            <br className="hidden md:block" />
+                            <TextType
+                                text={[
+                                    "your exact profile.",
+                                    "your academic journey.",
+                                    "your future success.",
+                                    "your dream career."
+                                ]}
+                                className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400"
+                                cursorClassName="bg-emerald-500 w-[4px] md:w-[6px] h-[0.9em] translate-y-[0.1em]"
+                                typingSpeed={80}
+                                deletingSpeed={50}
+                                pauseDuration={3000}
+                                loop={true}
+                            />
+                        </motion.h1>
                     </div>
 
-                    <div className="flex items-center justify-between text-xs text-slate-400 font-medium border-t border-white/[0.08] pt-4">
-                        <div className="flex items-center gap-1.5">
-                            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                            <span className="text-[10px] uppercase tracking-wider text-slate-300">Trusted</span>
-                        </div>
-                        <div className="flex flex-col items-end">
-                            <span className="text-[9px] uppercase tracking-widest text-slate-500 mb-0.5">Prize Pool</span>
-                            <span className="text-white text-[15px] font-black tracking-tight drop-shadow-[0_2px_10px_rgba(56,189,248,0.5)]">₹5,00,000</span>
-                        </div>
-                    </div>
-                </div>
+                    {/* Subtitle */}
+                    <motion.div 
+                        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                        transition={{ duration: 0.6, ease: SNAP_EASE }}
+                        className="mb-10"
+                    >
+                        <TextType 
+                            text="ScholarHub uses a data-driven engine to connect verified students with premium educational grants across India. Apply instantly."
+                            className="text-lg md:text-xl text-muted-foreground font-normal tracking-tight max-w-2xl leading-relaxed"
+                            typingSpeed={20}
+                            showCursor={true}
+                            cursorClassName="bg-muted-foreground/30 w-[2px] h-[1.1em] translate-y-[0.15em]"
+                            loop={false}
+                            startOnVisible={true}
+                        />
+                    </motion.div>
 
-                {/* Decorative floating particles — CSS animations */}
-                <div className="absolute top-1/4 left-1/4 w-2 h-2 rounded-full bg-cyan-400 blur-[1px] pointer-events-none hidden md:block shadow-[0_0_10px_rgba(34,211,238,1)] animate-[float_3s_ease-in-out_infinite]" />
-                <div className="absolute bottom-1/4 right-[28%] w-3 h-3 rounded-full bg-purple-500 blur-[2px] pointer-events-none hidden md:block shadow-[0_0_15px_rgba(168,85,247,0.8)] animate-[float_5s_ease-in-out_1s_infinite]" />
-                <div className="absolute top-1/3 right-1/4 w-1.5 h-1.5 rounded-full bg-blue-400 pointer-events-none hidden md:block shadow-[0_0_8px_rgba(96,165,250,1)] animate-[float_4s_ease-in-out_infinite]" />
-                <div className="absolute bottom-1/3 left-1/3 w-1 h-1 rounded-full bg-emerald-400 pointer-events-none hidden md:block shadow-[0_0_8px_rgba(52,211,153,1)] animate-[float_4s_ease-in-out_0.5s_infinite]" />
+                    {/* Buttons */}
+                    <motion.div 
+                        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                        transition={{ duration: 0.6, ease: SNAP_EASE }}
+                        className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
+                    >
+                        <Link href="/register" className="w-full sm:w-auto">
+                            <Button className="w-full sm:w-auto h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm rounded-lg transition-all shadow-lg dark:shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]">
+                                Start Building Profile
+                            </Button>
+                        </Link>
+                        <Link href="/scholarships" className="w-full sm:w-auto">
+                            <Button variant="outline" className="w-full sm:w-auto h-12 px-8 bg-transparent text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 font-semibold text-sm rounded-lg transition-all">
+                                View Scholarships <ChevronRight className="ml-1 w-4 h-4 text-muted-foreground" />
+                            </Button>
+                        </Link>
+                    </motion.div>
+                </motion.div>
+
+                {/* 2. Advanced 3D Interactive Dashboard Mockup (Linear/Vercel Aesthetic) */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 60, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.9, delay: 0.2, ease: SNAP_EASE }}
+                    className="w-full mt-24 relative perspective-[2000px]"
+                    onMouseMove={handleMouseMove}
+                    onMouseLeave={handleMouseLeave}
+                >
+                    {/* Underlying Subtle Glow - Purely structured, no AI-blob look */}
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] bg-blue-500/10 blur-[100px] pointer-events-none rounded-[100%]" />
+
+                    {/* The 3D Rotatable Stack */}
+                    <motion.div
+                        style={{
+                            rotateX,
+                            rotateY,
+                            transformStyle: "preserve-3d",
+                        }}
+                        className="relative w-full max-w-5xl mx-auto rounded-[20px] bg-card border border-border shadow-2xl dark:shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] flex flex-col will-change-transform overflow-hidden"
+                    >
+                        {/* Fake Browser/App Header */}
+                        <div className="h-12 w-full border-b border-border flex items-center px-4 bg-muted/30">
+                            <div className="flex gap-2">
+                                <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-[#333]" />
+                                <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-[#333]" />
+                                <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-[#333]" />
+                            </div>
+                            <div className="mx-auto flex items-center gap-2 px-3 py-1.5 rounded-md bg-background border border-border w-64 shadow-sm">
+                                <Search className="w-3 h-3 text-muted-foreground" />
+                                <span className="text-[11px] text-muted-foreground font-mono tracking-tight">scholarhub.in/discover</span>
+                            </div>
+                        </div>
+
+                        {/* Interactive Hero Content Area */}
+                        <div className="p-8 md:p-12 flex flex-col lg:flex-row gap-10">
+                            
+                            {/* Left: The "Quick Eligibility" Interactive Module */}
+                            <div className="w-full lg:w-1/3 flex flex-col gap-6" style={{ transform: "translateZ(30px)" }}>
+                                <div className="space-y-2">
+                                    <h3 className="text-foreground font-medium text-lg">Quick Eligibility</h3>
+                                    <p className="text-muted-foreground text-sm">Find exactly what you qualify for.</p>
+                                </div>
+                                
+                                <div className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">Field of Study</label>
+                                        <div className="h-10 w-full bg-background border border-border rounded-md flex items-center px-3 cursor-pointer hover:bg-accent transition-colors shadow-sm">
+                                            <span className="text-foreground text-sm">Computer Science</span>
+                                            <SlidersHorizontal className="w-4 h-4 text-muted-foreground ml-auto" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-1.5">
+                                        <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">Current Degree</label>
+                                        <div className="h-10 w-full bg-background border border-border rounded-md flex items-center px-3 cursor-pointer hover:bg-accent transition-colors shadow-sm">
+                                            <span className="text-foreground text-sm">B.Tech (Year 3)</span>
+                                            <SlidersHorizontal className="w-4 h-4 text-muted-foreground ml-auto" />
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Action button in the mockup */}
+                                    <button className="w-full h-10 mt-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-md shadow-[0_0_20px_rgba(37,99,235,0.2)] transition-colors flex items-center justify-center gap-2">
+                                        Scan Library 
+                                        <span className="flex h-1.5 w-1.5 relative">
+                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
+                                        </span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Right: Feed of highly structured result cards */}
+                            <div className="w-full lg:w-2/3 flex flex-col gap-3" style={{ transform: "translateZ(10px)" }}>
+                                <div className="flex items-center justify-between pb-2 border-b border-border mb-2">
+                                    <span className="text-muted-foreground text-xs font-mono uppercase">Results (1,204)</span>
+                                    <div className="flex gap-2">
+                                        <span className="text-[10px] px-2 py-1 bg-accent text-accent-foreground rounded border border-border shadow-sm">Relevance</span>
+                                    </div>
+                                </div>
+
+                                {/* Mock Card 1 */}
+                                <motion.div 
+                                    whileHover={{ scale: 1.01 }}
+                                    className="p-4 bg-background border border-border rounded-xl flex items-start gap-4 cursor-pointer transition-colors hover:bg-accent/50 shadow-sm"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
+                                        <GraduationCap className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <h4 className="text-foreground text-sm font-semibold truncate">Women in STEM Grant 2024</h4>
+                                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 uppercase">Match 98%</span>
+                                        </div>
+                                        <p className="text-muted-foreground text-xs line-clamp-1 mb-3">Supporting female tech leaders focused on cloud infrastructure and AI.</p>
+                                        
+                                        <div className="flex items-center gap-4 text-[11px]">
+                                            <div className="flex items-center gap-1 text-muted-foreground">
+                                                <ShieldCheck className="w-3.5 h-3.5 text-muted-foreground" /> Verified
+                                            </div>
+                                            <div className="text-blue-600 dark:text-blue-400 font-mono">₹5,00,000</div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* Mock Card 2 */}
+                                <motion.div 
+                                    whileHover={{ scale: 1.01 }}
+                                    className="p-4 bg-background border border-border rounded-xl flex items-start gap-4 cursor-pointer transition-colors hover:bg-accent/50 shadow-sm"
+                                >
+                                    <div className="w-10 h-10 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
+                                        <Sparkles className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <h4 className="text-foreground text-sm font-semibold truncate">National Merit Engineering Scholarship</h4>
+                                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 uppercase">Match 92%</span>
+                                        </div>
+                                        <p className="text-muted-foreground text-xs line-clamp-1 mb-3">Awarded to top performers in core engineering disciplines nation-wide.</p>
+                                        
+                                        <div className="flex items-center gap-4 text-[11px]">
+                                            <div className="flex items-center gap-1 text-muted-foreground">
+                                                <ShieldCheck className="w-3.5 h-3.5 text-muted-foreground" /> Verified
+                                            </div>
+                                            <div className="text-blue-600 dark:text-blue-400 font-mono">₹2,50,000</div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+
+                                {/* Fade Out Bottom */}
+                                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-card to-transparent pointer-events-none rounded-b-[20px]" />
+                            </div>
+                        </div>
+                    </motion.div>
+                </motion.div>
+
+                {/* Optional: Status Text below Dashboard */}
+                <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 1.2, duration: 1 }}
+                    className="mt-8 flex items-center gap-2 text-muted-foreground text-[11px] font-mono tracking-tight"
+                >
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-500" /> System Operational. Engine running at 60ms latency.
+                </motion.div>
+                
             </div>
 
-            {/* Stats — fetched from backend */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-12 max-w-4xl mx-auto relative z-20 w-full px-4 mt-12 md:mt-2">
-                {statItems.map((stat) => (
-                    <div key={stat.label} className="hero-stats group relative text-center p-6 sm:p-8 rounded-[24px] border border-white/[0.05] bg-slate-900/40 backdrop-blur-xl hover:bg-slate-800/40 hover:border-white/[0.1] transition-all duration-500 overflow-hidden">
-                        {/* Hover flare */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                        <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-r from-transparent via-blue-400/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-                        
-                        <p className="relative text-4xl sm:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white to-slate-400 tracking-tighter mb-2 drop-shadow-sm group-hover:scale-110 transition-transform duration-500 ease-out">{stat.value}</p>
-                        <p className="relative text-blue-400/80 text-xs sm:text-sm font-bold tracking-[0.2em] uppercase group-hover:text-blue-400 transition-colors">{stat.label}</p>
-                    </div>
-                ))}
-            </div>
-            {/* Very bottom gradient fade for smooth transition to next section */}
-            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-slate-50 dark:from-slate-950 via-slate-50/80 dark:via-slate-950/80 to-transparent pointer-events-none z-20 transition-colors duration-500" />
+            {/* Bottom Gradient Fade */}
+            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background/80 to-transparent pointer-events-none z-20" />
         </section>
+        </SpotlightBackground>
     );
 }
+

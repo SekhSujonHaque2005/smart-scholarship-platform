@@ -5,6 +5,7 @@ import TargetAudience from '@/components/landing/TargetAudience';
 import Features from '@/components/landing/Features';
 import SecurityPromise from '@/components/landing/SecurityPromise';
 import Stats from '@/components/landing/Stats';
+import { TestimonialsSection } from '@/components/ui/testimonials-with-marquee';
 import FAQ from '@/components/landing/FAQ';
 import FinalCTA from '@/components/landing/FinalCTA';
 import NewsletterAlerts from '@/components/landing/NewsletterAlerts';
@@ -21,6 +22,7 @@ export default function LandingPage() {
             <Features />
             <SecurityPromise />
             <Stats />
+            <TestimonialsSection />
             <FAQ />
             <FinalCTA />
             <NewsletterAlerts />

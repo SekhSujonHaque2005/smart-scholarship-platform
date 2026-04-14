@@ -1,4 +1,5 @@
 const prisma = require('../lib/prisma');
+const { calculateMatchScore } = require('../utils/matching');
 const { notifyApplicationSubmitted, notifyApplicationStatus } = require('../services/notification.service');
 const { checkFraud } = require('../services/ai.service');
 
@@ -150,7 +151,12 @@ const getMyApplications = async (req, res) => {
       orderBy: { submittedAt: 'desc' }
     });
 
-    res.status(200).json({ applications });
+    const appsWithMatch = applications.map(app => ({
+      ...app,
+      matchScore: calculateMatchScore(student, app.scholarship)
+    }));
+
+    res.status(200).json({ applications: appsWithMatch });
 
   } catch (error) {
     console.error('Get my applications error:', error.message);
@@ -240,7 +246,7 @@ const reviewApplication = async (req, res) => {
     const { id } = req.params;
     const { status, remarks } = req.body;
 
-    if (!['APPROVED', 'REJECTED', 'UNDER_REVIEW'].includes(status)) {
+    if (!['APPROVED', 'REJECTED', 'UNDER_REVIEW', 'SHORTLISTED', 'INTERVIEWING'].includes(status)) {
       return res.status(400).json({ message: 'Invalid status' });
     }
 
@@ -321,10 +327,75 @@ const getAllApplications = async (req, res) => {
   }
 };
 
+// GET ALL APPLICATIONS FOR PROVIDER SCHOLARSHIPS
+const getMyApplicationsProvider = async (req, res) => {
+  try {
+    const provider = await prisma.provider.findUnique({
+      where: { userId: req.user.userId }
+    });
+
+    if (!provider) {
+      return res.status(404).json({ message: 'Provider profile not found' });
+    }
+
+    const applications = await prisma.application.findMany({
+      where: {
+        scholarship: {
+          providerId: provider.id
+        }
+      },
+      include: {
+        student: {
+          select: {
+            name: true,
+            cgpa: true,
+            user: {
+              select: {
+                email: true,
+                profilePicture: true
+              }
+            }
+          }
+        },
+        scholarship: {
+          select: {
+            title: true,
+            amount: true
+          }
+        },
+        fraudFlag: {
+          select: {
+            fraudScore: true
+          }
+        }
+      },
+      orderBy: { submittedAt: 'desc' }
+    });
+
+    // Flatten student user info for frontend compatibility
+    const flattenedApplications = applications.map(app => ({
+      ...app,
+      student: {
+        ...app.student,
+        email: app.student.user?.email,
+        profilePicture: app.student.user?.profilePicture,
+        user: undefined // Remove nested user object
+      }
+    }));
+
+    res.status(200).json({ applications: flattenedApplications });
+
+  } catch (error) {
+    console.error('Get provider applications error:', error.message);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
 module.exports = {
   submitApplication,
   getMyApplications,
   getScholarshipApplications,
+  getMyApplicationsProvider,
   getApplicationById,
   reviewApplication,
   getAllApplications

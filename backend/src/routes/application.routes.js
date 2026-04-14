@@ -4,6 +4,7 @@ const {
   submitApplication,
   getMyApplications,
   getScholarshipApplications,
+  getMyApplicationsProvider,
   getApplicationById,
   reviewApplication,
   getAllApplications
@@ -15,6 +16,7 @@ router.post('/', authenticate, authorize('STUDENT'), submitApplication);
 router.get('/my', authenticate, authorize('STUDENT'), getMyApplications);
 
 // Provider routes
+router.get('/provider/my', authenticate, authorize('PROVIDER'), getMyApplicationsProvider);
 router.get('/scholarship/:scholarshipId', authenticate, authorize('PROVIDER'), getScholarshipApplications);
 router.patch('/:id/review', authenticate, authorize('PROVIDER'), reviewApplication);
 

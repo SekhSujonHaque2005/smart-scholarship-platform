@@ -29,9 +29,9 @@ type LoginForm = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const router = useRouter();
-  const setAuth = useAuthStore((state: any) => state.setAuth);
+  const { setAuth, isHydrated } = useAuthStore();
   const isAuthenticated = useAuthStore((state: any) => state.isAuthenticated || !!state.accessToken);
-  const { data: session } = useSession();
+  const { data: session, status: sessionStatus } = useSession();
   const containerRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -77,7 +77,7 @@ export default function LoginPage() {
   // Sync Google session with our auth store
   useEffect(() => {
     const authSession = session as any;
-    if (authSession?.backendToken && !isAuthenticated) {
+    if (authSession?.backendToken && !isAuthenticated && isHydrated) {
       setAuth(
         {
           id: authSession.backendId as string,
@@ -89,7 +89,16 @@ export default function LoginPage() {
       );
       router.push('/dashboard/student');
     }
-  }, [session, isAuthenticated, setAuth, router]);
+  }, [session, isAuthenticated, setAuth, router, isHydrated]);
+
+  // Redirect if already authenticated and state is hydrated
+  useEffect(() => {
+    if (isHydrated && sessionStatus !== 'loading') {
+      if (isAuthenticated || sessionStatus === 'authenticated') {
+        router.push('/dashboard/student');
+      }
+    }
+  }, [isAuthenticated, isHydrated, sessionStatus, router]);
 
   const [showOTP, setShowOTP] = useState(false);
   const [tempToken, setTempToken] = useState<string | null>(null);

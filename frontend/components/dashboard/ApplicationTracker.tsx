@@ -2,18 +2,34 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Clock, XCircle, FileText, ChevronRight, Loader2 } from 'lucide-react';
+import { CheckCircle2, Clock, XCircle, FileText, ChevronRight, Loader2, ShieldCheck, Star } from 'lucide-react';
 import { Badge } from '../ui/badge';
 import { cn } from '@/lib/utils';
 import api from '@/app/lib/api';
+import { ReviewModal } from '../application/ReviewModal';
 
 const StatusIcon = ({ status }: { status: string }) => {
   switch (status) {
     case 'APPROVED': return <CheckCircle2 className="text-emerald-600 dark:text-emerald-400" size={20} />;
     case 'REJECTED': return <XCircle className="text-rose-600 dark:text-rose-400" size={20} />;
     case 'UNDER_REVIEW': return <Clock className="text-amber-600 dark:text-amber-400" size={20} />;
+    case 'SHORTLISTED': return <Clock className="text-indigo-600 dark:text-indigo-400" size={20} />;
+    case 'INTERVIEWING': return <Clock className="text-purple-600 dark:text-purple-400" size={20} />;
     default: return <Clock className="text-blue-600 dark:text-blue-400" size={20} />;
   }
+};
+
+const STAGES = [
+  { id: 'PENDING', label: 'Applied' },
+  { id: 'UNDER_REVIEW', label: 'Review' },
+  { id: 'SHORTLISTED', label: 'Shortlist' },
+  { id: 'INTERVIEWING', label: 'Interview' },
+  { id: 'APPROVED', label: 'Decision' }
+];
+
+const getStageIndex = (status: string) => {
+  if (status === 'REJECTED') return 4;
+  return STAGES.findIndex(s => s.id === status);
 };
 
 const getStatusColor = (status: string) => {
@@ -21,6 +37,8 @@ const getStatusColor = (status: string) => {
     case 'APPROVED': return 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20';
     case 'REJECTED': return 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20';
     case 'UNDER_REVIEW': return 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20';
+    case 'SHORTLISTED': return 'bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border-indigo-500/20';
+    case 'INTERVIEWING': return 'bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20';
     default: return 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20';
   }
 };
@@ -29,8 +47,10 @@ const getProgress = (status: string) => {
   switch (status) {
     case 'APPROVED': return 100;
     case 'REJECTED': return 100;
-    case 'UNDER_REVIEW': return 65;
-    default: return 30;
+    case 'INTERVIEWING': return 80;
+    case 'SHORTLISTED': return 60;
+    case 'UNDER_REVIEW': return 40;
+    default: return 20;
   }
 };
 
@@ -38,6 +58,8 @@ export const ApplicationTracker = ({ onDataLoaded }: { onDataLoaded?: (apps: any
   const [applications, setApplications] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('ALL');
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<{id: string, name: string} | null>(null);
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -174,37 +196,69 @@ export const ApplicationTracker = ({ onDataLoaded }: { onDataLoaded?: (apps: any
                           {app.scholarship?.title || 'Unknown Scholarship'}
                         </h3>
                         <div className="flex items-center gap-4 font-mono">
-                          <span className="text-muted-foreground text-[10px] font-black uppercase tracking-widest bg-white/5 px-2 py-0.5 rounded-sm">
-                            {app.submittedAt ? new Date(app.submittedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : 'N/A'}
-                          </span>
-                          <div className="h-4 w-px bg-border/40 mx-1" />
                           <span className="text-muted-foreground/60 text-[11px] uppercase tracking-widest">{app.scholarship?.provider?.orgName}</span>
+                          <div className="h-4 w-px bg-border/40 mx-1" />
+                          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-mono font-black animate-pulse">
+                              <ShieldCheck size={10} /> {app.matchScore || 0}% AI MATCH
+                          </div>
                         </div>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-16">
-                      <div className="hidden lg:block w-64 space-y-4">
-                        <div className="flex justify-between font-mono text-[9px] font-black uppercase tracking-[0.2em]">
-                          <span className="text-muted-foreground">Progression</span>
-                          <span className="text-foreground">{getProgress(app.status || 'PENDING')}%</span>
-                        </div>
-                        <div className="h-1.5 w-full bg-white/[0.03] rounded-full overflow-hidden border border-dashed border-border/40">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            animate={{ width: `${getProgress(app.status || 'PENDING')}%` }}
-                            transition={{ duration: 1.5, ease: "circOut" }}
-                            className={cn(
-                              "h-full rounded-full",
-                              app.status === 'APPROVED' 
-                                ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' 
-                                : 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]'
-                            )}
-                          />
-                        </div>
+                      <div className="hidden lg:block w-72">
+                         <div className="flex items-center justify-between gap-1 mb-3">
+                            {STAGES.map((stage, sIdx) => {
+                               const currentIdx = getStageIndex(app.status || 'PENDING');
+                               const isActive = sIdx <= currentIdx;
+                               const isCurrent = sIdx === currentIdx;
+                               return (
+                                  <div key={stage.id} className="flex flex-col items-center gap-2 group/stage">
+                                     <div className={cn(
+                                        "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black transition-all",
+                                        isActive ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" : "bg-white/5 text-muted-foreground border border-dashed border-border"
+                                     )}>
+                                        {isActive ? <CheckCircle2 size={12} /> : sIdx + 1}
+                                     </div>
+                                     <span className={cn(
+                                        "text-[8px] font-mono font-black uppercase tracking-widest",
+                                        isActive ? "text-foreground" : "text-muted-foreground opacity-40"
+                                     )}>{stage.label}</span>
+                                  </div>
+                               )
+                            })}
+                         </div>
+                         <div className="h-1 w-full bg-white/[0.03] rounded-full overflow-hidden border border-dashed border-border/40">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${getProgress(app.status || 'PENDING')}%` }}
+                              transition={{ duration: 1.5, ease: "circOut" }}
+                              className={cn(
+                                "h-full rounded-full",
+                                app.status === 'APPROVED' 
+                                  ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' 
+                                  : 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]'
+                              )}
+                            />
+                         </div>
                       </div>
 
-                      <div className="flex items-center gap-8 shrink-0">
+                      <div className="flex items-center gap-4 shrink-0">
+                        {app.status === 'APPROVED' && (
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedProvider({
+                                id: app.scholarship.providerId,
+                                name: app.scholarship.provider?.orgName || 'Provider'
+                              });
+                              setIsReviewModalOpen(true);
+                            }}
+                            className="px-4 py-3 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-mono font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-all flex items-center gap-2"
+                          >
+                            <Star size={14} fill="currentColor" /> Rate Provider
+                          </button>
+                        )}
                         <div className={cn(
                           "px-6 py-3 rounded-full font-mono font-black text-[10px] uppercase tracking-widest border border-dashed",
                           getStatusColor(app.status || 'PENDING')
@@ -223,6 +277,15 @@ export const ApplicationTracker = ({ onDataLoaded }: { onDataLoaded?: (apps: any
           )}
         </div>
       </div>
+
+      {selectedProvider && (
+        <ReviewModal
+          isOpen={isReviewModalOpen}
+          onClose={() => setIsReviewModalOpen(false)}
+          providerId={selectedProvider.id}
+          providerName={selectedProvider.name}
+        />
+      )}
     </div>
   );
 };

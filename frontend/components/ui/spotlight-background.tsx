@@ -54,6 +54,7 @@ export function SpotlightBackground({
                     backgroundSize: `${gridSize}px ${gridSize}px`,
                     maskImage: `radial-gradient(circle ${spotlightSize}px at var(--spot-x, 15%) var(--spot-y, 85%), black 0%, transparent 100%)`,
                     WebkitMaskImage: `radial-gradient(circle ${spotlightSize}px at var(--spot-x, 15%) var(--spot-y, 85%), black 0%, transparent 100%)`,
+                    willChange: 'mask-image, -webkit-mask-image',
                 }}
             />
 
@@ -67,10 +68,10 @@ export function SpotlightBackground({
                     borderRadius: '50%',
                     left: 'var(--spot-x, 15%)',
                     top: 'var(--spot-y, 85%)',
-                    transform: 'translate(-50%, -50%)',
+                    transform: 'translate3d(-50%, -50%, 0)',
                     background: `radial-gradient(circle at center, rgba(${spotlightColor}, 0.12) 0%, rgba(${spotlightColor}, 0.04) 45%, transparent 75%)`,
-                    filter: 'blur(20px)',
-                    willChange: 'left, top',
+                    filter: 'blur(15px)',
+                    willChange: 'left, top, transform',
                 }}
             />
 

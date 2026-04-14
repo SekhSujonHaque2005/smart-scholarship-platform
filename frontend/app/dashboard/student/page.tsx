@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 import { useAuthStore } from '@/app/store/auth.store';
 import { Button } from '@/components/ui/button';
 import { DashboardSidebar } from '@/components/dashboard/DashboardSidebar';
@@ -46,16 +46,21 @@ import {
   ResponsiveContainer,
   Cell
 } from 'recharts';
+import { DocumentVault } from '@/components/dashboard/DocumentVault';
+import { HardDrive } from 'lucide-react';
 
 
 
 export default function StudentDashboard() {
   const router = useRouter();
-  const { user, isAuthenticated, logout, updateUser } = useAuthStore();
+  const { user, isAuthenticated, isHydrated, logout, updateUser } = useAuthStore();
+  const { data: session, status: sessionStatus } = useSession();
   const [activeTab, setActiveTab] = useState('overview');
   const [applications, setApplications] = useState<any[]>([]);
   const [profileData, setProfileData] = useState<any>(null);
   const [scholarshipCount, setScholarshipCount] = useState(0);
+  const [profileStrength, setProfileStrength] = useState(0);
+  const [missingFields, setMissingFields] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const { theme, setTheme } = useTheme();
@@ -107,6 +112,8 @@ export default function StudentDashboard() {
         setScholarshipCount(scholarshipsRes.data.scholarships?.length || 0);
         setApplications(applicationsRes.data.applications || []);
         setProfileData(profileRes.data.profile || null);
+        setProfileStrength(profileRes.data.profileStrength || 0);
+        setMissingFields(profileRes.data.missingFields || []);
         
         // Update global store with latest profile info
         if (profileRes.data.profile) {
@@ -159,14 +166,18 @@ export default function StudentDashboard() {
 
   // Redirect if not authenticated or not a student
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Wait for hydration AND next-auth session to be determined
+    if (!isHydrated || sessionStatus === 'loading') return;
+
+    // Only redirect to login if BOTH stores say we are unauthenticated
+    if (!isAuthenticated && sessionStatus === 'unauthenticated') {
       router.push('/login');
-    } else if (user?.role && user.role !== 'STUDENT') {
+    } else if (isAuthenticated && user?.role && user.role !== 'STUDENT') {
       // Redirect to correct dashboard based on role
       const dashboardPath = `/dashboard/${user.role.toLowerCase()}`;
       router.push(dashboardPath);
     }
-  }, [isAuthenticated, user?.role, router]);
+  }, [isAuthenticated, user?.role, router, isHydrated, sessionStatus]);
 
   const handleLogout = () => {
     logout();
@@ -179,6 +190,8 @@ export default function StudentDashboard() {
     switch (activeTab) {
       case 'scholarships':
         return <ScholarshipList searchTerm={globalSearch} />;
+      case 'wishlist':
+        return <ScholarshipList searchTerm={globalSearch} onlySaved={true} />;
       case 'applications':
         return <ApplicationTracker onDataLoaded={setApplications} />;
       case 'notifications':
@@ -187,6 +200,8 @@ export default function StudentDashboard() {
         return <Profile />;
       case 'settings':
         return <Settings />;
+      case 'vault':
+        return <DocumentVault />;
       case 'overview':
       default:
         return (
@@ -301,6 +316,71 @@ export default function StudentDashboard() {
                 <div className="h-px w-8 bg-border/40" />
                 <span className="text-blue-500 font-black">{profileData?.fieldOfStudy ? profileData.fieldOfStudy : "Student"}</span>
               </div>
+            </div>
+
+            {/* Profile Strength Meter - New Premium Component */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+               <div className="lg:col-span-2 bg-gradient-to-br from-indigo-600 to-blue-700 rounded-[48px] p-10 text-white relative overflow-hidden shadow-2xl shadow-blue-500/20 group">
+                  <div className="absolute top-0 right-0 p-12 opacity-10 group-hover:scale-110 transition-transform duration-700">
+                    <Zap size={180} />
+                  </div>
+                  
+                  <div className="relative z-10 space-y-8">
+                    <div className="flex items-center justify-between">
+                       <div className="flex items-center gap-3">
+                          <motion.div 
+                             animate={{ opacity: [1, 0.4, 1] }} 
+                             transition={{ duration: 2, repeat: Infinity }} 
+                             className="w-2 h-2 rounded-full bg-white" 
+                          />
+                          <div>
+                             <h3 className="text-2xl font-black tracking-tighter uppercase mb-1">Profile Power</h3>
+                             <p className="text-[10px] font-mono uppercase tracking-[0.2em] opacity-80">Elite Identity Score</p>
+                          </div>
+                       </div>
+                       <div className="text-5xl font-black tracking-tighter">{profileStrength}%</div>
+                    </div>
+
+                    <div className="space-y-3">
+                       <div className="h-3 w-full bg-white/10 rounded-full overflow-hidden border border-white/5">
+                          <motion.div 
+                             initial={{ width: 0 }}
+                             animate={{ width: `${profileStrength}%` }}
+                             transition={{ duration: 1.5, ease: "circOut" }}
+                             className="h-full bg-white shadow-[0_0_20px_white]"
+                          />
+                       </div>
+                       <div className="flex justify-between text-[9px] font-mono uppercase tracking-widest font-black opacity-60">
+                          <span>Initiate</span>
+                          <span>Ascended</span>
+                       </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 pt-2">
+                       {profileStrength < 100 ? (
+                         <div className="flex items-center gap-3 text-[10px] bg-white text-blue-700 px-4 py-2 rounded-2xl font-black uppercase tracking-widest cursor-pointer hover:bg-blue-50 transition-colors shadow-lg" onClick={() => setActiveTab('profile')}>
+                            Next: {missingFields[0]} +10% <ChevronRight size={14} />
+                         </div>
+                       ) : (
+                         <div className="flex items-center gap-2 text-[10px] bg-emerald-500 text-white px-4 py-2 rounded-2xl font-black uppercase tracking-widest">
+                            <CheckCircle size={14} /> Profile Fully Optimized
+                         </div>
+                       )}
+                    </div>
+                  </div>
+               </div>
+
+               <div className="bg-card border border-dashed border-border/60 rounded-[48px] p-8 flex flex-col justify-center items-center text-center space-y-4">
+                  <div className="w-16 h-16 rounded-[24px] bg-amber-500/10 border border-dashed border-amber-500/30 flex items-center justify-center text-amber-500">
+                    <Award size={32} />
+                  </div>
+                  <div>
+                    <h4 className="text-lg font-black text-foreground tracking-tighter uppercase">Elite Badge</h4>
+                    <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest mt-1">
+                       {profileStrength >= 80 ? "S-Tier Candidate" : "Growth Mode Active"}
+                    </p>
+                  </div>
+               </div>
             </div>
 
             {/* Academic Snapshot Card - Vercel Design */}

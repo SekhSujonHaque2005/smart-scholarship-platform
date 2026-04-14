@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import api from '@/app/lib/api';
+import { GlobalSearch } from '../provider/GlobalSearch';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuthStore();
@@ -29,6 +30,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [showSearch, setShowSearch] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        setShowSearch(true);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   useEffect(() => {
     setMounted(true);
@@ -82,6 +95,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               {mounted && (theme === 'dark' ? <Sun size={14} /> : <Moon size={14} />)}
             </div>
 
+            {/* Search Trigger */}
+            <div 
+              onClick={() => setShowSearch(true)}
+              className="w-8 h-8 rounded-full bg-secondary/50 border border-sidebar-border flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer transition-all hover:bg-secondary hidden sm:flex"
+            >
+              <Search size={14} />
+            </div>
+
             {/* Notifications Bell */}
             <div className="relative">
               <div 
@@ -131,6 +152,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
         {children}
       </main>
+
+      <GlobalSearch isOpen={showSearch} onClose={() => setShowSearch(false)} />
     </div>
   );
 }

@@ -25,6 +25,60 @@ const sendEmail = async (to, subject, html) => {
     }
 };
 
+/**
+ * BASE PREMIUM EMAIL TEMPLATE
+ */
+const baseEmailTemplate = ({ title, preheader, greeting, body, ctaText, ctaUrl, footerNote }) => `
+<!DOCTYPE html>
+<html>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"></head>
+<body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f1f5f9; padding: 40px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.08);">
+          
+          <!-- HEADER -->
+          <tr>
+            <td style="background: linear-gradient(135deg, #0f172a 0%, #1e40af 50%, #2563eb 100%); padding: 30px; text-align: center;">
+              <p style="margin: 0; font-size: 24px; font-weight: 900; color: #ffffff; letter-spacing: -0.5px;">🎓 ScholarHub</p>
+              ${preheader ? `<p style="margin: 8px 0 0 0; color: #93c5fd; font-size: 13px; font-weight: 500;">${preheader}</p>` : ''}
+            </td>
+          </tr>
+
+          <!-- CONTENT -->
+          <tr>
+            <td style="padding: 40px 30px;">
+              <h2 style="margin: 0 0 16px 0; font-size: 20px; color: #0f172a; font-weight: 800;">${title}</h2>
+              <p style="margin: 0 0 12px 0; font-size: 15px; color: #0f172a; font-weight: 600;">${greeting}</p>
+              <div style="font-size: 14px; color: #64748b; line-height: 1.6;">
+                ${body}
+              </div>
+              
+              ${ctaText && ctaUrl ? `
+              <div style="margin: 35px 0 10px 0; text-align: center;">
+                <a href="${ctaUrl}" style="display: inline-block; background: #2563eb; color: #ffffff; padding: 14px 32px; text-decoration: none; font-weight: 800; font-size: 14px; border-radius: 8px; box-shadow: 0 4px 10px rgba(37,99,235,0.2);">${ctaText}</a>
+              </div>
+              ` : ''}
+            </td>
+          </tr>
+
+          <!-- FOOTER -->
+          <tr>
+            <td style="background: #f8fafc; border-top: 1px solid #e2e8f0; padding: 30px; text-align: center;">
+              <p style="margin: 0 0 8px 0; color: #94a3b8; font-size: 11px;">${footerNote || "You're receiving this because you have an active ScholarHub account."}</p>
+              <p style="margin: 0; color: #475569; font-size: 11px;">© 2026 ScholarHub. All rights reserved.</p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+`;
+
 // Create in-app notification
 const createNotification = async (userId, title, message, type = 'INFO') => {
     try {
@@ -45,21 +99,22 @@ const notifyApplicationSubmitted = async (studentUserId, scholarshipTitle) => {
         'SUCCESS'
     );
 
-    const user = await prisma.user.findUnique({ where: { id: studentUserId } });
+    const user = await prisma.user.findUnique({ 
+        where: { id: studentUserId },
+        include: { student: true }
+    });
+    
     if (user?.email) {
-        await sendEmail(
-            user.email,
-            '✅ Application Submitted - ScholarHub',
-            `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #2563eb;">Application Submitted Successfully! 🎉</h2>
-          <p>Your application for <strong>${scholarshipTitle}</strong> has been submitted.</p>
-          <p>We'll notify you when the provider reviews your application.</p>
-          <br/>
-          <p style="color: #64748b;">Good luck! — ScholarHub Team</p>
-        </div>
-      `
-        );
+        const html = baseEmailTemplate({
+            title: 'Application Received! 🚀',
+            preheader: scholarshipTitle,
+            greeting: `Hi ${user.student?.name || 'Scholar'},`,
+            body: `Excellent work! Your application for <strong>${scholarshipTitle}</strong> has been successfully transmitted to the provider. We've added it to your dashboard for real-time tracking.`,
+            ctaText: 'Track Application',
+            ctaUrl: 'http://localhost:3000/dashboard/applications'
+        });
+
+        await sendEmail(user.email, '✅ Application Submitted - ScholarHub', html);
     }
 };
 
@@ -80,22 +135,27 @@ const notifyApplicationStatus = async (studentUserId, scholarshipTitle, status, 
         status === 'APPROVED' ? 'SUCCESS' : status === 'REJECTED' ? 'ERROR' : 'INFO'
     );
 
-    const user = await prisma.user.findUnique({ where: { id: studentUserId } });
+    const user = await prisma.user.findUnique({ 
+        where: { id: studentUserId },
+        include: { student: true }
+    });
+
     if (user?.email) {
-        await sendEmail(
-            user.email,
-            `${config.emoji} Application ${status} - ScholarHub`,
-            `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: ${config.color};">Application ${status} ${config.emoji}</h2>
-          <p>${config.message}</p>
-          <p>Your application for <strong>${scholarshipTitle}</strong> has been <strong>${status.toLowerCase()}</strong>.</p>
-          ${remarks ? `<p><strong>Remarks:</strong> ${remarks}</p>` : ''}
-          <br/>
-          <p style="color: #64748b;">— ScholarHub Team</p>
-        </div>
-      `
-        );
+        const html = baseEmailTemplate({
+            title: `Application ${status} ${config.emoji}`,
+            preheader: scholarshipTitle,
+            greeting: `Hello ${user.student?.name || 'Scholar'},`,
+            body: `
+                <p>${config.message}</p>
+                <p>The provider for <strong>${scholarshipTitle}</strong> has updated your application status to <strong>${status.toLowerCase()}</strong>.</p>
+                ${remarks ? `<div style="background: #f1f5f9; padding: 15px; border-radius: 8px; margin: 15px 0; color: #0f172a; border-left: 4px solid ${config.color};"><strong>Provider Remarks:</strong><br/>${remarks}</div>` : ''}
+                <p>You can view more details or complete any next steps on your dashboard.</p>
+            `,
+            ctaText: 'View Details',
+            ctaUrl: 'http://localhost:3000/dashboard/applications'
+        });
+
+        await sendEmail(user.email, `${config.emoji} Application ${status} - ScholarHub`, html);
     }
 };
 
@@ -110,24 +170,28 @@ const notifyProviderVerified = async (providerUserId, status) => {
         status === 'APPROVED' ? 'SUCCESS' : 'ERROR'
     );
 
-    const user = await prisma.user.findUnique({ where: { id: providerUserId } });
+    const user = await prisma.user.findUnique({ 
+        where: { id: providerUserId },
+        include: { provider: true }
+    });
+
     if (user?.email) {
+        const isApproved = status === 'APPROVED';
+        const html = baseEmailTemplate({
+            title: isApproved ? 'Credentials Verified! ✅' : 'Verification Update ❌',
+            preheader: 'Provider Identity Sync',
+            greeting: `Hello ${user.provider?.orgName || 'Provider'},`,
+            body: isApproved 
+                ? 'Your organization has been officially verified! You now have full clearance to publish scholarships, review candidates, and disburse tokens on the ScholarHub network.'
+                : 'Our compliance team was unable to verify your submitted credentials at this time. Please ensure your documents are clear and valid, then re-submit or contact security support.',
+            ctaText: isApproved ? 'Access Dashboard' : 'View Support',
+            ctaUrl: 'http://localhost:3000/dashboard/provider'
+        });
+
         await sendEmail(
-            user.email,
-            status === 'APPROVED' ? '✅ Account Verified - ScholarHub' : '❌ Verification Rejected - ScholarHub',
-            `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: ${status === 'APPROVED' ? '#16a34a' : '#dc2626'};">
-            ${status === 'APPROVED' ? 'Account Verified! ✅' : 'Verification Rejected ❌'}
-          </h2>
-          <p>${status === 'APPROVED'
-                ? 'Your provider account has been verified. You can now post scholarships on ScholarHub!'
-                : 'Your verification request was rejected. Please contact support for more details.'
-            }</p>
-          <br/>
-          <p style="color: #64748b;">— ScholarHub Team</p>
-        </div>
-      `
+            user.email, 
+            isApproved ? '✅ Account Verified - ScholarHub' : '❌ Verification Rejected - ScholarHub',
+            html
         );
     }
 };
@@ -156,30 +220,50 @@ const sendDeadlineReminders = async () => {
             // Find students who haven't applied yet
             const appliedStudentIds = await prisma.application.findMany({
                 where: { scholarshipId: scholarship.id },
-                select: { student: { select: { userId: true } } }
+                select: { student: { select: { userId: true, name: true } } }
             });
 
             const appliedUserIds = appliedStudentIds.map(a => a.student.userId);
 
-            // Notify all students (simplified - in production filter by eligibility)
-            const students = await prisma.student.findMany({
+            // Notify all students who haven't applied
+            const students = await prisma.user.findMany({
                 where: {
-                    userId: { notIn: appliedUserIds }
+                    role: 'STUDENT',
+                    isActive: true,
+                    student: {
+                        userId: { notIn: appliedUserIds }
+                    }
                 },
-                take: 50 // limit for now
+                include: { student: true },
+                take: 50 // safety limit
             });
 
-            for (const student of students) {
+            for (const user of students) {
                 const daysLeft = Math.ceil(
                     (new Date(scholarship.deadline) - new Date()) / (1000 * 60 * 60 * 24)
                 );
 
+                // 1. In-app notification
                 await createNotification(
-                    student.userId,
+                    user.id,
                     `⏰ Deadline Reminder: ${scholarship.title}`,
                     `Only ${daysLeft} day(s) left to apply for "${scholarship.title}"!`,
                     'WARNING'
                 );
+
+                // 2. Email notification
+                if (user.email) {
+                    const html = baseEmailTemplate({
+                        title: '⏰ Deadline Approaching!',
+                        preheader: scholarship.title,
+                        greeting: `Hi ${user.student?.name || 'Scholar'},`,
+                        body: `This is a friendly reminder that the deadline for <strong>${scholarship.title}</strong> is approaching fast. You have <strong>${daysLeft} day(s)</strong> left to submit your application and secure your funding.`,
+                        ctaText: 'Apply Now',
+                        ctaUrl: `http://localhost:3000/scholarships/${scholarship.id}`
+                    });
+
+                    await sendEmail(user.email, `⏰ Deadline Warning: ${scholarship.title}`, html);
+                }
             }
         }
 

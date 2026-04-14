@@ -7,8 +7,10 @@ import gsap from 'gsap';
 import api from '@/app/lib/api';
 import { useAuthStore } from '@/app/store/auth.store';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Building2, Calendar, IndianRupee, ChevronRight, ArrowLeft } from 'lucide-react';
 
 interface Scholarship {
   id: string;
@@ -169,7 +171,12 @@ export default function ScholarshipDetailPage() {
               <div className="flex items-center gap-4 text-muted-foreground font-mono text-[11px] uppercase tracking-widest">
                 <span>Issued by</span>
                 <div className="h-px w-8 bg-border/40" />
-                <span className="text-foreground font-black">{scholarship.provider?.orgName}</span>
+                <Link 
+                  href={`/providers/${scholarship.provider?.id}`}
+                  className="text-foreground font-black hover:text-indigo-500 transition-colors underline decoration-dashed decoration-indigo-500/30 underline-offset-4"
+                >
+                  {scholarship.provider?.orgName}
+                </Link>
               </div>
             </div>
 
@@ -312,14 +319,23 @@ export default function ScholarshipDetailPage() {
             </div>
 
             {/* Provider Module */}
-            <div className="p-8 border border-border/40 bg-white/[0.01] rounded-[40px] space-y-8">
+            <div className="p-8 border border-border/40 bg-white/[0.01] rounded-[40px] space-y-8 relative group/provider overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/provider:opacity-10 transition-opacity">
+                <Building2 size={80} />
+              </div>
+
               <div className="flex items-center justify-between">
                 <h3 className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.3em]">Provider Entity</h3>
                 <div className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[8px] font-mono border border-emerald-500/20">VERIFIED</div>
               </div>
               
               <div className="space-y-4">
-                <p className="text-xl font-black tracking-tight leading-none">{scholarship.provider?.orgName}</p>
+                <Link 
+                  href={`/providers/${scholarship.provider?.id}`}
+                  className="text-xl font-black tracking-tight leading-none hover:text-indigo-500 transition-colors block"
+                >
+                  {scholarship.provider?.orgName}
+                </Link>
                 <div className="flex items-center gap-3">
                    <div className="w-1 h-1 rounded-full bg-muted-foreground/40" />
                    <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">{scholarship.provider?.orgType || 'Foundation'}</p>
@@ -330,6 +346,13 @@ export default function ScholarshipDetailPage() {
                 <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Trust Index</span>
                 <span className="text-emerald-500 font-black">{scholarship.provider?.trustScore}%</span>
               </div>
+
+              <Button 
+                onClick={() => router.push(`/providers/${scholarship.provider?.id}`)}
+                className="w-full bg-accent hover:bg-indigo-500 hover:text-white rounded-2xl text-[10px] uppercase font-black tracking-widest transition-all h-12"
+              >
+                 View Public Profile
+              </Button>
             </div>
 
           </aside>

@@ -3,7 +3,11 @@
 @import "shadcn/tailwind.css";
 
 /* ====== GLOBAL FONT SETTINGS ====== */
-body {
+* {
+  font-family: "Times New Roman", Times, serif !important;
+}
+
+h1, h2, h3, h4, h5, h6, p, span, div, button, input {
   font-family: "Times New Roman", Times, serif !important;
 }
 
@@ -36,7 +40,7 @@ body {
   --color-foreground: var(--foreground);
   --font-sans: "Times New Roman", Times, serif;
   --font-serif: "Times New Roman", Times, serif;
-  --font-mono: "Courier New", Courier, monospace;
+  --font-mono: "JetBrains Mono", "Fira Code", monospace;
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -88,12 +92,9 @@ body {
 /* Spotlight ambient drift — replaces GSAP timeline + mousemove tracking */
 @keyframes spotlightDrift {
   0%   { --spot-x: 15%; --spot-y: 85%; }
-  14%  { --spot-x: 50%; --spot-y: 12%; }
-  28%  { --spot-x: 82%; --spot-y: 45%; }
-  42%  { --spot-x: 65%; --spot-y: 88%; }
-  57%  { --spot-x: 25%; --spot-y: 55%; }
-  71%  { --spot-x: 78%; --spot-y: 18%; }
-  85%  { --spot-x: 38%; --spot-y: 72%; }
+  25%  { --spot-x: 82%; --spot-y: 45%; }
+  50%  { --spot-x: 25%; --spot-y: 55%; }
+  75%  { --spot-x: 78%; --spot-y: 18%; }
   100% { --spot-x: 15%; --spot-y: 85%; }
 }
 
@@ -207,6 +208,13 @@ body {
   --sidebar-ring: oklch(0.556 0 0);
 }
 
+/* Global Button Pointer */
+button, 
+[role="button"],
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
 @layer base {
   html {
     /* Prevent conflict with Lenis */
@@ -227,6 +235,16 @@ body {
     height: auto !important;
     min-height: 100vh;
     position: relative;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif) !important;
+    letter-spacing: -0.02em;
+  }
+
+  section {
+    content-visibility: auto;
+    contain-intrinsic-size: 1px 500px;
   }
 }
 
@@ -333,4 +351,15 @@ body {
   0% { opacity: 0; }
   50% { opacity: 1; }
   100% { opacity: 0; }
+}
+
+/* Utilities */
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }

@@ -6,14 +6,13 @@ import { TestimonialCard } from "@/components/ui/testimonial-card"
 import type { TestimonialAuthor } from "@/components/ui/testimonial-card"
 import api from '@/app/lib/api'
 
-// Random avatar pool for students who don't have profile pictures
+// Random avatar pool for students
 const AVATAR_POOL = [
   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&h=150&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
   "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
-  "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
 ]
 
 interface BackendReview {
@@ -29,20 +28,14 @@ interface TestimonialsSectionProps {
   className?: string
 }
 
-function getStars(rating: number): string {
-  return '★'.repeat(rating) + '☆'.repeat(5 - rating)
-}
-
 export function TestimonialsSection({ className }: TestimonialsSectionProps) {
   const [testimonials, setTestimonials] = useState<Array<{
     author: TestimonialAuthor
     text: string
+    rating: number
   }>>([])
 
   useEffect(() => {
-    // Fetch all reviews from the public endpoint
-    // We'll use a general fetch since there's no single "all public reviews" endpoint
-    // We'll add one below
     api.get('/reviews/public')
       .then((res) => {
         const reviews: BackendReview[] = res.data.reviews || []
@@ -51,10 +44,12 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
           .map((r, i) => ({
             author: {
               name: r.student.name,
-              handle: `${getStars(r.rating)}`,
+              handle: `@verify_${r.id.slice(-4)}`,
               avatar: AVATAR_POOL[i % AVATAR_POOL.length],
+              providerName: r.provider?.orgName
             },
             text: r.comment as string,
+            rating: r.rating
           }))
         setTestimonials(mapped)
       })
@@ -63,29 +58,32 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
       })
   }, [])
 
-  // Don't render the section if there are no reviews
   if (testimonials.length === 0) return null
 
   return (
     <section className={cn(
-      "bg-transparent text-foreground",
-      "py-12 sm:py-24 md:py-32 px-0",
+      "bg-transparent text-foreground overflow-hidden",
+      "py-24 sm:py-32",
       className
     )}>
-      <div className="mx-auto flex max-w-[1280px] flex-col items-center gap-4 text-center sm:gap-16">
-        <div className="flex flex-col items-center gap-4 px-4 sm:gap-8">
-          <h2 className="max-w-[720px] text-3xl font-semibold leading-tight sm:text-5xl sm:leading-tight text-slate-900 dark:text-white">
-            What students are saying
+      <div className="mx-auto flex max-w-[1400px] flex-col items-center gap-12 sm:gap-20">
+        <div className="flex flex-col items-center gap-4 px-4 text-center">
+           <div className="flex items-center gap-3 px-4 py-2 rounded-full border border-blue-500/20 bg-blue-500/5 text-blue-500 text-[10px] font-mono font-black uppercase tracking-[0.2em] mb-4">
+             <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+             Consensus & Social Proof
+           </div>
+          <h2 className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-foreground leading-[0.9] uppercase">
+            Wall <span className="text-blue-500">of Love</span>
           </h2>
-          <p className="text-md max-w-[600px] font-medium text-muted-foreground sm:text-xl">
-            Real reviews from students who found scholarships through ScholarHub
+          <p className="text-sm max-w-[600px] font-mono font-bold text-muted-foreground uppercase tracking-widest leading-relaxed mt-4">
+            Real-time feedback from the student node network regarding scholarship provider prestige.
           </p>
         </div>
 
         <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">
-          <div className="group flex overflow-hidden p-2 [--gap:1rem] [gap:var(--gap)] flex-row [--duration:40s]">
-            <div className="flex shrink-0 justify-around [gap:var(--gap)] animate-marquee flex-row group-hover:[animation-play-state:paused]">
-              {[...Array(4)].map((_, setIndex) => (
+          <div className="group flex overflow-hidden p-2 [--gap:1.5rem] [gap:var(--gap)] flex-row [--duration:60s]">
+            <div className="flex shrink-0 justify-around [gap:var(--gap)] animate-marquee flex-row hover:[animation-play-state:paused]">
+              {[...Array(3)].map((_, setIndex) => (
                 testimonials.map((testimonial, i) => (
                   <TestimonialCard 
                     key={`${setIndex}-${i}`}
@@ -96,8 +94,8 @@ export function TestimonialsSection({ className }: TestimonialsSectionProps) {
             </div>
           </div>
 
-          <div className="pointer-events-none absolute inset-y-0 left-0 hidden w-1/3 bg-gradient-to-r from-background sm:block" />
-          <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/3 bg-gradient-to-l from-background sm:block" />
+          <div className="pointer-events-none absolute inset-y-0 left-0 w-1/4 bg-gradient-to-r from-background to-transparent z-10" />
+          <div className="pointer-events-none absolute inset-y-0 right-0 w-1/4 bg-gradient-to-l from-background to-transparent z-10" />
         </div>
       </div>
     </section>

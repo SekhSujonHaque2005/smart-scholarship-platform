@@ -30,7 +30,7 @@ const uploadDocument = multer({
 
 const uploadAvatar = multer({
   storage: avatarStorage,
-  limits: { fileSize: 2 * 1024 * 1024 }, // 2MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
 module.exports = { uploadDocument, uploadAvatar };

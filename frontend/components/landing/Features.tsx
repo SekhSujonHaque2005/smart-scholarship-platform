@@ -1,7 +1,32 @@
 'use client';
 
 import { BrainCircuit, ShieldCheck, Activity, Lock, Smartphone, Star } from 'lucide-react';
-import { FeatureCard } from '@/components/ui/card-17';
+import { BentoGridShowcase } from '@/components/bento-product-features';
+import SpotlightCard from '@/components/SpotlightCard';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+
+// Helper component for simple bento items
+const BentoItem = ({ feature, className }: { feature: typeof features[0], className?: string }) => (
+    <SpotlightCard 
+        className={cn("h-full border-slate-200 bg-white/60 dark:border-white/10 dark:bg-neutral-900/40 backdrop-blur-md overflow-hidden p-0", className)}
+        spotlightColor="rgba(16, 185, 129, 0.12)"
+    >
+        <div className={cn("absolute inset-0 bg-gradient-to-br opacity-5 group-hover:opacity-10 transition-opacity", feature.accent)} />
+        <CardHeader className="relative z-10 pb-2">
+            <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center border mb-3", feature.iconColor, "border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-neutral-800/50")}>
+                <feature.Icon size={20} />
+            </div>
+            <CardTitle className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">{feature.title}</CardTitle>
+            <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest">{feature.tagline}</p>
+        </CardHeader>
+        <CardContent className="relative z-10">
+            <CardDescription className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                {feature.description}
+            </CardDescription>
+        </CardContent>
+    </SpotlightCard>
+);
 
 const features = [
     {
@@ -32,9 +57,9 @@ const features = [
         tagline: 'Stay Updated',
         description:
             'Track your application status in real-time. Get instant notifications when providers respond. Never miss a deadline or an opportunity again.',
-        accent: 'from-purple-500 to-violet-400',
-        glowColor: 'rgba(139, 92, 246, 0.25)',
-        iconColor: 'text-violet-400',
+        accent: 'from-blue-500 to-indigo-400',
+        glowColor: 'rgba(56, 189, 248, 0.25)',
+        iconColor: 'text-blue-500 dark:text-blue-400',
         imageUrl: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop&q=80',
     },
     {
@@ -43,9 +68,9 @@ const features = [
         tagline: 'Data Protection',
         description:
             'Your data is encrypted end-to-end and never shared with third parties. Apply with confidence knowing your personal information is safe and secure.',
-        accent: 'from-amber-500 to-yellow-400',
-        glowColor: 'rgba(245, 158, 11, 0.25)',
-        iconColor: 'text-amber-400',
+        accent: 'from-slate-500 to-slate-400',
+        glowColor: 'rgba(71, 85, 105, 0.25)',
+        iconColor: 'text-slate-600 dark:text-slate-400',
         imageUrl: 'https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&h=600&fit=crop&q=80',
     },
     {
@@ -54,9 +79,9 @@ const features = [
         tagline: 'Apply Anywhere',
         description:
             'Apply for scholarships on the go. Our platform works seamlessly on all devices — phone, tablet, or desktop. Your opportunity is always in your pocket.',
-        accent: 'from-pink-500 to-rose-400',
-        glowColor: 'rgba(236, 72, 153, 0.25)',
-        iconColor: 'text-pink-400',
+        accent: 'from-teal-500 to-emerald-400',
+        glowColor: 'rgba(20, 184, 166, 0.25)',
+        iconColor: 'text-teal-600 dark:text-teal-400',
         imageUrl: 'https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=800&h=600&fit=crop&q=80',
     },
     {
@@ -76,7 +101,7 @@ export default function Features() {
     return (
         <section id="features" className="py-24 bg-transparent relative overflow-hidden">
             {/* Ambient background glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[120px] pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 rounded-full blur-[80px] pointer-events-none" />
             
             <div className="max-w-7xl mx-auto px-6 relative z-10">
                 {/* Section header */}
@@ -86,7 +111,7 @@ export default function Features() {
                     </p>
                     <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-slate-900 dark:text-white mb-6 tracking-tight">
                         Everything you need to
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500">
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500">
                             {' '}succeed
                         </span>
                     </h2>
@@ -95,27 +120,15 @@ export default function Features() {
                     </p>
                 </div>
 
-                {/* 3D Tilt Feature Cards Grid */}
-                <div
-                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
-                    style={{ perspective: "1200px" }}
-                >
-                    {features.map((feature, index) => (
-                        <FeatureCard
-                            key={feature.title}
-                            title={feature.title}
-                            tagline={feature.tagline}
-                            description={feature.description}
-                            Icon={feature.Icon}
-                            accent={feature.accent}
-                            glowColor={feature.glowColor}
-                            iconColor={feature.iconColor}
-                            imageUrl={feature.imageUrl}
-                            index={index}
-                            total={features.length}
-                        />
-                    ))}
-                </div>
+                {/* Bento Grid Features */}
+                <BentoGridShowcase
+                    integration={<BentoItem feature={features[0]} className="h-full" />}
+                    trackers={<BentoItem feature={features[2]} />}
+                    statistic={<BentoItem feature={features[5]} />}
+                    focus={<BentoItem feature={features[1]} />}
+                    productivity={<BentoItem feature={features[4]} />}
+                    shortcuts={<BentoItem feature={features[3]} className="bg-gradient-to-r" />}
+                />
             </div>
         </section>
     );

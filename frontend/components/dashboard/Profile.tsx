@@ -13,6 +13,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import api from '@/app/lib/api';
+import { toast } from 'sonner';
 
 const profileSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -72,13 +73,17 @@ export const Profile = () => {
 
   // ————— Upload avatar file to Cloudinary via `POST /api/documents/avatar` —————
   const uploadAvatarFile = useCallback(async (file: File) => {
+    // Validate size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File exceeds 5MB limit.');
+      return;
+    }
+
     setUploadingAvatar(true);
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const { data } = await api.post('documents/avatar', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const { data } = await api.post('documents/avatar', formData);
       setProfilePicture(data.avatarUrl);
       updateUser({ profilePicture: data.avatarUrl });
     } catch (err) {
@@ -126,6 +131,23 @@ export const Profile = () => {
       await uploadAvatarFile(file);
     }, 'image/jpeg', 0.9);
   }, [stopCamera, uploadAvatarFile]);
+
+  // ————— Persistent avatar removal —————
+  const handleRemoveAvatar = useCallback(async () => {
+    try {
+      setUploadingAvatar(true);
+      await api.put('auth/me/profile', { profilePicture: null });
+      setProfilePicture(null);
+      updateUser({ profilePicture: undefined }); // undefined or null depending on your User type
+      setShowAvatarMenu(false);
+      toast.success('Identity entry removed from ledger.');
+    } catch (err) {
+      console.error('Failed to remove avatar', err);
+      toast.error('Failed to purge entry from central node.');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  }, [updateUser]);
 
   // ————— File input handler —————
   const handleFileUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -288,8 +310,9 @@ export const Profile = () => {
                     {profilePicture && (
                       <button
                         type="button"
-                        onClick={() => { setProfilePicture(null); setShowAvatarMenu(false); }}
-                        className="flex items-center gap-3 w-full px-6 py-4 text-[10px] font-mono font-black uppercase tracking-widest text-rose-500 hover:bg-rose-500/5 transition-colors"
+                        onClick={handleRemoveAvatar}
+                        disabled={uploadingAvatar}
+                        className="flex items-center gap-3 w-full px-6 py-4 text-[10px] font-mono font-black uppercase tracking-widest text-rose-500 hover:bg-rose-500/5 transition-colors disabled:opacity-50"
                       >
                         <X size={14} /> Remove Entry
                       </button>
@@ -298,6 +321,16 @@ export const Profile = () => {
                 )}
               </AnimatePresence>
             </div>
+
+            {/* Hidden File Input */}
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept="image/*"
+              className="hidden"
+            />
+            
             
             <div className="mt-8 text-center space-y-2">
               <h3 className="text-2xl font-black tracking-tighter leading-none">{profileData?.name || user?.name}</h3>

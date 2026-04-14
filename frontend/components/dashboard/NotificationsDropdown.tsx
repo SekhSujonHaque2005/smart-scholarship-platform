@@ -23,7 +23,13 @@ const typeConfig: Record<string, { icon: React.ElementType; color: string; bg: s
   INFO: { icon: Info, color: 'text-blue-500', bg: 'bg-blue-500/10', border: 'border-blue-500/20' },
 };
 
-export const NotificationsDropdown = ({ onClose }: { onClose: () => void }) => {
+export const NotificationsDropdown = ({ 
+  onClose,
+  onViewAll
+}: { 
+  onClose: () => void,
+  onViewAll?: () => void
+}) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -137,7 +143,10 @@ export const NotificationsDropdown = ({ onClose }: { onClose: () => void }) => {
         <Button 
           variant="ghost" 
           className="w-full h-10 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-secondary flex items-center gap-2"
-          onClick={() => { /* Navigation to full notifications page */ }}
+          onClick={() => {
+            onViewAll?.();
+            onClose();
+          }}
         >
           Check all activity <ExternalLink size={12} />
         </Button>

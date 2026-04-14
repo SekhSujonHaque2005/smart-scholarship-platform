@@ -17,7 +17,9 @@ import {
   Pin,
   PinOff,
   Menu,
-  X
+  X,
+  HardDrive,
+  Heart
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -67,6 +69,13 @@ const SidebarItem = ({ icon: Icon, label, href, active, collapsed, onClick }: Si
           </motion.span>
         )}
       </AnimatePresence>
+
+      {!collapsed && (active || label === 'Scholarships' || label === 'Applications' || label === 'Vault') && (
+        <div className="ml-auto flex items-center gap-1.5">
+          {label === 'Vault' && <div className="px-1.5 py-0.5 rounded-md bg-indigo-500/10 text-indigo-500 text-[8px] font-black uppercase">Secure</div>}
+          {(label === 'Scholarships' || label === 'Applications') && <div className="px-1.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-500 text-[8px] font-black uppercase">Updated</div>}
+        </div>
+      )}
     </motion.div>
   );
 
@@ -233,6 +242,22 @@ export const DashboardSidebar = ({
             collapsed={!isExpanded}
             onClick={() => onTabChange?.('applications')}
           />
+          <SidebarItem
+            icon={HardDrive}
+            label="Vault"
+            href="#"
+            active={activeTab === 'vault'}
+            collapsed={!isExpanded}
+            onClick={() => onTabChange?.('vault')}
+          />
+          <SidebarItem
+            icon={Heart}
+            label="Wishlist"
+            href="#"
+            active={activeTab === 'wishlist'}
+            collapsed={!isExpanded}
+            onClick={() => onTabChange?.('wishlist')}
+          />
         </div>
 
 
@@ -280,7 +305,10 @@ export const DashboardSidebar = ({
 
       <div className="mt-auto pt-4 border-t border-sidebar-border">
         {isExpanded && (
-          <div className="flex items-center gap-3 p-2 rounded-xl bg-sidebar-accent/50 mb-4 group cursor-pointer hover:bg-sidebar-accent transition-colors">
+          <div 
+            onClick={() => onTabChange?.('profile')}
+            className="flex items-center gap-3 p-2 rounded-xl bg-sidebar-accent/50 mb-4 group cursor-pointer hover:bg-sidebar-accent transition-colors"
+          >
             <div className="w-8 h-8 rounded-lg bg-pink-500 overflow-hidden flex items-center justify-center text-white font-bold text-xs ring-1 ring-white/20">
               {user?.profilePicture ? (
                 <img src={user.profilePicture} alt={userName} className="w-full h-full object-cover" />
@@ -297,7 +325,10 @@ export const DashboardSidebar = ({
         )}
         
         {!isExpanded && (
-          <div className="w-10 h-10 rounded-lg bg-pink-500 overflow-hidden flex items-center justify-center text-white font-bold text-xs mx-auto mb-4 cursor-pointer">
+          <div 
+            onClick={() => onTabChange?.('profile')}
+            className="w-10 h-10 rounded-lg bg-pink-500 overflow-hidden flex items-center justify-center text-white font-bold text-xs mx-auto mb-4 cursor-pointer"
+          >
             {user?.profilePicture ? (
               <img src={user.profilePicture} alt={userName} className="w-full h-full object-cover" />
             ) : (

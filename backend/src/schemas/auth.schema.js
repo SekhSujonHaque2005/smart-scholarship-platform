@@ -30,7 +30,7 @@ const updateProfileSchema = z.object({
   location: z.string().optional(),
   gender: z.string().optional(),
   incomeLevel: z.string().optional(),
-  profilePicture: z.string().url().optional().or(z.string().length(0))
+  profilePicture: z.string().url().optional().nullable().or(z.string().length(0))
 });
 
 const updatePasswordSchema = z.object({

@@ -25,6 +25,8 @@ model User {
   provider      Provider?
   notifications Notification[]
   auditLogs     AuditLog[]
+  sentMessages  Message[]  @relation("SentMessages")
+  receivedMsgs  Message[]  @relation("ReceivedMessages")
 }
 
 enum Role {
@@ -62,6 +64,8 @@ model Provider {
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   scholarships Scholarship[]
   reviews      Review[]
+  transactions Transaction[]
+  documents    Document[]
 }
 
 enum VerificationStatus {
@@ -78,6 +82,7 @@ model Scholarship {
   amount       Float?
   deadline     DateTime?
   criteriaJson Json?
+  requirementsJson Json?
   status       ScholarshipStatus @default(DRAFT)
   createdAt    DateTime          @default(now())
   sourceUrl    String?
@@ -87,10 +92,12 @@ model Scholarship {
 
   provider     Provider      @relation(fields: [providerId], references: [id])
   applications Application[]
+  transactions Transaction[]
 }
 
 enum ScholarshipStatus {
   DRAFT
+  PENDING_REVIEW
   ACTIVE
   CLOSED
 }
@@ -109,6 +116,8 @@ model Application {
   scholarship Scholarship @relation(fields: [scholarshipId], references: [id])
   documents   Document[]
   fraudFlag   FraudFlag?
+  messages    Message[]
+  transactions Transaction[]
 
   @@unique([studentId, scholarshipId])
 }
@@ -116,13 +125,16 @@ model Application {
 enum ApplicationStatus {
   PENDING
   UNDER_REVIEW
+  SHORTLISTED
+  INTERVIEWING
   APPROVED
   REJECTED
 }
 
 model Document {
   id          String   @id @default(cuid())
-  studentId   String
+  studentId   String?
+  providerId  String?
   appId       String?
   fileUrl     String
   publicId    String?
@@ -132,7 +144,8 @@ model Document {
   docType     String
   uploadedAt  DateTime @default(now())
 
-  student     Student      @relation(fields: [studentId], references: [id])
+  student     Student?     @relation(fields: [studentId], references: [id])
+  provider    Provider?    @relation(fields: [providerId], references: [id])
   application Application? @relation(fields: [appId], references: [id])
 }
 
@@ -190,4 +203,45 @@ model NewsletterSubscriber {
   email     String   @unique
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
+}
+
+model Message {
+  id             String      @id @default(cuid())
+  applicationId  String
+  senderId       String
+  receiverId     String
+  content        String
+  isRead         Boolean     @default(false)
+  createdAt      DateTime    @default(now())
+
+  application   Application @relation(fields: [applicationId], references: [id])
+  sender        User        @relation("SentMessages", fields: [senderId], references: [id])
+  receiver      User        @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
+
+model Transaction {
+  id             String      @id @default(cuid())
+  providerId     String
+  amount         Float
+  type           TransactionType
+  status         TransactionStatus @default(PENDING)
+  reference      String?
+  scholarshipId  String?
+  applicationId  String?
+  createdAt      DateTime    @default(now())
+
+  provider      Provider     @relation(fields: [providerId], references: [id])
+  scholarship   Scholarship? @relation(fields: [scholarshipId], references: [id])
+  application   Application? @relation(fields: [applicationId], references: [id])
+}
+
+enum TransactionType {
+  DEPOSIT
+  DISBURSEMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }

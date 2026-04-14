@@ -140,7 +140,7 @@ export const Settings = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="rounded-[48px] border border-dashed border-border/60 bg-white/[0.01] p-12 shadow-2xl space-y-10 h-fit"
+          className="rounded-[48px] border border-dashed border-border/60 bg-card/30 dark:bg-white/[0.01] p-12 shadow-2xl space-y-10 h-fit"
         >
           <div className="flex items-center gap-6 mb-4">
             <div className="w-14 h-14 rounded-[20px] bg-blue-500/10 border border-dashed border-blue-500/30 text-blue-500 flex items-center justify-center">
@@ -161,7 +161,7 @@ export const Settings = () => {
                   {...register('currentPassword')}
                   type={showCurrentPassword ? 'text' : 'password'} 
                   placeholder="••••••••" 
-                  className="h-14 pl-14 pr-14 bg-white/[0.03] border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 transition-all font-mono text-sm" 
+                  className="h-14 pl-14 pr-14 bg-accent/50 dark:bg-white/[0.03] border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 transition-all font-mono text-sm" 
                 />
                 <button 
                   type="button" 
@@ -182,7 +182,7 @@ export const Settings = () => {
                   {...register('newPassword')}
                   type={showNewPassword ? 'text' : 'password'} 
                   placeholder="MIN 8 CHARS" 
-                  className="h-14 pl-14 pr-14 bg-white/[0.03] border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 transition-all font-mono text-sm uppercase" 
+                  className="h-14 pl-14 pr-14 bg-accent/50 dark:bg-white/[0.03] border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 transition-all font-mono text-sm uppercase" 
                 />
                 <button 
                   type="button" 
@@ -229,7 +229,7 @@ export const Settings = () => {
               <div className="flex items-center gap-6">
                 <div className={cn(
                   "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
-                  is2FAEnabled ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30" : "bg-white/5 text-muted-foreground border border-border/40"
+                  is2FAEnabled ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30" : "bg-accent/50 dark:bg-white/5 text-muted-foreground border border-border/40"
                 )}>
                   <Shield size={20} />
                 </div>
@@ -240,7 +240,7 @@ export const Settings = () => {
               </div>
               <div className={cn(
                 "w-14 h-7 rounded-full relative transition-all duration-500 border",
-                is2FAEnabled ? "bg-emerald-500 border-emerald-600" : "bg-white/10 border-border/40"
+                is2FAEnabled ? "bg-emerald-500 border-emerald-600" : "bg-accent/80 dark:bg-white/10 border-border/40"
               )}>
                 <div className={cn(
                   "absolute top-1 w-[18px] h-[18px] rounded-full transition-all duration-500",
@@ -256,7 +256,7 @@ export const Settings = () => {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="rounded-[48px] border border-dashed border-border/60 bg-white/[0.01] p-12 shadow-2xl space-y-10 h-fit"
+          className="rounded-[48px] border border-dashed border-border/60 bg-card/30 dark:bg-white/[0.01] p-12 shadow-2xl space-y-10 h-fit"
         >
           <div className="flex items-center gap-6 mb-4">
             <div className="w-14 h-14 rounded-[20px] bg-emerald-500/10 border border-dashed border-emerald-500/30 text-emerald-500 flex items-center justify-center">
@@ -275,7 +275,7 @@ export const Settings = () => {
                 <div 
                   key={pref.key} 
                   onClick={() => togglePreference(pref.key)}
-                  className="flex items-center justify-between p-7 rounded-[32px] bg-white/[0.02] border border-dashed border-border/60 group hover:border-blue-500/40 transition-all cursor-pointer"
+                  className="flex items-center justify-between p-7 rounded-[32px] bg-accent/30 dark:bg-white/[0.02] border border-dashed border-border/60 group hover:border-blue-500/40 transition-all cursor-pointer"
                 >
                   <div className="space-y-1">
                     <h4 className="text-foreground font-black text-sm uppercase tracking-tight font-mono">{pref.label}</h4>
@@ -283,7 +283,7 @@ export const Settings = () => {
                   </div>
                   <div className={cn(
                     "w-14 h-7 rounded-full relative transition-all duration-500 border",
-                    status ? "bg-blue-500 border-blue-600" : "bg-white/10 border-border/40"
+                    status ? "bg-blue-500 border-blue-600" : "bg-accent/80 dark:bg-white/10 border-border/40"
                   )}>
                     <div className={cn(
                       "absolute top-1 w-[18px] h-[18px] rounded-full transition-all duration-500",
@@ -298,7 +298,7 @@ export const Settings = () => {
               <span className="text-[10px] font-mono font-black uppercase tracking-widest flex items-center gap-3 text-muted-foreground">
                 <Globe size={16} className="text-blue-500" /> System Language
               </span>
-              <span className="text-foreground font-mono font-black uppercase tracking-widest text-[10px] bg-white/5 px-3 py-1 rounded-sm border border-dashed border-border/40">English (US)</span>
+              <span className="text-foreground font-mono font-black uppercase tracking-widest text-[10px] bg-accent/50 dark:bg-white/5 px-3 py-1 rounded-sm border border-dashed border-border/40">English (US)</span>
             </div>
           </div>
         </motion.div>

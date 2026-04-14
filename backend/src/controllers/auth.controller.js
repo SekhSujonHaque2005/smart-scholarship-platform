@@ -67,7 +67,7 @@ const register = async (req, res) => {
       message: 'Registration successful',
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, role: user.role }
+      user: { id: user.id, email: user.email, role: user.role, name: name }
     });
 
   } catch (error) {
@@ -86,7 +86,10 @@ const login = async (req, res) => {
     }
 
     // Find user
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ 
+      where: { email },
+      include: { student: true, provider: true }
+    });
     if (!user) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
@@ -155,7 +158,12 @@ const login = async (req, res) => {
       message: 'Login successful',
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, role: user.role }
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role,
+        name: user.role === 'STUDENT' ? user.student?.name : user.provider?.orgName 
+      }
     });
 
   } catch (error) {
@@ -201,13 +209,41 @@ const getMe = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
+    let profileStrength = 0;
+    let missingFields = [];
+
+    if (user.role === 'STUDENT' && user.student) {
+      const s = user.student;
+      profileStrength += 10; // Basic account
+
+      if (s.cgpa) profileStrength += 10; else missingFields.push('CGPA');
+      if (s.fieldOfStudy) profileStrength += 10; else missingFields.push('Field of Study');
+      if (s.location) profileStrength += 10; else missingFields.push('Location');
+      if (s.incomeLevel) profileStrength += 10; else missingFields.push('Income Level');
+      if (user.profilePicture) profileStrength += 10; else missingFields.push('Profile Picture');
+
+      // Check documents in vault
+      const docs = await prisma.document.findMany({
+        where: { studentId: s.id, appId: null }
+      });
+
+      const hasDoc = (type) => docs.some(d => d.docType.toUpperCase() === type.toUpperCase());
+
+      if (hasDoc('TRANSCRIPT')) profileStrength += 10; else missingFields.push('Academic Transcript');
+      if (hasDoc('ID_PROOF') || hasDoc('ID')) profileStrength += 10; else missingFields.push('Identity Proof');
+      if (hasDoc('RESUME')) profileStrength += 10; else missingFields.push('Professional Resume');
+      if (hasDoc('LOR')) profileStrength += 10; else missingFields.push('Letter of Recommendation');
+    }
+
     res.status(200).json({
       id: user.id,
       email: user.email,
       role: user.role,
       preferences: user.preferences,
       profilePicture: user.profilePicture,
-      profile: user.student || user.provider
+      profile: user.student || user.provider,
+      profileStrength,
+      missingFields
     });
 
   } catch (error) {
@@ -412,19 +448,24 @@ const updateProfile = async (req, res) => {
   try {
     const { name, cgpa, fieldOfStudy, location, incomeLevel, profilePicture } = req.body;
 
+    // 1. Update Student Profile if fields are provided
     if (req.user.role === 'STUDENT') {
-      await prisma.student.update({
-        where: { userId: req.user.userId },
-        data: {
-          name,
-          cgpa: cgpa ? parseFloat(cgpa) : null,
-          fieldOfStudy,
-          location,
-          incomeLevel
-        }
-      });
+      const studentUpdateData = {};
+      if (name !== undefined) studentUpdateData.name = name;
+      if (cgpa !== undefined) studentUpdateData.cgpa = cgpa ? parseFloat(cgpa) : null;
+      if (fieldOfStudy !== undefined) studentUpdateData.fieldOfStudy = fieldOfStudy;
+      if (location !== undefined) studentUpdateData.location = location;
+      if (incomeLevel !== undefined) studentUpdateData.incomeLevel = incomeLevel;
+
+      if (Object.keys(studentUpdateData).length > 0) {
+        await prisma.student.update({
+          where: { userId: req.user.userId },
+          data: studentUpdateData
+        });
+      }
     }
 
+    // 2. Update User Level fields (e.g. Profile Picture)
     if (profilePicture !== undefined) {
       await prisma.user.update({
         where: { id: req.user.userId },
@@ -492,7 +533,10 @@ const verify2FA = async (req, res) => {
       return res.status(401).json({ message: 'Invalid 2FA session' });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ 
+      where: { email },
+      include: { student: true, provider: true }
+    });
     if (!user || user.id !== decoded.userId) {
       return res.status(401).json({ message: 'Invalid 2FA session' });
     }
@@ -522,7 +566,12 @@ const verify2FA = async (req, res) => {
       message: 'Logged in successfully',
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, role: user.role }
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        role: user.role,
+        name: user.role === 'STUDENT' ? user.student?.name : user.provider?.orgName 
+      }
     });
 
   } catch (error) {

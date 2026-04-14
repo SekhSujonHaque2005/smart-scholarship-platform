@@ -1,5 +1,5 @@
 const prisma = require('../lib/prisma');
-const { getMatchScores } = require('../services/ai.service');
+const { calculateMatchScore } = require('../utils/matching');
 
 // GET ALL SCHOLARSHIPS (Public - with search & filter)
 const getAllScholarships = async (req, res) => {
@@ -7,6 +7,7 @@ const getAllScholarships = async (req, res) => {
     const {
       search,
       status = 'ACTIVE',
+      providerId,
       minAmount,
       maxAmount,
       page = 1,
@@ -14,7 +15,8 @@ const getAllScholarships = async (req, res) => {
     } = req.query;
 
     const where = {
-      status,
+      ...(status && status !== 'ALL' && { status }),
+      ...(providerId && { providerId }),
       ...(search && {
         OR: [
           { title: { contains: search, mode: 'insensitive' } },
@@ -48,24 +50,18 @@ const getAllScholarships = async (req, res) => {
           where: { userId: req.user.userId }
         });
 
-        if (student && (student.cgpa || student.fieldOfStudy || student.location)) {
-          const { getMatchScores } = require('../services/ai.service');
-          const matchScores = await getMatchScores(student, scholarships);
-          const scoresArray = Array.isArray(matchScores) ? matchScores : [];
-
+        if (student) {
           scholarshipsWithScores = scholarships.map(s => {
-            const match = scoresArray.find(m => m.scholarshipId === s.id);
+            const matchScore = calculateMatchScore(student, s);
             return {
               ...s,
-              matchScore: match?.matchScore || null,
-              matchReasons: match?.reasons || []
+              matchScore,
+              matchReasons: matchScore > 70 ? ['Highly compatible with your profile'] : []
             };
           });
 
           // Sort by match score if available
-          scholarshipsWithScores.sort((a, b) =>
-            (b.matchScore || 0) - (a.matchScore || 0)
-          );
+          scholarshipsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
         }
       } catch (error) {
         console.error('AI match error:', error.message);
@@ -118,7 +114,7 @@ const getScholarshipById = async (req, res) => {
 // CREATE SCHOLARSHIP (Provider only)
 const createScholarship = async (req, res) => {
   try {
-    const { title, description, amount, deadline, criteriaJson } = req.body;
+    const { title, description, category, amount, deadline, criteriaJson, requirementsJson, status } = req.body;
 
     if (!title) {
       return res.status(400).json({ message: 'Title is required' });
@@ -146,8 +142,10 @@ const createScholarship = async (req, res) => {
         description,
         amount: amount ? parseFloat(amount) : null,
         deadline: deadline ? new Date(deadline) : null,
+        category,
         criteriaJson,
-        status: 'DRAFT'
+        requirementsJson,
+        status: status || 'PENDING_REVIEW'
       }
     });
 
@@ -158,7 +156,7 @@ const createScholarship = async (req, res) => {
 
   } catch (error) {
     console.error('Create scholarship error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: error.message || 'Internal server error' });
   }
 };
 
@@ -166,7 +164,7 @@ const createScholarship = async (req, res) => {
 const updateScholarship = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, amount, deadline, criteriaJson, status } = req.body;
+    const { title, description, category, amount, deadline, criteriaJson, requirementsJson, status } = req.body;
 
     const provider = await prisma.provider.findUnique({
       where: { userId: req.user.userId }
@@ -186,10 +184,12 @@ const updateScholarship = async (req, res) => {
       where: { id },
       data: {
         ...(title && { title }),
-        ...(description && { description }),
-        ...(amount && { amount: parseFloat(amount) }),
-        ...(deadline && { deadline: new Date(deadline) }),
+        ...(description !== undefined && { description }),
+        ...(category !== undefined && { category }),
+        ...(amount !== undefined && { amount: parseFloat(amount) }),
+        ...(deadline !== undefined && { deadline: new Date(deadline) }),
         ...(criteriaJson && { criteriaJson }),
+        ...(requirementsJson && { requirementsJson }),
         ...(status && { status })
       }
     });
@@ -201,7 +201,7 @@ const updateScholarship = async (req, res) => {
 
   } catch (error) {
     console.error('Update scholarship error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: error.message || 'Internal server error' });
   }
 };
 

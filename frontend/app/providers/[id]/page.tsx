@@ -57,8 +57,8 @@ export default function PublicProviderProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
-        <Loader2 className="animate-spin text-indigo-500" size={40} />
-        <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.2em] font-black">Syncing with Provider Node...</p>
+        <Loader2 className="animate-spin text-blue-500" size={40} />
+        <p className="text-sm font-medium text-muted-foreground">Syncing with Provider Node...</p>
       </div>
     );
   }
@@ -66,7 +66,7 @@ export default function PublicProviderProfilePage() {
   if (!provider) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
-        <h1 className="text-4xl font-black uppercase">Provider Not Found</h1>
+        <h1 className="text-2xl font-bold">Provider Not Found</h1>
         <Button onClick={() => router.back()}>Go Back</Button>
       </div>
     );
@@ -76,24 +76,24 @@ export default function PublicProviderProfilePage() {
     <div className="min-h-screen bg-background selection:bg-indigo-500/30">
       <Navbar />
       
-      <main className="max-w-7xl mx-auto px-4 lg:px-8 py-32 space-y-20">
+      <main className="max-w-7xl mx-auto px-4 lg:px-8 pt-24 pb-12 space-y-12">
         {/* Breadcrumb / Back */}
         <button 
           onClick={() => router.back()}
-          className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all font-mono text-[10px] uppercase tracking-[0.2em]"
+          className="group flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
-          <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" /> 
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" /> 
           Return to Registry
         </button>
 
         {/* Hero Header */}
-        <section className="flex flex-col md:flex-row items-center gap-10 bg-card border border-border rounded-[64px] p-12 relative overflow-hidden">
-           <div className="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
-              <Building2 size={240} />
+        <section className="flex flex-col md:flex-row items-center gap-8 bg-card border shadow-sm rounded-2xl p-8 md:p-10 relative overflow-hidden">
+           <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+              <Building2 size={200} />
            </div>
            
-           <div className="w-40 h-40 rounded-[48px] bg-gradient-to-br from-indigo-500 to-purple-600 p-[1px] shadow-2xl shrink-0">
-              <div className="w-full h-full rounded-[47px] bg-card flex items-center justify-center text-5xl font-black text-foreground overflow-hidden">
+           <div className="w-32 h-32 rounded-2xl bg-muted border shadow-sm shrink-0">
+              <div className="w-full h-full rounded-2xl bg-card flex items-center justify-center text-4xl font-bold text-muted-foreground overflow-hidden">
                  {provider.logo ? (
                    <img src={provider.logo} alt={provider.orgName} className="w-full h-full object-cover" />
                  ) : (
@@ -102,44 +102,44 @@ export default function PublicProviderProfilePage() {
               </div>
            </div>
 
-           <div className="flex-1 text-center md:text-left space-y-6">
+           <div className="flex-1 text-center md:text-left space-y-4">
               <div className="space-y-2">
                  <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                    <h1 className="text-4xl md:text-6xl font-black text-foreground tracking-tighter uppercase leading-none">
+                    <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
                        {provider.orgName}
                     </h1>
                     {provider.verificationStatus === 'APPROVED' && (
-                       <span className="px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[10px] font-mono uppercase tracking-[0.2em] flex items-center gap-2 font-black">
-                          <ShieldCheck size={12} /> Verified Entity
+                       <span className="px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 text-xs font-semibold flex items-center gap-1.5">
+                          <ShieldCheck size={14} /> Verified Entity
                        </span>
                     )}
                  </div>
-                 <p className="text-muted-foreground text-sm font-mono max-w-2xl uppercase font-black tracking-tight opacity-70">
+                 <p className="text-muted-foreground text-base max-w-2xl leading-relaxed">
                     Registered {provider.orgType} within the ScholarHub ecosystem. Committed to academic mobility and accessible grants.
                  </p>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center md:justify-start gap-8">
-                 <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground uppercase font-black">
-                    <MapPin size={14} className="text-indigo-500" /> Global Operations
+              <div className="flex flex-wrap items-center justify-center md:justify-start gap-6 pt-2">
+                 <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <MapPin size={16} className="text-blue-500" /> Global Operations
                  </div>
-                 <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground uppercase font-black">
-                    <Award size={14} className="text-indigo-500" /> {provider._count?.scholarships || 0} Programs
+                 <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Award size={16} className="text-blue-500" /> {provider._count?.scholarships || 0} Programs
                  </div>
-                 <div className="flex items-center gap-2 text-[10px] font-mono text-muted-foreground uppercase font-black">
-                    <Users size={14} className="text-indigo-500" /> {provider._count?.reviews || 0} Endorsements
+                 <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                    <Users size={16} className="text-blue-500" /> {provider._count?.reviews || 0} Endorsements
                  </div>
               </div>
            </div>
         </section>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-           {/* Left Column: Trust Analysis */}
-           <div className="lg:col-span-2 space-y-12">
-              <section className="space-y-8">
-                 <div className="flex items-center gap-4">
-                    <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse shadow-[0_0_15px_rgba(99,102,241,0.5)]" />
-                    <h2 className="text-[10px] font-mono font-black text-indigo-400 uppercase tracking-[0.4em]">Audit & Credibility</h2>
+        <div className="space-y-16">
+           <div className="grid grid-cols-1 lg:grid-cols-3 gap-12 items-stretch">
+              {/* Left Column: Trust Analysis */}
+              <div className="lg:col-span-2 space-y-6">
+                 <div className="flex items-center gap-3">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                    <h2 className="text-lg font-semibold text-foreground">Audit & Credibility</h2>
                  </div>
                  <TrustScoreBreakdown 
                     score={provider.trustScore} 
@@ -147,91 +147,91 @@ export default function PublicProviderProfilePage() {
                     totalReviews={provider._count?.reviews || 0}
                     totalScholarships={provider._count?.scholarships || 0}
                  />
-              </section>
-
-              {/* Active Scholarships */}
-              <section className="space-y-8">
-                 <div className="flex items-center gap-4">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
-                    <h2 className="text-[10px] font-mono font-black text-emerald-400 uppercase tracking-[0.4em]">Active Initiatives</h2>
-                 </div>
-                 
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {provider.scholarships?.map((s: any) => (
-                      <motion.div 
-                        key={s.id}
-                        whileHover={{ y: -5 }}
-                        className="p-6 bg-card border border-border rounded-[32px] space-y-6 hover:border-indigo-500/30 transition-all group"
-                      >
-                         <h3 className="text-xl font-black text-foreground tracking-tight group-hover:text-indigo-500 transition-colors line-clamp-2 min-h-[56px] uppercase leading-none">
-                            {s.title}
-                         </h3>
-                         <div className="grid grid-cols-2 gap-4 pt-4 border-t border-dashed border-border/40">
-                            <div>
-                               <p className="text-[9px] font-mono text-muted-foreground uppercase font-black mb-1">Grant Value</p>
-                               <p className="flex items-center gap-1 text-emerald-500 font-mono font-black text-sm">
-                                  <IndianRupee size={12} /> {s.amount?.toLocaleString()}
-                               </p>
-                            </div>
-                            <div className="text-right">
-                               <p className="text-[9px] font-mono text-muted-foreground uppercase font-black mb-1">Deadline</p>
-                               <p className="flex items-center justify-end gap-1 text-foreground font-mono font-black text-sm uppercase">
-                                  <Calendar size={12} /> {new Date(s.deadline).toLocaleDateString()}
-                               </p>
-                            </div>
-                         </div>
-                         <Button 
-                           onClick={() => router.push(`/dashboard/student/scholarships/${s.id}`)}
-                           className="w-full bg-accent hover:bg-indigo-500 hover:text-white rounded-2xl text-[10px] uppercase font-black tracking-widest transition-all"
-                         >
-                            Inspect Protocol <ChevronRight size={14} className="ml-2" />
-                         </Button>
-                      </motion.div>
-                    ))}
-                 </div>
-              </section>
-           </div>
-
-           {/* Right Column: Testimonials */}
-           <div className="space-y-8">
-              <div className="flex items-center gap-4">
-                 <div className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_15px_rgba(245,158,11,0.5)]" />
-                 <h2 className="text-[10px] font-mono font-black text-amber-400 uppercase tracking-[0.4em]">Student Consensus</h2>
               </div>
 
-              <div className="space-y-4">
-                 {reviews.length > 0 ? reviews.map((r, i) => (
-                    <motion.div 
-                      key={i}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.1 }}
-                      className="p-6 bg-card border border-border rounded-3xl space-y-4"
-                    >
-                       <div className="flex items-center justify-between">
-                          <div className="flex items-center">
-                             {[1, 2, 3, 4, 5].map((s) => (
-                               <Star key={s} size={10} className={cn(s <= r.rating ? "text-amber-400 fill-amber-400" : "text-muted-foreground/20")} />
-                             ))}
+              {/* Right Column: Testimonials */}
+              <div className="space-y-6 h-full flex flex-col">
+                 <div className="flex items-center gap-3 shrink-0">
+                    <div className="w-2 h-2 rounded-full bg-amber-500" />
+                    <h2 className="text-lg font-semibold text-foreground">Student Consensus</h2>
+                 </div>
+
+                 <div className="space-y-4 flex-1 flex flex-col">
+                    {reviews.length > 0 ? reviews.map((r, i) => (
+                       <motion.div 
+                         key={i}
+                         initial={{ opacity: 0, x: 20 }}
+                         animate={{ opacity: 1, x: 0 }}
+                         transition={{ delay: i * 0.1 }}
+                         className="p-5 bg-card border shadow-sm rounded-xl space-y-4"
+                       >
+                          <div className="flex items-center justify-between">
+                             <div className="flex items-center">
+                                {[1, 2, 3, 4, 5].map((s) => (
+                                  <Star key={s} size={12} className={cn(s <= r.rating ? "text-amber-400 fill-amber-400" : "text-muted-foreground/20")} />
+                                ))}
+                             </div>
+                             <span className="text-xs text-muted-foreground">{new Date(r.createdAt).toLocaleDateString()}</span>
                           </div>
-                          <span className="text-[9px] font-mono text-muted-foreground font-bold">{new Date(r.createdAt).toLocaleDateString()}</span>
+                          <p className="text-sm text-foreground/80 leading-relaxed">
+                             "{r.comment || 'Outstanding experience.'}"
+                          </p>
+                          <div className="pt-2 flex items-center gap-3">
+                             <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-sm font-medium">{r.student?.name?.[0] || 'S'}</div>
+                             <span className="text-xs text-muted-foreground font-medium">Verified Scholar</span>
+                          </div>
+                       </motion.div>
+                    )) : (
+                       <div className="p-8 bg-muted/30 border border-dashed rounded-xl flex flex-col items-center justify-center text-center space-y-3 flex-1 h-full">
+                          <MessageSquare className="mx-auto text-muted-foreground/40" size={32} />
+                          <p className="text-sm font-medium text-muted-foreground">Zero feedback entries recorded in registry.</p>
                        </div>
-                       <p className="text-xs text-foreground/80 leading-relaxed font-medium">
-                          "{r.comment || 'Outstanding experience.'}"
-                       </p>
-                       <div className="pt-2 flex items-center gap-2">
-                          <div className="w-6 h-6 rounded-lg bg-accent flex items-center justify-center text-[10px] font-black">{r.student?.name?.[0] || 'S'}</div>
-                          <span className="text-[9px] font-mono text-muted-foreground uppercase font-black opacity-60">Verified Scholar</span>
-                       </div>
-                    </motion.div>
-                 )) : (
-                    <div className="p-12 bg-accent/20 border border-dashed border-border rounded-[48px] text-center space-y-4">
-                       <MessageSquare className="mx-auto text-muted-foreground/20" size={40} />
-                       <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest font-black">Zero feedback entries recorded in registry.</p>
-                    </div>
-                 )}
+                    )}
+                 </div>
               </div>
            </div>
+
+           {/* Full Width Bottom: Active Scholarships */}
+           <section className="space-y-6">
+              <div className="flex items-center gap-3">
+                 <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                 <h2 className="text-lg font-semibold text-foreground">Active Initiatives</h2>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 {provider.scholarships?.map((s: any) => (
+                   <motion.div 
+                     key={s.id}
+                     whileHover={{ y: -4 }}
+                     className="p-5 bg-card border shadow-sm rounded-xl flex flex-col space-y-4 hover:border-blue-500/50 transition-colors group"
+                   >
+                      <h3 className="text-lg font-semibold text-foreground group-hover:text-blue-600 transition-colors line-clamp-2 min-h-[56px]">
+                         {s.title}
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4 pt-4 border-t border-border flex-1">
+                         <div>
+                            <p className="text-xs font-medium text-muted-foreground mb-1 uppercase tracking-wider">Grant Value</p>
+                            <p className="flex items-center gap-1 text-emerald-600 dark:text-emerald-500 font-semibold text-sm">
+                               <IndianRupee size={14} /> {s.amount?.toLocaleString()}
+                            </p>
+                         </div>
+                         <div className="text-right">
+                            <p className="text-xs font-medium text-muted-foreground mb-1 uppercase tracking-wider">Deadline</p>
+                            <p className="flex items-center justify-end gap-1 text-foreground font-medium text-sm">
+                               <Calendar size={14} /> {new Date(s.deadline).toLocaleDateString()}
+                            </p>
+                         </div>
+                      </div>
+                      <Button 
+                        onClick={() => router.push(`/dashboard/student/scholarships/${s.id}`)}
+                        className="w-full mt-4 bg-secondary hover:bg-secondary/80 text-secondary-foreground rounded-lg py-2 text-sm font-medium transition-colors"
+                      >
+                         Inspect Protocol <ChevronRight size={16} className="ml-2" />
+                      </Button>
+                   </motion.div>
+                 ))}
+              </div>
+           </section>
         </div>
       </main>
 

@@ -47,7 +47,7 @@ export default function BillingEscrowPage() {
 
   const handleDeposit = async () => {
     if (!depositAmount || isNaN(Number(depositAmount)) || Number(depositAmount) <= 0) {
-      toast.error('Invalid Protocol: Enter a valid numeric amount.');
+      toast.error('Please enter a valid numeric amount.');
       return;
     }
     
@@ -56,12 +56,12 @@ export default function BillingEscrowPage() {
     setTimeout(async () => {
       try {
         await api.post('billing/deposit', { amount: Number(depositAmount) });
-        toast.success(`Protocol Authorized: ₹${Number(depositAmount).toLocaleString()} added to Vault.`);
+        toast.success(`₹${Number(depositAmount).toLocaleString()} added to your balance.`);
         setIsDepositModalOpen(false);
         setDepositAmount('');
         fetchTransactions(); // Refresh
       } catch (err) {
-        toast.error('Transaction fault detected. Bank node unresponsive.');
+        toast.error('Deposit failed. Please try again.');
       } finally {
         setIsProcessing(false);
       }
@@ -82,29 +82,29 @@ export default function BillingEscrowPage() {
     <ProviderLayout>
       <div className="max-w-6xl mx-auto space-y-8 pb-32">
         {/* Header */}
-        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b border-border/50">
+        <header className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4 border-b">
           <div>
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-500">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center">
                 <Wallet size={20} />
               </div>
-              <h1 className="text-3xl font-black text-foreground tracking-tighter uppercase">Financial Hub</h1>
+              <h1 className="text-3xl font-bold text-foreground tracking-tight">Billing & Payments</h1>
             </div>
-            <p className="text-[11px] font-mono text-muted-foreground uppercase tracking-widest font-bold">Secure Escrow & Capital Distribution</p>
+            <p className="text-sm text-muted-foreground">Manage your balance and transactions</p>
           </div>
           
           <button 
             onClick={() => setIsDepositModalOpen(true)}
-            className="px-6 py-3 rounded-2xl bg-indigo-600 text-white font-black text-[11px] uppercase font-mono tracking-widest hover:bg-indigo-700 hover:shadow-[0_0_30px_rgba(99,102,241,0.3)] transition-all flex items-center gap-2"
+            className="px-6 py-2.5 rounded-lg bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 transition-colors flex items-center gap-2"
           >
-            <Plus size={16} /> Deploy Capital
+            <Plus size={16} /> Add Funds
           </button>
         </header>
 
         {loading ? (
           <div className="h-64 flex flex-col items-center justify-center gap-4">
-             <Loader2 className="animate-spin text-indigo-500" size={32} />
-             <p className="text-[10px] font-mono uppercase tracking-[0.2em] text-muted-foreground font-black">Syncing Ledger...</p>
+             <Loader2 className="animate-spin text-blue-500" size={32} />
+             <p className="text-sm font-medium text-muted-foreground">Loading balance...</p>
           </div>
         ) : (
           <motion.div 
@@ -116,77 +116,76 @@ export default function BillingEscrowPage() {
             {/* Left: Vault & Connection */}
             <div className="space-y-8">
               {/* Vault Balance Card */}
-              <motion.div variants={itemVariants} className="bg-gradient-to-br from-indigo-900/40 via-card to-card border border-indigo-500/20 rounded-[48px] p-8 relative overflow-hidden shadow-2xl">
-                 <div className="absolute top-0 right-0 p-8 opacity-10">
-                   <ShieldCheck size={120} className="text-indigo-400" />
+              <motion.div variants={itemVariants} className="bg-card border rounded-2xl p-8 relative overflow-hidden shadow-sm">
+                 <div className="absolute top-0 right-0 p-8 opacity-5">
+                   <Wallet size={120} className="text-muted-foreground" />
                  </div>
-                 <h3 className="text-[10px] font-mono text-indigo-400 uppercase tracking-[0.2em] font-black flex items-center gap-2 mb-6">
-                   <Wallet size={14} /> Available Escrow Vault
+                 <h3 className="text-sm font-semibold text-foreground flex items-center gap-2 mb-4">
+                   <Wallet size={16} className="text-muted-foreground" /> Available Balance
                  </h3>
-                 <div className="text-5xl font-black text-foreground tracking-tighter mb-2">
+                 <div className="text-4xl font-bold text-foreground tracking-tight mb-2">
                    ₹{balance.toLocaleString()}
                  </div>
-                 <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest font-black opacity-60">
-                   Liquid Capital
+                 <p className="text-sm text-muted-foreground">
+                   Available for disbursement
                  </p>
               </motion.div>
 
               {/* Connected Bank Card */}
-              <motion.div variants={itemVariants} className="bg-card border border-border rounded-[40px] p-8 shadow-sm">
-                <h3 className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.2em] font-black mb-6">Linked Payment Node</h3>
-                <div className="flex items-center gap-4 p-4 rounded-3xl bg-accent/50 border border-border">
-                  <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
+              <motion.div variants={itemVariants} className="bg-card border rounded-2xl p-8 shadow-sm">
+                <h3 className="text-sm font-semibold text-foreground mb-4">Linked Payment Method</h3>
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-muted/50 border">
+                  <div className="w-12 h-12 rounded-lg bg-blue-500/10 text-blue-600 flex items-center justify-center shrink-0">
                     <CreditCard size={20} />
                   </div>
                   <div className="flex-1">
-                    <h4 className="text-sm font-black text-foreground uppercase tracking-tight">HDFC Corporate</h4>
-                    <p className="text-[10px] font-mono text-muted-foreground tracking-widest font-bold">**** **** **** 4242</p>
+                    <h4 className="text-sm font-semibold text-foreground">HDFC Corporate</h4>
+                    <p className="text-xs text-muted-foreground">•••• •••• •••• 4242</p>
                   </div>
-                  <div className="px-3 py-1 bg-emerald-500/10 text-emerald-400 rounded-full text-[9px] font-mono uppercase tracking-widest font-black border border-emerald-500/20">
+                  <div className="px-2.5 py-1 bg-emerald-500/10 text-emerald-600 rounded-md text-xs font-medium">
                     Verified
                   </div>
                 </div>
               </motion.div>
             </div>
 
-            {/* Right: Transactions Ledger */}
             <motion.div variants={itemVariants} className="lg:col-span-2">
-              <div className="bg-card border border-border rounded-[48px] p-8 shadow-sm h-full">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-lg font-black text-foreground tracking-tight uppercase flex items-center gap-2">
+              <div className="bg-card border rounded-2xl p-8 shadow-sm h-full">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
                     <TerminalSquare size={18} className="text-muted-foreground" />
-                    Transaction Ledger
+                    Transaction History
                   </h3>
-                  <button className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest hover:text-foreground transition-colors font-black flex items-center gap-1">
-                    Export Output <ChevronRight size={12} />
+                  <button className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors flex items-center gap-1">
+                    Export CSV <ChevronRight size={16} />
                   </button>
                 </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {transactions.length > 0 ? (
                     transactions.map((tx, idx) => (
-                      <div key={tx.id || idx} className="flex items-center justify-between p-5 rounded-3xl bg-accent/30 border border-border/50 hover:bg-accent hover:border-border transition-all group">
+                      <div key={tx.id || idx} className="flex items-center justify-between p-4 rounded-lg bg-muted/50 border hover:bg-muted transition-all group">
                         <div className="flex items-center gap-4">
                           <div className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
-                            tx.type === 'DEPOSIT' ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20" : "bg-rose-500/10 text-rose-500 border-rose-500/20"
+                            "w-10 h-10 rounded-lg flex items-center justify-center shrink-0",
+                            tx.type === 'DEPOSIT' ? "bg-emerald-500/10 text-emerald-600" : "bg-muted text-muted-foreground"
                           )}>
                             {tx.type === 'DEPOSIT' ? <ArrowDownRight size={18} /> : <ArrowUpRight size={18} />}
                           </div>
                           <div>
-                            <h4 className="text-xs font-black text-foreground uppercase tracking-tight">{tx.type}</h4>
-                            <p className="text-[9px] font-mono text-muted-foreground tracking-widest uppercase opacity-60 font-bold">{tx.reference || 'SYSTEM_TX'}</p>
+                            <h4 className="text-sm font-semibold text-foreground">{tx.type}</h4>
+                            <p className="text-xs text-muted-foreground uppercase">{tx.reference || 'SYSTEM_TX'}</p>
                           </div>
                         </div>
 
                         <div className="text-right">
                           <div className={cn(
-                            "text-sm font-black font-mono tracking-tight",
-                            tx.type === 'DEPOSIT' ? "text-emerald-400" : "text-foreground"
+                            "text-sm font-bold",
+                            tx.type === 'DEPOSIT' ? "text-emerald-600" : "text-foreground"
                           )}>
                             {tx.type === 'DEPOSIT' ? '+' : '-'}₹{tx.amount.toLocaleString()}
                           </div>
-                          <p className="text-[9px] font-mono text-muted-foreground tracking-widest uppercase opacity-60 font-bold">
+                          <p className="text-xs text-muted-foreground">
                             {new Date(tx.createdAt).toLocaleDateString()}
                           </p>
                         </div>
@@ -195,7 +194,7 @@ export default function BillingEscrowPage() {
                   ) : (
                     <div className="py-20 text-center">
                        <ArrowRightLeft size={32} className="mx-auto text-muted-foreground/30 mb-4" />
-                       <p className="text-xs font-mono text-muted-foreground uppercase tracking-widest font-black">No transactions found in the global registry.</p>
+                       <p className="text-sm text-muted-foreground">No transactions found.</p>
                     </div>
                   )}
                 </div>
@@ -215,24 +214,24 @@ export default function BillingEscrowPage() {
             <div className="absolute inset-0" onClick={() => !isProcessing && setIsDepositModalOpen(false)} />
             <motion.div 
               initial={{ scale: 0.95, y: 20 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.95, y: 20 }}
-              className="relative w-full max-w-md bg-card border border-border rounded-[40px] p-8 shadow-2xl z-10 isolate"
+              className="relative w-full max-w-md bg-card border rounded-2xl p-8 shadow-lg z-10 isolate"
             >
               {isProcessing && (
-                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-[40px] space-y-4">
-                  <div className="w-16 h-16 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
-                  <p className="text-[10px] font-mono uppercase tracking-[0.2em] font-black text-indigo-500">Communicating with Bank Node...</p>
+                <div className="absolute inset-0 bg-background/80 backdrop-blur-sm z-20 flex flex-col items-center justify-center rounded-2xl space-y-4">
+                  <div className="w-12 h-12 border-4 border-blue-500/20 border-t-blue-500 rounded-full animate-spin" />
+                  <p className="text-sm font-medium text-blue-500">Processing Payment...</p>
                 </div>
               )}
 
-              <div className="flex justify-between items-center mb-8">
+              <div className="flex justify-between items-center mb-6">
                 <div className="flex items-center gap-2">
-                   <div className="w-8 h-8 bg-[#635BFF] rounded-lg flex items-center justify-center text-white font-black italic tracking-tighter shadow-lg shadow-[#635BFF]/30">S</div>
-                   <h2 className="text-xl font-black text-foreground tracking-tighter">Stripe Connect</h2>
+                   <div className="w-8 h-8 bg-[#635BFF] rounded-lg flex items-center justify-center text-white font-bold italic shadow-sm">S</div>
+                   <h2 className="text-xl font-bold text-foreground tracking-tight">Stripe Deposit</h2>
                 </div>
                 <button 
                   onClick={() => setIsDepositModalOpen(false)} 
                   disabled={isProcessing}
-                  className="p-2 bg-accent rounded-full text-muted-foreground hover:text-foreground transition-all"
+                  className="p-2 hover:bg-muted rounded-lg text-muted-foreground transition-colors"
                 >
                   <X size={16} />
                 </button>
@@ -240,32 +239,32 @@ export default function BillingEscrowPage() {
 
               <div className="space-y-6">
                 <div>
-                  <label className="text-[10px] font-mono text-muted-foreground uppercase font-black tracking-[0.2em] block mb-2">Deposit Amount (₹)</label>
+                  <label className="text-sm font-medium text-foreground block mb-2">Amount to Deposit (₹)</label>
                   <div className="relative">
-                    <span className="absolute left-6 top-1/2 -translate-y-1/2 text-foreground font-black text-xl">₹</span>
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground font-medium text-lg">₹</span>
                     <input 
                       type="number"
                       value={depositAmount}
                       onChange={(e) => setDepositAmount(e.target.value)}
                       placeholder="0.00"
-                      className="w-full bg-accent/50 border border-border rounded-3xl py-6 pl-12 pr-6 text-2xl font-black text-foreground focus:outline-none focus:border-[#635BFF]/50 transition-all font-mono"
+                      className="w-full bg-card border rounded-lg py-3 pl-10 pr-4 text-lg font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-[#635BFF] transition-all"
                     />
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 flex gap-3 text-blue-500">
+                <div className="p-4 rounded-lg bg-blue-500/10 text-blue-600 flex gap-3 text-sm">
                   <ShieldCheck size={18} className="shrink-0 mt-0.5" />
-                  <p className="text-[10px] font-mono uppercase tracking-widest leading-relaxed font-bold">
-                    Funds will be locked in decentralized escrow until scholarship disbursement protocol is met.
+                  <p className="leading-relaxed">
+                    Funds will be added to your balance for securely funding scholarship applications.
                   </p>
                 </div>
 
                 <button 
                   onClick={handleDeposit}
                   disabled={isProcessing || !depositAmount}
-                  className="w-full py-5 rounded-2xl bg-[#635BFF] text-white font-black text-[12px] uppercase tracking-widest hover:bg-[#5249FC] transition-all shadow-lg hover:shadow-[#635BFF]/30 disabled:opacity-50 font-mono"
+                  className="w-full py-3 rounded-lg bg-[#635BFF] text-white font-medium text-sm hover:bg-[#5249FC] transition-colors disabled:opacity-50"
                 >
-                  Authorize Deposit Protocol
+                  Confirm Deposit
                 </button>
               </div>
             </motion.div>

@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-from routers import matching, fraud
+from routers import matching, fraud, generate
 
 app = FastAPI(
     title="ScholarHub AI Service",
@@ -15,7 +15,7 @@ app = FastAPI(
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5000"],
+    allow_origins=["http://localhost:3000", "http://localhost:3001", "http://localhost:5000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,6 +24,7 @@ app.add_middleware(
 # Routers
 app.include_router(matching.router, prefix="/api")
 app.include_router(fraud.router, prefix="/api")
+app.include_router(generate.router, prefix="/api")
 
 @app.get("/")
 async def root():
@@ -34,6 +35,7 @@ async def root():
         "endpoints": {
             "matching": "/api/matching",
             "fraud": "/api/fraud/check",
+            "generate": "/api/generate/description",
             "docs": "/docs"
         }
     }

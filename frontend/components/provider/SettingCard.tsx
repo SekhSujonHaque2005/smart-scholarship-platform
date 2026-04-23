@@ -32,30 +32,30 @@ export const SettingCard = ({
       whileTap={{ scale: 0.985 }}
       onClick={onClick}
       className={cn(
-        "group relative bg-card border border-border rounded-[32px] p-6 transition-all duration-300",
-        onClick ? "cursor-pointer hover:border-indigo-500/30 hover:bg-accent/30 shadow-sm hover:shadow-indigo-500/5" : ""
+        "group relative bg-card border rounded-xl p-6 transition-all duration-300 h-full flex flex-col",
+        onClick ? "cursor-pointer hover:bg-muted/50 hover:shadow-sm" : ""
       )}
     >
-      <div className="flex items-start gap-6">
-        <div className="w-12 h-12 rounded-2xl bg-accent border border-border flex items-center justify-center text-muted-foreground group-hover:text-indigo-500 transition-colors shrink-0">
+      <div className="flex items-start gap-4 flex-1">
+        <div className="w-10 h-10 rounded-lg bg-muted border flex items-center justify-center text-muted-foreground group-hover:text-blue-600 transition-colors shrink-0">
           <Icon size={20} />
         </div>
 
-        <div className="flex-1 min-w-0 space-y-1">
+        <div className="flex-1 min-w-0 flex flex-col h-full">
           <div className="flex items-center justify-between">
-            <h3 className="text-[13px] font-black text-foreground uppercase tracking-tight">{title}</h3>
+            <h3 className="text-sm font-semibold text-foreground">{title}</h3>
             {status && (
               <div className={cn(
-                "px-2 py-0.5 rounded-full border text-[8px] font-mono uppercase tracking-[0.2em] font-black",
-                status === 'ACTIVE' || status === 'SECURE' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" :
-                status === 'PENDING' ? "bg-amber-500/10 border-amber-500/20 text-amber-400" :
-                "bg-zinc-500/10 border-zinc-500/20 text-zinc-400"
+                "px-2 py-0.5 rounded-md text-xs font-medium",
+                status === 'ACTIVE' || status === 'SECURE' ? "bg-emerald-500/10 text-emerald-600" :
+                status === 'PENDING' ? "bg-amber-500/10 text-amber-600" :
+                "bg-muted text-muted-foreground"
               )}>
-                {status}
+                {status.charAt(0).toUpperCase() + status.slice(1).toLowerCase()}
               </div>
             )}
           </div>
-          <p className="text-[10px] font-mono text-muted-foreground uppercase leading-relaxed tracking-wider font-bold opacity-70 group-hover:opacity-100 transition-opacity">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             {description}
           </p>
 
@@ -65,35 +65,33 @@ export const SettingCard = ({
             </div>
             
             {type === 'ACTION' && onClick && (
-              <div className="flex items-center gap-2 text-[10px] font-mono text-indigo-500 uppercase tracking-widest font-black">
-                Execute Protocol <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-              </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); onClick(); }}
+                className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+              >
+                Manage <ChevronRight size={16} className="group-hover:translate-x-1 transition-transform" />
+              </button>
             )}
 
             {type === 'TOGGLE' && (
               <div className={cn(
-                "w-12 h-6 rounded-full border transition-all duration-300 relative p-1 cursor-pointer",
-                value ? "bg-indigo-500 border-indigo-500" : "bg-accent border-border"
+                "w-11 h-6 rounded-full transition-colors relative p-1 cursor-pointer border",
+                value ? "bg-blue-600 border-blue-600" : "bg-muted border-border"
               )}>
                 <motion.div 
-                  animate={{ x: value ? 24 : 0 }}
+                  animate={{ x: value ? 20 : 0 }}
                   className="w-4 h-4 rounded-full bg-white shadow-sm"
                 />
               </div>
             )}
 
             {type === 'DATA' && value && (
-              <span className="text-[11px] font-mono text-foreground font-black uppercase tracking-tighter">
+              <span className="text-sm font-semibold text-foreground">
                 {value.toString()}
               </span>
             )}
           </div>
         </div>
-      </div>
-
-      {/* Background Decor */}
-      <div className="absolute top-0 right-0 p-4 opacity-[0.02] group-hover:opacity-10 transition-opacity">
-        <Icon size={80} />
       </div>
     </motion.div>
   );

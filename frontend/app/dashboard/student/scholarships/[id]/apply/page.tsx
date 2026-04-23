@@ -46,14 +46,13 @@ export default function ApplyPage() {
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="p-12 flex flex-col items-center justify-center min-h-[60vh] space-y-8">
+        <div className="p-12 flex flex-col items-center justify-center min-h-[60vh] space-y-6">
           <div className="relative">
-            <Loader2 className="animate-spin text-blue-500" size={64} strokeWidth={1} />
-            <div className="absolute inset-0 blur-2xl bg-blue-500/20 -z-10" />
+            <Loader2 className="animate-spin text-blue-500" size={48} strokeWidth={2} />
           </div>
-          <div className="space-y-2 text-center">
-            <p className="text-[10px] font-mono font-black text-muted-foreground uppercase tracking-[0.5em] animate-pulse">Initializing Application Node</p>
-            <p className="text-[9px] font-mono text-blue-500/60 uppercase tracking-widest">Secure Link Established...</p>
+          <div className="space-y-1 text-center">
+            <p className="text-sm font-semibold text-muted-foreground animate-pulse">Initializing Application Node</p>
+            <p className="text-xs font-medium text-blue-500 mt-1">Secure Link Established...</p>
           </div>
         </div>
       </DashboardLayout>
@@ -67,7 +66,7 @@ export default function ApplyPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center p-16 rounded-[48px] border border-dashed border-emerald-500/30 bg-white/[0.01] shadow-2xl relative overflow-hidden max-w-2xl w-full"
+            className="text-center p-8 md:p-12 border bg-card shadow-lg rounded-2xl relative overflow-hidden max-w-2xl w-full"
           >
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500/0 via-emerald-500 to-emerald-500/0" />
             
@@ -75,10 +74,10 @@ export default function ApplyPage() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="flex justify-center mb-10"
+              className="flex justify-center mb-8"
             >
-              <div className="w-24 h-24 rounded-[32px] bg-emerald-500/10 flex items-center justify-center text-emerald-500 border border-dashed border-emerald-500/30 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-                <CheckCircle2 size={48} strokeWidth={1} />
+              <div className="w-20 h-20 rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-500 border border-emerald-200 dark:border-emerald-500/20 flex items-center justify-center">
+                <CheckCircle2 size={40} strokeWidth={2} />
               </div>
             </motion.div>
 
@@ -86,16 +85,16 @@ export default function ApplyPage() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ delay: 0.3 }}
-              className="space-y-6"
+              className="space-y-4"
             >
               <div className="flex items-center justify-center gap-4">
-                 <div className="h-px w-8 bg-emerald-500/20" />
-                 <h2 className="text-[10px] font-mono font-black text-emerald-500 uppercase tracking-[0.4em]">Submission Synchronized</h2>
-                 <div className="h-px w-8 bg-emerald-500/20" />
+                 <div className="h-px w-8 bg-border" />
+                 <h2 className="text-sm font-semibold text-emerald-600 dark:text-emerald-500 uppercase tracking-wider">Submission Synchronized</h2>
+                 <div className="h-px w-8 bg-border" />
               </div>
-              <h2 className="text-5xl md:text-6xl font-sans font-black text-foreground tracking-tighter leading-[0.9]">Success.</h2>
-              <p className="text-muted-foreground text-sm font-mono uppercase tracking-tight max-w-sm mx-auto leading-relaxed opacity-60">
-                Application for <span className="text-foreground font-black">{scholarship?.title}</span> has been securely committed to the registry.
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">Success.</h2>
+              <p className="text-muted-foreground text-base max-w-sm mx-auto leading-relaxed">
+                Application for <span className="text-foreground font-semibold">{scholarship?.title}</span> has been securely committed to the registry.
               </p>
             </motion.div>
 
@@ -103,16 +102,16 @@ export default function ApplyPage() {
                initial={{ opacity: 0 }}
                animate={{ opacity: 1 }}
                transition={{ delay: 1 }}
-               className="mt-16 flex flex-col items-center space-y-6"
+               className="mt-10 flex flex-col items-center space-y-4"
             >
                <Button 
                 onClick={() => router.push('/dashboard/student/applications')}
-                className="bg-foreground text-background hover:scale-105 active:scale-95 px-16 h-16 rounded-2xl font-mono font-black text-[10px] uppercase tracking-[0.3em] transition-all border border-white/10"
+                className="bg-blue-600 text-white hover:bg-blue-700 px-8 h-12 rounded-xl text-sm font-semibold transition-colors"
                >
                  Go to Tracker →
                </Button>
-               <div className="flex items-center gap-3 text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest bg-white/5 py-2 px-4 rounded-full border border-dashed border-border/40">
-                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+               <div className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
+                 <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                  <span>Auto-Redirecting in 3 Seconds</span>
                </div>
             </motion.div>
@@ -124,27 +123,24 @@ export default function ApplyPage() {
 
   return (
     <DashboardLayout>
-      <div className="max-w-4xl mx-auto space-y-16 py-12 px-6">
+      <div className="max-w-4xl mx-auto space-y-10 py-10 px-6">
         {/* Vercel-Style Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-10 border-b border-dashed border-border/60 pb-16">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b pb-8">
           <div className="space-y-6">
             <motion.button
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               onClick={() => router.back()}
-              className="group flex items-center gap-3 text-muted-foreground hover:text-foreground transition-all duration-300"
+              className="group flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
             >
-              <div className="w-8 h-8 rounded-full border border-dashed border-border/60 flex items-center justify-center group-hover:border-blue-500/40 group-hover:text-blue-500 transition-all">
-                <span className="text-sm font-mono font-black">←</span>
-              </div>
-              <span className="text-[10px] font-mono font-black uppercase tracking-[0.3em]">Back</span>
+              <span className="group-hover:-translate-x-1 transition-transform">←</span> Return
             </motion.button>
 
-            <div className="space-y-4">
+            <div className="space-y-2">
               <motion.h1 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-5xl md:text-8xl font-sans font-black tracking-tighter text-foreground leading-[0.85]"
+                className="text-3xl md:text-4xl font-bold tracking-tight text-foreground"
               >
                 Apply
               </motion.h1>
@@ -152,34 +148,34 @@ export default function ApplyPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
-                className="flex flex-wrap items-center gap-6 text-muted-foreground font-mono text-[10px] uppercase tracking-widest"
+                className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground"
               >
-                <div className="flex items-center gap-3">
-                  <span className="opacity-40">GRANT:</span>
-                  <span className="text-blue-500 font-black">{scholarship?.title}</span>
+                <div className="flex items-center gap-2">
+                  <span className="opacity-70">Grant:</span>
+                  <span className="text-blue-600 dark:text-blue-500 font-semibold">{scholarship?.title}</span>
                 </div>
-                <div className="h-px w-6 bg-border/40" />
-                <div className="flex items-center gap-3">
-                  <span className="opacity-40">ROLE:</span>
-                  <span className="text-foreground font-black italic">Verified Scholar</span>
+                <div className="h-4 w-px bg-border" />
+                <div className="flex items-center gap-2">
+                  <span className="opacity-70">Role:</span>
+                  <span className="font-medium text-foreground">Verified Scholar</span>
                 </div>
               </motion.div>
             </div>
           </div>
 
           <div className="hidden lg:block shrink-0">
-            <div className="p-6 rounded-3xl border border-dashed border-border/40 bg-white/[0.01] space-y-4 min-w-[200px]">
+            <div className="p-5 rounded-xl border bg-card shadow-sm space-y-3 min-w-[200px]">
               <div className="space-y-1">
-                <p className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest">Status</p>
-                <div className="flex items-center gap-3">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-                  <p className="text-[10px] font-mono font-black text-foreground uppercase tracking-widest">Session Active</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</p>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                  <p className="text-sm font-semibold text-foreground">Session Active</p>
                 </div>
               </div>
-              <div className="h-px bg-border/40" />
+              <div className="h-px bg-border" />
               <div className="space-y-1">
-                <p className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest">Protocol</p>
-                <p className="text-[11px] font-mono font-black text-blue-500 uppercase tracking-widest">SECURE_FLOW_v2</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Protocol</p>
+                <p className="text-sm font-semibold text-blue-600 dark:text-blue-500">SECURE_FLOW_v2</p>
               </div>
             </div>
           </div>

@@ -39,30 +39,30 @@ const DeleteModal = ({ isOpen, onConfirm, onCancel, scholarshipTitle }: { isOpen
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-[90%] max-w-sm bg-card border border-border rounded-[32px] p-8 shadow-2xl"
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] w-[90%] max-w-sm bg-card border rounded-2xl p-8 shadow-2xl"
           >
             <div className="flex flex-col items-center text-center space-y-4">
               <div className="w-16 h-16 rounded-full bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-500">
                 <Trash2 size={28} />
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-black text-foreground uppercase tracking-tight">Delete Program?</h3>
-                <p className="text-sm text-muted-foreground font-mono leading-relaxed px-2">
-                  Are you entirely sure you want to decommission <strong className="text-foreground">{scholarshipTitle}</strong>? This action is <span className="text-rose-500 font-bold">permanent</span> and cannot be undone.
+                <h3 className="text-xl font-bold text-foreground">Delete Program?</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed px-2">
+                  Are you entirely sure you want to delete <strong className="text-foreground">{scholarshipTitle}</strong>? This action cannot be undone.
                 </p>
               </div>
               <div className="flex w-full gap-3 mt-6 pt-2">
                 <button 
                   onClick={onCancel}
-                  className="flex-1 px-4 py-3 rounded-xl border border-border text-muted-foreground hover:text-foreground font-black text-xs uppercase tracking-widest hover:bg-accent transition-all"
+                  className="flex-1 px-4 py-2 rounded-lg border border-border text-muted-foreground hover:bg-muted font-medium text-sm transition-colors"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={onConfirm}
-                  className="flex-1 px-4 py-3 rounded-xl bg-rose-500 text-white font-black text-xs uppercase tracking-widest hover:bg-rose-600 transition-all shadow-lg shadow-rose-500/20 dark:shadow-none"
+                  className="flex-1 px-4 py-2 rounded-lg bg-rose-500 text-white font-medium text-sm hover:bg-rose-600 transition-colors"
                 >
-                  Acknowledge
+                  Delete
                 </button>
               </div>
             </div>
@@ -80,17 +80,17 @@ const ScholarshipCard = ({ id, title, status, _count, amount, deadline, onDelete
     <motion.div 
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group bg-card border border-border rounded-[32px] p-6 hover:border-indigo-500/30 transition-all shadow-sm shadow-indigo-500/5 dark:shadow-none"
+      className="break-inside-avoid mb-6 group bg-card border rounded-2xl p-6 hover:shadow-md transition-all shadow-sm"
     >
       <div className="flex justify-between items-start mb-6">
         <div className={cn(
-          "px-2 py-0.5 rounded-full border text-[9px] font-mono uppercase tracking-widest",
-          status === 'ACTIVE' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" :
-          status === 'DRAFT' ? "bg-zinc-500/10 border-zinc-500/20 text-zinc-400" :
-          status === 'PENDING_REVIEW' ? "bg-amber-500/10 border-amber-500/20 text-amber-500" :
-          "bg-rose-500/10 border-rose-500/20 text-rose-400"
+          "px-2.5 py-0.5 rounded-full text-xs font-semibold",
+          status === 'ACTIVE' ? "bg-emerald-500/10 text-emerald-500" :
+          status === 'DRAFT' ? "bg-zinc-500/10 text-zinc-500" :
+          status === 'PENDING_REVIEW' ? "bg-amber-500/10 text-amber-500" :
+          "bg-rose-500/10 text-rose-500"
         )}>
-          ● {status.replace('_', ' ')}
+          {status.replace('_', ' ')}
         </div>
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
           <button 
@@ -102,32 +102,31 @@ const ScholarshipCard = ({ id, title, status, _count, amount, deadline, onDelete
         </div>
       </div>
 
-      <h3 className="text-xl font-black text-foreground mb-2 group-hover:text-indigo-500 transition-colors leading-tight line-clamp-2 min-h-[56px]">
+      <h3 className="text-xl font-bold text-foreground mb-2 leading-tight line-clamp-2 min-h-[56px]">
         {title}
       </h3>
 
       <div className="grid grid-cols-2 gap-4 mt-6">
         <div className="space-y-1">
-          <span className="text-[10px] font-mono text-muted-foreground uppercase font-black opacity-80 dark:opacity-60">Applicants</span>
+          <span className="text-xs font-medium text-muted-foreground">Applicants</span>
           <div className="flex items-center gap-2 text-foreground font-bold">
             <Users size={14} className="text-indigo-500" />
             <span className="text-sm font-bold">{_count?.applications || 0}</span>
           </div>
         </div>
         <div className="space-y-1 text-right">
-          <span className="text-[10px] font-mono text-muted-foreground uppercase font-black opacity-80 dark:opacity-60">Total Budget</span>
+          <span className="text-xs font-medium text-muted-foreground">Total Budget</span>
           <div className="flex items-center gap-2 text-foreground font-bold justify-end">
-            <IndianRupee size={14} className="text-emerald-500" />
-            <span className="text-sm font-bold">₹{amount?.toLocaleString() || 'N/A'}</span>
+            <span className="text-sm font-semibold">₹{amount?.toLocaleString() || 'N/A'}</span>
           </div>
         </div>
       </div>
 
       <div className="mt-6 pt-6 border-t border-border flex items-center justify-between">
-        <div className="flex items-center gap-2 text-muted-foreground font-bold opacity-60">
-          <Calendar size={12} />
-          <span className="text-[10px] font-mono uppercase tracking-wider">
-            {deadline ? new Date(deadline).toLocaleDateString() : 'NO DEADLINE'}
+        <div className="flex items-center gap-2 text-muted-foreground">
+          <Calendar size={14} />
+          <span className="text-sm">
+            {deadline ? new Date(deadline).toLocaleDateString() : 'No Deadline'}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -216,12 +215,12 @@ export default function ManagedScholarshipsPage() {
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono uppercase tracking-widest">Active Programs</span>
+              <span className="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-semibold">Active Programs</span>
             </div>
-            <h1 className="text-4xl font-black text-foreground tracking-tighter">
-              My <span className="text-indigo-500">Scholarships</span>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              My Scholarships
             </h1>
-            <p className="text-muted-foreground text-sm font-mono max-w-xl uppercase font-black tracking-tight opacity-70">
+            <p className="text-sm text-muted-foreground max-w-xl">
               Manage your published scholarship programs and funding status.
             </p>
           </div>
@@ -231,15 +230,15 @@ export default function ManagedScholarshipsPage() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-indigo-500 transition-colors" size={16} />
               <input 
                 type="text" 
-                placeholder="SEARCH REGISTRY..." 
+                placeholder="Search programs..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-accent/50 border border-border rounded-xl py-2.5 pl-10 pr-4 text-[11px] font-mono text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-indigo-500/50 focus:bg-indigo-500/5 transition-all w-64 uppercase font-bold"
+                className="bg-card border rounded-lg py-2 pl-10 pr-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all w-64"
               />
             </div>
-            <Link href="/dashboard/provider/scholarships/create" className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-foreground text-background dark:bg-white dark:text-black font-black text-[11px] uppercase tracking-widest hover:opacity-90 transition-all">
+            <Link href="/dashboard/provider/scholarships/create" className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white font-medium text-sm hover:bg-blue-700 transition-colors">
               <Plus size={16} />
-              Init New Program
+              Create Program
             </Link>
           </div>
         </section>
@@ -252,17 +251,17 @@ export default function ManagedScholarshipsPage() {
                 key={f}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "px-4 py-2 rounded-xl text-[10px] font-mono tracking-widest uppercase transition-all font-black",
-                  filter === f ? "bg-foreground text-background dark:bg-white dark:text-black" : "text-muted-foreground hover:text-foreground"
+                  "px-4 py-2 rounded-lg text-sm font-medium transition-all",
+                  filter === f ? "bg-foreground text-background dark:bg-white dark:text-black" : "text-muted-foreground hover:bg-muted"
                 )}
               >
-                {f === 'ALL' ? 'ALL PROGRAMS' : f}
+                {f === 'ALL' ? 'All Programs' : f.replace('_', ' ')}
               </button>
             ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:text-foreground transition-colors font-black">
-            <Filter size={14} />
-            <span className="text-[10px] font-mono uppercase tracking-widest">Advanced Filters</span>
+          <button className="flex items-center gap-2 px-4 py-2 text-muted-foreground hover:bg-muted rounded-lg transition-colors font-medium text-sm">
+            <Filter size={16} />
+            <span>Filters</span>
           </button>
         </section>
 
@@ -271,7 +270,7 @@ export default function ManagedScholarshipsPage() {
           <AnimatePresence mode='popLayout'>
             {loading ? (
               [...Array(3)].map((_, i) => (
-                <div key={i} className="h-[280px] bg-white/5 animate-pulse rounded-[32px]" />
+                <div key={i} className="h-[280px] bg-muted animate-pulse rounded-2xl" />
               ))
             ) : scholarships.length > 0 ? (
               scholarships.map((s) => (
@@ -282,14 +281,16 @@ export default function ManagedScholarshipsPage() {
             {!loading && (
               <Link 
                 href="/dashboard/provider/scholarships/create"
-                className="group flex flex-col items-center justify-center p-8 rounded-[32px] border-2 border-dashed border-border hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all text-center space-y-4 min-h-[280px]"
+                className="group flex flex-col items-center justify-center p-8 rounded-2xl border-2 border-dashed border-border hover:border-blue-500 hover:bg-blue-500/5 transition-all text-center space-y-4 min-h-[280px] h-full"
               >
-                <div className="w-16 h-16 rounded-full bg-accent border border-border flex items-center justify-center text-muted-foreground group-hover:text-indigo-600 group-hover:scale-110 transition-all duration-500 shadow-sm">
-                  <Plus size={32} />
+                <div className="w-16 h-16 rounded-full bg-accent flex items-center justify-center group-hover:scale-110 group-hover:bg-blue-500/10 transition-all">
+                  <Plus size={28} className="text-muted-foreground group-hover:text-blue-500" />
                 </div>
                 <div>
-                  <h4 className="text-sm font-black text-foreground uppercase tracking-widest">Deploy New Initiative</h4>
-                  <p className="text-[10px] font-mono text-muted-foreground mt-1 uppercase tracking-tighter font-bold">Allocate capital for new scholars</p>
+                  <h3 className="text-lg font-semibold text-foreground group-hover:text-blue-500 transition-colors">Create New Program</h3>
+                  <p className="text-sm text-muted-foreground mt-2 max-w-[200px] mx-auto">
+                    Publish a new scholarship application portal
+                  </p>
                 </div>
               </Link>
             )}
@@ -300,8 +301,8 @@ export default function ManagedScholarshipsPage() {
           <div className="py-20 text-center space-y-4">
             <PackageSearch className="mx-auto text-muted-foreground/20" size={64} />
             <div className="space-y-1">
-              <h3 className="text-lg font-black text-foreground uppercase tracking-tight">No Results Found</h3>
-              <p className="text-muted-foreground text-xs font-mono uppercase tracking-widest font-bold">Try adjusting your filters or registry search</p>
+              <h3 className="text-lg font-semibold text-foreground">No Results Found</h3>
+              <p className="text-sm text-muted-foreground">Try adjusting your filters or search terms</p>
             </div>
           </div>
         )}

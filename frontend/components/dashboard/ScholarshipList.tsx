@@ -193,140 +193,113 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
 
   return (
     <div className="space-y-12">
-      {/* Sticky Header Section */}
-      <div className="sticky top-0 md:top-0 z-30 pt-4 pb-6 bg-background/80 backdrop-blur-xl -mt-4 -mx-10 px-10 border-b border-border/50">
-        <div className="space-y-12">
-          {/* Premium Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-20">
-            <div className="space-y-1">
-              <motion.h1 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-4xl md:text-5xl font-serif font-black tracking-tighter text-foreground drop-shadow-sm"
-              >
-                {onlySaved ? 'Wishlist' : 'Scholarships'}
-              </motion.h1>
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="text-muted-foreground font-medium tracking-wide flex items-center gap-2"
-              >
-                Discover your future <div className="w-1 h-1 rounded-full bg-border" />
-                <span className="text-[10px] uppercase tracking-[0.2em] font-black text-blue-600 dark:text-blue-400/80">
-                  {filteredScholarships.length} of {totalCount || filteredScholarships.length} Opportunities Available
-                </span>
-              </motion.div>
-            </div>
-            
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="outline" 
-                onClick={() => setShowAll(!showAll)}
-                className={cn(
-                  "rounded-xl border-border bg-card backdrop-blur-md transition-all h-11 px-5 font-bold text-xs uppercase tracking-widest shadow-sm",
-                  showAll ? "text-blue-600 dark:text-blue-400 border-blue-500/30 bg-blue-500/5" : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                {showAll ? 'Show Less' : 'Show All'}
-              </Button>
-
-              <Button 
-                variant="outline" 
-                onClick={fetchScholarships}
-                className="rounded-xl border-border bg-card backdrop-blur-md text-muted-foreground hover:text-foreground hover:bg-muted transition-all h-11 px-5 font-bold text-xs uppercase tracking-widest shadow-sm"
-              >
-                Refresh List
-              </Button>
-            </div>
-          </div>
-
-          {/* Premium Search and Filters - Industry Standard Capsule Design */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="group relative flex flex-wrap md:flex-nowrap items-center bg-card/60 backdrop-blur-3xl p-2 md:p-3 rounded-[32px] md:rounded-full border border-white/10 shadow-2xl transition-all duration-500 hover:border-blue-500/20"
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
+        <div className="space-y-1">
+          <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">
+            {onlySaved ? 'Wishlist' : 'Scholarships'}
+          </h1>
+          <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+            Discover your future <span className="w-1 h-1 rounded-full bg-border" />
+            <span className="text-blue-600 dark:text-blue-500 font-semibold">
+              {filteredScholarships.length} of {totalCount || filteredScholarships.length} Opportunities
+            </span>
+          </p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => setShowAll(!showAll)}
+            className={cn(
+              "rounded-lg font-medium transition-colors shadow-sm",
+              showAll ? "text-blue-600 border-blue-200 bg-blue-50" : "text-muted-foreground"
+            )}
           >
-            {/* Glossy Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-full" />
-            
-            {/* Search Input Section */}
-            <div className="relative flex-1 min-w-[300px] group/search">
-              <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within/search:text-blue-500 transition-all duration-300" size={18} />
-              <Input 
-                placeholder="Search scholarships, providers, or fields..." 
-                className="h-12 pl-14 pr-4 bg-transparent border-none rounded-full text-foreground placeholder:text-muted-foreground/30 focus-visible:ring-0 focus-visible:ring-offset-0 transition-all text-sm font-medium"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-              {searchTerm !== debouncedSearch && (
-                <motion.div 
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 px-2 py-1 bg-blue-500/5 rounded-lg border border-blue-500/10"
-                >
-                  <Loader2 className="animate-spin text-blue-500" size={12} />
-                  <span className="text-[9px] uppercase font-black tracking-widest text-blue-500/70">Syncing</span>
-                </motion.div>
-              )}
+            {showAll ? 'Show Less' : 'Show All'}
+          </Button>
+
+          <Button 
+            variant="outline" 
+            onClick={fetchScholarships}
+            className="rounded-lg font-medium text-muted-foreground shadow-sm"
+          >
+            Refresh List
+          </Button>
+        </div>
+      </div>
+
+      {/* Search and Filters */}
+      <div className="flex flex-col md:flex-row items-center gap-4 bg-card border rounded-2xl p-2 md:p-3 shadow-sm">
+        
+        {/* Search Input Section */}
+        <div className="relative flex-1 min-w-[300px] w-full">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground" size={18} />
+          <Input 
+            placeholder="Search scholarships, providers, or fields..." 
+            className="h-10 pl-12 pr-4 bg-transparent border-none text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0 text-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm !== debouncedSearch && (
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
+              <Loader2 className="animate-spin text-muted-foreground" size={14} />
             </div>
-            
-            {/* Divider 1 */}
-            <div className="hidden md:block w-px h-8 bg-border/40 mx-2" />
-            
-            {/* Filter Section */}
-            <div className="flex items-center gap-2 px-2">
-              <Button 
-                variant="ghost" 
-                className={cn(
-                  "h-12 px-5 rounded-full hover:bg-white/5 transition-all gap-2.5 font-bold uppercase tracking-widest text-[10px] border border-transparent",
-                  activeFilters > 0 ? "text-blue-500 bg-blue-500/5 border-blue-500/20" : "text-muted-foreground/60"
-                )}
-                onClick={() => {
-                  setTempFilters({ ...filters });
-                  setShowFilterModal(true);
-                }}
-              >
-                <Filter size={16} className={cn("transition-transform duration-300", activeFilters > 0 && "scale-110")} /> 
-                Filters
-                { activeFilters > 0 && (
-                  <span className="flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-blue-500 text-white text-[9px] font-black shadow-lg shadow-blue-500/30">
-                    {activeFilters}
-                  </span>
-                )}
-              </Button>
-            </div>
-            
-            {/* Divider 2 */}
-            <div className="hidden md:block w-px h-8 bg-border/40 mx-2" />
-            
-            {/* Sort Section */}
-            <div className="relative group/sort px-2 min-w-[160px]">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                <ChevronDown size={14} className="text-muted-foreground/30 group-hover/sort:text-muted-foreground/60 transition-colors" />
-              </div>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full h-12 pl-10 pr-6 bg-transparent border-none rounded-full text-foreground hover:text-foreground focus:ring-0 outline-none transition-all font-bold appearance-none cursor-pointer uppercase tracking-widest text-[10px] text-muted-foreground/70"
-              >
-                <option value="newest" className="bg-background">Newest First</option>
-                <option value="amount_high" className="bg-background">Highest Amount</option>
-                <option value="amount_low" className="bg-background">Lowest Amount</option>
-                <option value="deadline" className="bg-background">Deadline Soon</option>
-              </select>
-            </div>
-            
-            {/* AI Status Pulsar */}
-            <div className="hidden lg:flex items-center gap-3 px-6 py-2 ml-2 bg-blue-500/5 border border-blue-500/10 rounded-full group/ai transition-all hover:bg-blue-500/10 hover:border-blue-500/30">
-               <div className="relative flex h-2 w-2">
-                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-               </div>
-               <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-blue-500/80 group-hover/ai:text-blue-500 transition-colors">Match AI v2.0</span>
-            </div>
-          </motion.div>
+          )}
+        </div>
+        
+        {/* Divider */}
+        <div className="hidden md:block w-px h-6 bg-border mx-2" />
+        
+        {/* Actions (Filter, Sort, AI) */}
+        <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto no-scrollbar pb-2 md:pb-0">
+          {/* Filter */}
+          <Button 
+            variant="ghost" 
+            className={cn(
+              "h-10 px-4 rounded-xl gap-2 font-medium text-sm",
+              activeFilters > 0 ? "text-blue-600 bg-blue-50" : "text-muted-foreground"
+            )}
+            onClick={() => {
+              setTempFilters({ ...filters });
+              setShowFilterModal(true);
+            }}
+          >
+            <Filter size={16} /> 
+            Filters
+            {activeFilters > 0 && (
+              <span className="flex items-center justify-center min-w-[20px] h-[20px] px-1 rounded-md bg-blue-600 text-white text-xs font-semibold">
+                {activeFilters}
+              </span>
+            )}
+          </Button>
+          
+          {/* Divider */}
+          <div className="hidden md:block w-px h-6 bg-border mx-2" />
+          
+          {/* Sort */}
+          <div className="relative min-w-[140px]">
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="w-full h-10 pl-4 pr-8 bg-transparent border border-border rounded-xl text-sm font-medium text-muted-foreground hover:text-foreground focus:ring-0 outline-none appearance-none cursor-pointer"
+            >
+              <option value="newest">Newest First</option>
+              <option value="amount_high">Highest Amount</option>
+              <option value="amount_low">Lowest Amount</option>
+              <option value="deadline">Deadline Soon</option>
+            </select>
+            <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+          </div>
+          
+          {/* AI Status */}
+          <div className="hidden lg:flex items-center gap-2 px-4 py-2 ml-2 bg-blue-50 text-blue-600 rounded-xl">
+             <div className="relative flex h-2 w-2">
+               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+               <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-600"></span>
+             </div>
+             <span className="text-xs font-semibold">Match AI</span>
+          </div>
         </div>
       </div>
 
@@ -338,7 +311,7 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
              <p className="text-muted-foreground font-black uppercase tracking-widest text-[10px]">Filtering Intelligence...</p>
            </div>
         </div>
-      ) : scholarships.length === 0 ? (
+      ) : filteredScholarships.length === 0 ? (
         <div className="text-center py-20 bg-muted/40 rounded-3xl border border-dashed border-border leading-loose shadow-inner">
           <Award className="mx-auto text-muted-foreground/20 mb-4" size={64} strokeWidth={1} />
           <h3 className="text-xl font-bold text-muted-foreground/80 uppercase tracking-widest">No matches found</h3>
@@ -346,7 +319,7 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-          {scholarships.map((scholarship, index) => {
+          {filteredScholarships.map((scholarship: any, index: number) => {
             const daysLeft = getDaysLeft(scholarship.deadline);
             const isSaved = savedIds.has(scholarship.id);
             const isApplied = appliedIds.has(scholarship.id);
@@ -359,15 +332,15 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.05 }}
                 key={scholarship.id || index}
-                className="group relative h-full"
+                className="group relative h-full flex flex-col"
               >
-                <div className="h-full bg-white/[0.01] border border-dashed border-border/60 hover:border-blue-500/40 rounded-[40px] p-10 transition-all duration-700 group-hover:bg-white/[0.02] flex flex-col relative overflow-hidden backdrop-blur-sm">
+                <div className="h-full bg-card border border-border hover:border-blue-500/50 rounded-2xl p-6 md:p-8 transition-all duration-300 flex flex-col relative overflow-hidden shadow-sm hover:shadow-md">
                   {/* Save Toggle - Premium Style */}
                   <button 
                     onClick={() => toggleSave(scholarship.id)}
                     className={cn(
-                      "absolute top-8 right-8 p-3 rounded-full transition-all duration-500 z-20 group/save",
-                      isSaved ? "bg-rose-500 text-white shadow-lg shadow-rose-500/20" : "bg-white/[0.03] border border-dashed border-border/60 text-muted-foreground hover:text-rose-500 hover:border-rose-500/40"
+                      "absolute top-6 right-6 p-2 rounded-full transition-all duration-300 z-20 group/save",
+                      isSaved ? "bg-rose-50 text-rose-500" : "bg-muted text-muted-foreground hover:text-rose-500 hover:bg-rose-50"
                     )}
                   >
                     <Heart size={16} fill={isSaved ? "currentColor" : "none"} className={cn("transition-transform duration-500", !isSaved && "group-hover/save:scale-125")} />
@@ -375,76 +348,70 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
 
                   <div className="flex-1 space-y-8">
                     {/* Top Status Belt */}
-                    <div className="flex items-center gap-3 flex-wrap relative z-10 font-mono text-[9px] uppercase tracking-[0.2em]">
+                    <div className="flex items-center gap-2 flex-wrap relative z-10 text-xs font-medium">
                       {daysLeft !== null && (
                         <div className={cn(
-                          "px-3 py-1 border border-dashed rounded-sm",
-                          daysLeft <= 0 ? "border-border text-muted-foreground" :
-                          daysLeft <= 7 ? "border-rose-500/40 text-rose-500 bg-rose-500/5 animate-pulse" : 
-                          "border-emerald-500/30 text-emerald-500 bg-emerald-500/5"
+                          "px-2.5 py-1 rounded-md border",
+                          daysLeft <= 0 ? "border-border text-muted-foreground bg-muted/50" :
+                          daysLeft <= 7 ? "border-rose-200 text-rose-600 bg-rose-50" : 
+                          "border-emerald-200 text-emerald-700 bg-emerald-50"
                         )}>
-                          {daysLeft <= 0 ? 'STATUS: EXPIRED' : `${daysLeft}D LEFT`}
+                          {daysLeft <= 0 ? 'Expired' : `${daysLeft} Days Left`}
                         </div>
                       )}
-                      <div className="px-3 py-1 border border-dashed border-blue-500/30 text-blue-400 bg-blue-500/5 rounded-sm">
-                        {scholarship.isExternal ? 'SOURCE: REMOTE' : 'SOURCE: VERIFIED'}
+                      <div className="px-2.5 py-1 border border-blue-200 text-blue-700 bg-blue-50 rounded-md">
+                        {scholarship.isExternal ? 'Remote' : 'Verified'}
                       </div>
                     </div>
 
                     {/* Metadata Section */}
-                    <div className="relative z-10 space-y-3">
-                      <h3 className="text-foreground text-2xl font-black leading-[1.1] tracking-tighter group-hover:text-blue-500 transition-colors duration-500 min-h-[52px] line-clamp-2">
+                    <div className="relative z-10 space-y-2 pr-8">
+                      <h3 className="text-foreground text-xl font-bold leading-tight group-hover:text-blue-600 transition-colors duration-300 line-clamp-2 min-h-[56px]">
                         {scholarship.title || 'Untitled Scholarship'}
                       </h3>
-                      <p className="text-muted-foreground font-mono text-[10px] uppercase tracking-[0.3em] font-bold">
+                      <p className="text-muted-foreground text-sm font-medium">
                         {scholarship.category || 'General Field'}
                       </p>
                     </div>
 
                     {/* Intelligence Module */}
                     {(scholarship.matchScore != null || matchScore != null) && (
-                      <div className="bg-white/[0.02] border border-dashed border-border/40 rounded-3xl p-6 space-y-4 relative group/ai overflow-hidden">
-                        <div className="absolute inset-0 bg-blue-500/[0.01] opacity-0 group-hover/ai:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                        <div className="flex justify-between items-end relative z-10">
-                          <div className="space-y-1">
-                            <h4 className="text-[9px] font-mono font-black text-blue-400/80 uppercase tracking-[0.3em]">AI Matching Index</h4>
-                            <p className="text-[8px] text-muted-foreground/60 font-mono uppercase tracking-widest leading-none">V2.0 PROBABILISTIC ENGINE</p>
-                          </div>
-                          <span className="text-2xl font-mono font-black text-blue-500 tracking-tighter">
+                      <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-3 relative overflow-hidden">
+                        <div className="flex justify-between items-center relative z-10">
+                          <h4 className="text-sm font-semibold text-blue-700">Matching Index</h4>
+                          <span className="text-sm font-bold text-blue-700">
                             {scholarship.matchScore ?? matchScore}%
                           </span>
                         </div>
                         
-                        <div className="w-full bg-white/[0.05] h-1.5 rounded-full overflow-hidden relative border border-white/[0.02]">
+                        <div className="w-full bg-blue-100 h-2 rounded-full overflow-hidden relative">
                           <motion.div 
                             initial={{ width: 0 }}
                             animate={{ width: `${scholarship.matchScore ?? matchScore}%` }}
-                            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-                            className="h-full bg-blue-500 relative"
-                          >
-                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer" />
-                          </motion.div>
+                            transition={{ duration: 1.5, ease: "easeOut" }}
+                            className="h-full bg-blue-600 rounded-full"
+                          />
                         </div>
                       </div>
                     )}
                     </div>
 
                     {/* Pricing & Deadline Matrix */}
-                    <div className="mt-12 shrink-0 relative z-10 pt-8 border-t border-dashed border-border/60 grid grid-cols-2 gap-8 mb-8">
-                      <div className="space-y-2">
-                         <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.3em]">Grant amount</p>
-                         <p className="text-2xl font-mono font-black text-foreground tracking-tighter shadow-blue-500/20">
+                    <div className="mt-8 shrink-0 relative z-10 pt-6 border-t border-border grid grid-cols-2 gap-4 mb-6">
+                      <div className="space-y-1">
+                         <p className="text-xs font-medium text-muted-foreground">Grant Amount</p>
+                         <p className="text-lg font-bold text-foreground">
                            {typeof scholarship.amount === 'number' 
                              ? `₹${scholarship.amount.toLocaleString()}` 
                              : 'N/A'}
                          </p>
                       </div>
-                      <div className="space-y-2 text-right">
-                         <p className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.3em]">Submission window</p>
-                         <p className="text-xl font-mono font-black text-foreground tracking-tighter">
+                      <div className="space-y-1 text-right">
+                         <p className="text-xs font-medium text-muted-foreground">Deadline</p>
+                         <p className="text-lg font-semibold text-foreground">
                            {scholarship.deadline 
-                             ? new Date(scholarship.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }).toUpperCase()
-                             : 'OPEN'}
+                             ? new Date(scholarship.deadline).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+                             : 'Open'}
                          </p>
                       </div>
                     </div>
@@ -452,17 +419,17 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
                   <Button 
                     onClick={() => router.push(`/dashboard/student/scholarships/${scholarship.id}`)}
                     className={cn(
-                      "w-full font-mono font-black uppercase tracking-[0.3em] text-[10px] rounded-full h-14 flex items-center justify-center gap-3 transition-all duration-500",
-                      isApplied ? "bg-white/5 text-emerald-500 border border-dashed border-emerald-500/30 cursor-default" :
-                      "bg-foreground text-background hover:scale-[1.02] shadow-xl hover:shadow-black/20"
+                      "w-full text-sm font-semibold rounded-lg h-12 flex items-center justify-center gap-2 transition-all",
+                      isApplied ? "bg-muted text-emerald-600 border border-emerald-200 hover:bg-muted cursor-default" :
+                      "bg-foreground text-background hover:bg-foreground/90"
                     )}
                   >
                     {scholarship.isExternal ? (
-                      <>Deploy Application <ArrowRight size={14} /></>
+                      <>Apply Remote <ArrowRight size={16} /></>
                     ) : isApplied ? (
-                      <>Analysis Registered <CheckCircle2 size={14} /></>
+                      <>Application Sent <CheckCircle2 size={16} /></>
                     ) : (
-                      <>Initiate Process <ArrowRight size={14} /></>
+                      <>View Details <ArrowRight size={16} /></>
                     )}
                   </Button>
                 </div>

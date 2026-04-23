@@ -95,12 +95,12 @@ export const ApplicationTracker = ({ onDataLoaded }: { onDataLoaded?: (apps: any
   return (
     <div className="space-y-16 py-8">
       {/* Welcome Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-20 px-4">
-        <div className="space-y-4">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 px-4">
+        <div className="space-y-2">
           <motion.h1 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-foreground leading-[0.9]"
+            className="text-3xl font-bold tracking-tight text-foreground"
           >
             Applications
           </motion.h1>
@@ -108,34 +108,34 @@ export const ApplicationTracker = ({ onDataLoaded }: { onDataLoaded?: (apps: any
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="flex items-center gap-4 text-muted-foreground font-mono text-[11px] uppercase tracking-widest"
+            className="flex items-center gap-2 text-muted-foreground text-sm"
           >
             <span>My History</span>
-            <div className="h-px w-8 bg-border/40" />
-            <span className="text-blue-500 font-black">Track your progress</span>
+            <div className="h-1 w-1 rounded-full bg-border" />
+            <span className="text-blue-600 font-medium">Track your progress</span>
           </motion.div>
         </div>
       </div>
 
       <div className="space-y-12">
         {/* Filter Actions */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 px-4">
-          <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 px-4">
+          <div className="flex flex-wrap gap-2">
             {['ALL', 'PENDING', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'].map((status) => (
               <button
                 key={status}
                 onClick={() => setFilter(status)}
                 className={cn(
-                  "px-6 py-3 rounded-2xl text-[10px] font-mono font-black uppercase tracking-[0.2em] transition-all border border-dashed",
+                  "px-4 py-2 rounded-lg text-sm font-medium transition-colors border",
                   filter === status 
-                    ? "bg-foreground text-background border-foreground shadow-[0_0_20px_rgba(255,255,255,0.1)] scale-105" 
-                    : "bg-white/[0.02] text-muted-foreground border-border/40 hover:bg-white/10"
+                    ? "bg-foreground text-background border-foreground shadow-sm" 
+                    : "bg-card text-muted-foreground border-border hover:bg-muted/50 hover:text-foreground"
                 )}
               >
                 {status === 'ALL' ? 'Everything' : status.replace('_', ' ')}
                 <span className={cn(
-                  "ml-3 px-1.5 py-0.5 rounded-md text-[8px]",
-                  filter === status ? "bg-background/20 text-background" : "bg-white/5 text-muted-foreground"
+                  "ml-2 px-1.5 py-0.5 rounded-md text-xs",
+                  filter === status ? "bg-background/20 text-background" : "bg-muted text-muted-foreground"
                 )}>
                   {status === 'ALL' ? applications.length : applications.filter(a => a.status === status).length}
                 </span>
@@ -143,101 +143,95 @@ export const ApplicationTracker = ({ onDataLoaded }: { onDataLoaded?: (apps: any
             ))}
           </div>
 
-          <div className="flex items-center gap-4 px-6 py-3 bg-white/[0.01] border border-dashed border-emerald-500/20 rounded-2xl">
-            <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
-            <span className="text-[10px] font-mono font-black uppercase tracking-widest text-emerald-500">Live Sync Active</span>
+          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-100 rounded-lg">
+            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-xs font-semibold text-emerald-700">Live Sync</span>
           </div>
         </div>
 
         {/* Application List Container */}
-        <div className="group relative rounded-[48px] border border-dashed border-border/60 bg-white/[0.01] shadow-2xl overflow-hidden min-h-[500px]">
+        <div className="group relative rounded-2xl border border-border bg-card shadow-sm overflow-hidden min-h-[500px]">
           {/* Table Header */}
-          <div className="p-10 border-b border-dashed border-border/60 flex justify-between items-center bg-white/[0.02]">
-            <div className="flex items-center gap-4">
-              <div className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)]" />
-              <h2 className="text-sm font-mono font-black uppercase tracking-[0.3em] text-foreground">
-                Application Matrix
+          <div className="px-8 py-5 border-b border-border flex justify-between items-center bg-muted/20">
+            <div className="flex items-center gap-3">
+              <div className="w-2 h-2 rounded-full bg-blue-500" />
+              <h2 className="text-sm font-semibold text-foreground">
+                Application Status
               </h2>
-            </div>
-            <div className="font-mono text-[10px] text-muted-foreground uppercase tracking-widest">
-              Sync Level: v2.4.0
             </div>
           </div>
           
           {filtered.length === 0 ? (
-            <div className="p-32 text-center space-y-4">
-              <div className="w-16 h-16 rounded-full border border-dashed border-border/40 flex items-center justify-center mx-auto opacity-20">
-                <FileText size={32} className="text-muted-foreground" />
+            <div className="py-24 text-center space-y-4 flex flex-col items-center">
+              <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto">
+                <FileText size={32} className="text-muted-foreground/50" />
               </div>
-              <p className="text-muted-foreground font-mono font-black uppercase tracking-widest text-[10px]">No nodes found in current branch</p>
+              <p className="text-muted-foreground font-medium text-sm">No applications found.</p>
             </div>
           ) : (
-            <div className="divide-y divide-dashed divide-border/40">
+            <div className="divide-y divide-border">
               {filtered.map((app, index) => (
                 <motion.div
                   key={app.id || index}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
-                  className="p-8 hover:bg-white/[0.02] transition-all group/node cursor-pointer relative"
+                  className="p-6 md:p-8 hover:bg-muted/30 transition-colors group/node cursor-pointer relative"
                 >
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                    <div className="flex items-start gap-8">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-start gap-6">
                       <div className={cn(
-                        "w-16 h-16 rounded-[24px] flex items-center justify-center shrink-0 border border-dashed transition-all duration-500",
+                        "w-12 h-12 rounded-xl flex items-center justify-center shrink-0 border transition-all duration-300",
                         app.status === 'APPROVED' 
-                          ? 'bg-emerald-500/5 border-emerald-500/30 text-emerald-500' 
-                          : 'bg-blue-500/5 border-blue-500/30 text-blue-500'
+                          ? 'bg-emerald-50 border-emerald-100 text-emerald-600' 
+                          : 'bg-blue-50 border-blue-100 text-blue-600'
                       )}>
-                        <FileText size={28} strokeWidth={1} />
+                        <FileText size={24} strokeWidth={1.5} />
                       </div>
-                      <div className="space-y-2">
-                        <h3 className="text-foreground font-black text-2xl tracking-tighter group-hover/node:text-blue-500 transition-colors">
+                      <div className="space-y-1">
+                        <h3 className="text-foreground font-bold text-xl group-hover/node:text-blue-600 transition-colors">
                           {app.scholarship?.title || 'Unknown Scholarship'}
                         </h3>
-                        <div className="flex items-center gap-4 font-mono">
-                          <span className="text-muted-foreground/60 text-[11px] uppercase tracking-widest">{app.scholarship?.provider?.orgName}</span>
-                          <div className="h-4 w-px bg-border/40 mx-1" />
-                          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[9px] font-mono font-black animate-pulse">
-                              <ShieldCheck size={10} /> {app.matchScore || 0}% AI MATCH
+                        <div className="flex items-center gap-3">
+                          <span className="text-muted-foreground font-medium text-sm">{app.scholarship?.provider?.orgName}</span>
+                          <div className="h-4 w-px bg-border" />
+                          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-700 text-xs font-semibold">
+                              <ShieldCheck size={12} /> {app.matchScore || 0}% Match
                           </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-16">
-                      <div className="hidden lg:block w-72">
-                         <div className="flex items-center justify-between gap-1 mb-3">
+                    <div className="flex items-center gap-8 md:gap-12">
+                      <div className="hidden lg:block w-64">
+                         <div className="flex items-center justify-between gap-1 mb-2">
                             {STAGES.map((stage, sIdx) => {
                                const currentIdx = getStageIndex(app.status || 'PENDING');
                                const isActive = sIdx <= currentIdx;
-                               const isCurrent = sIdx === currentIdx;
                                return (
-                                  <div key={stage.id} className="flex flex-col items-center gap-2 group/stage">
+                                  <div key={stage.id} className="flex flex-col items-center gap-1">
                                      <div className={cn(
-                                        "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black transition-all",
-                                        isActive ? "bg-blue-500 text-white shadow-lg shadow-blue-500/20" : "bg-white/5 text-muted-foreground border border-dashed border-border"
+                                        "w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold transition-colors",
+                                        isActive ? "bg-blue-600 text-white" : "bg-muted text-muted-foreground"
                                      )}>
                                         {isActive ? <CheckCircle2 size={12} /> : sIdx + 1}
                                      </div>
                                      <span className={cn(
-                                        "text-[8px] font-mono font-black uppercase tracking-widest",
-                                        isActive ? "text-foreground" : "text-muted-foreground opacity-40"
+                                        "text-[10px] font-semibold",
+                                        isActive ? "text-foreground" : "text-muted-foreground"
                                      )}>{stage.label}</span>
                                   </div>
                                )
                             })}
                          </div>
-                         <div className="h-1 w-full bg-white/[0.03] rounded-full overflow-hidden border border-dashed border-border/40">
+                         <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                             <motion.div 
                               initial={{ width: 0 }}
                               animate={{ width: `${getProgress(app.status || 'PENDING')}%` }}
-                              transition={{ duration: 1.5, ease: "circOut" }}
+                              transition={{ duration: 1 }}
                               className={cn(
                                 "h-full rounded-full",
-                                app.status === 'APPROVED' 
-                                  ? 'bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]' 
-                                  : 'bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.3)]'
+                                app.status === 'APPROVED' ? 'bg-emerald-500' : 'bg-blue-600'
                               )}
                             />
                          </div>
@@ -254,18 +248,18 @@ export const ApplicationTracker = ({ onDataLoaded }: { onDataLoaded?: (apps: any
                               });
                               setIsReviewModalOpen(true);
                             }}
-                            className="px-4 py-3 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-mono font-black uppercase tracking-widest hover:bg-amber-500 hover:text-white transition-all flex items-center gap-2"
+                            className="px-4 py-2 rounded-lg bg-amber-50 text-amber-600 text-sm font-semibold hover:bg-amber-100 transition-colors flex items-center gap-2"
                           >
-                            <Star size={14} fill="currentColor" /> Rate Provider
+                            <Star size={16} fill="currentColor" /> Rate Provider
                           </button>
                         )}
                         <div className={cn(
-                          "px-6 py-3 rounded-full font-mono font-black text-[10px] uppercase tracking-widest border border-dashed",
+                          "px-4 py-2 rounded-lg font-semibold text-xs tracking-wide border",
                           getStatusColor(app.status || 'PENDING')
                         )}>
                           {(app.status || 'PENDING').replace('_', ' ')}
                         </div>
-                        <div className="w-12 h-12 rounded-full border border-dashed border-border/60 flex items-center justify-center group-hover/node:border-blue-500/40 group-hover/node:text-blue-500 transition-all">
+                        <div className="w-10 h-10 rounded-full border border-border flex items-center justify-center group-hover/node:bg-muted group-hover/node:text-foreground text-muted-foreground transition-colors">
                           <ChevronRight size={20} />
                         </div>
                       </div>

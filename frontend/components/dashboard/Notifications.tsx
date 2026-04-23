@@ -83,13 +83,13 @@ export const Notifications = () => {
 
   return (
     <div className="space-y-16 py-8">
-      {/* Vercel-Style Header */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-20">
-        <div className="space-y-4">
+        <div className="space-y-1">
           <motion.h1 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-foreground leading-[0.9]"
+            className="text-3xl font-bold tracking-tight text-foreground"
           >
             Notifications
           </motion.h1>
@@ -97,11 +97,11 @@ export const Notifications = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="flex items-center gap-4 text-muted-foreground font-mono text-[11px] uppercase tracking-widest"
+            className="flex items-center gap-3 text-sm text-muted-foreground"
           >
             <span>Stay informed</span>
-            <div className="h-px w-8 bg-border/40" />
-            <span className="text-blue-500 font-black">
+            <div className="h-px w-8 bg-border" />
+            <span className="text-blue-600 font-medium">
               {unreadCount > 0 ? `${unreadCount} New Alerts` : 'All caught up'}
             </span>
           </motion.div>
@@ -110,7 +110,8 @@ export const Notifications = () => {
         {unreadCount > 0 && (
           <Button 
             onClick={markAllAsRead}
-            className="h-14 px-8 bg-foreground text-background font-mono font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center gap-3 shadow-xl"
+            variant="outline"
+            className="flex items-center gap-2"
           >
             <Check size={16} />
             Mark All As Read
@@ -121,22 +122,22 @@ export const Notifications = () => {
       <motion.div 
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-[48px] border border-dashed border-border/60 bg-card/30 dark:bg-white/[0.01] p-12 shadow-2xl relative overflow-hidden min-h-[500px]"
+        className="rounded-2xl border bg-card p-8 shadow-sm relative overflow-hidden min-h-[500px]"
       >
         {loading ? (
-          <div className="space-y-8 relative z-10">
+          <div className="space-y-4 relative z-10">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-28 bg-accent/50 dark:bg-white/5 border border-dashed border-border/40 rounded-[32px] animate-pulse" />
+              <div key={i} className="h-24 bg-muted rounded-xl animate-pulse" />
             ))}
           </div>
         ) : notifications.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-24 relative z-10 opacity-60 space-y-8">
-            <div className="w-24 h-24 rounded-[32px] bg-accent/30 dark:bg-white/[0.02] border border-dashed border-blue-500/30 flex items-center justify-center shadow-inner">
-               <Bell size={40} className="text-blue-500 animate-pulse" />
+          <div className="flex flex-col items-center justify-center py-24 relative z-10 opacity-80 space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-muted border flex items-center justify-center shadow-sm">
+               <Bell size={32} className="text-muted-foreground/60" />
             </div>
-            <div className="text-center space-y-2">
-              <h3 className="text-2xl font-black text-foreground uppercase tracking-tight">Queue Empty</h3>
-              <p className="text-muted-foreground font-mono font-black uppercase tracking-widest text-[10px]">No pending alerts in current node</p>
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-bold text-foreground">No Notifications</h3>
+              <p className="text-sm text-muted-foreground">You're all caught up for now.</p>
             </div>
           </div>
         ) : (
@@ -153,47 +154,45 @@ export const Notifications = () => {
                     exit={{ opacity: 0, scale: 0.98, height: 0, marginBottom: 0 }}
                     onClick={() => !notif.isRead && markAsRead(notif.id)}
                     className={cn(
-                      "group relative p-8 rounded-[32px] border border-dashed backdrop-blur-md transition-all duration-500 flex flex-col sm:flex-row gap-8 items-start sm:items-center",
+                      "group relative p-5 rounded-xl border transition-all duration-300 flex flex-col sm:flex-row gap-5 items-start sm:items-center",
                       notif.isRead
-                        ? 'bg-card/30 dark:bg-white/[0.01] border-border/40 opacity-70 grayscale'
-                        : 'bg-card/80 dark:bg-white/[0.03] border-blue-500/30 shadow-2xl cursor-pointer hover:border-blue-500/60'
+                        ? 'bg-card border-border shadow-sm opacity-70 grayscale'
+                        : 'bg-card border-blue-500/30 shadow-md cursor-pointer hover:border-blue-500/60'
                     )}
                   >
                     {!notif.isRead && (
-                      <div className="absolute right-8 top-8 w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.6)] animate-pulse" />
+                      <div className="absolute right-5 top-5 w-2 h-2 rounded-full bg-blue-500" />
                     )}
                     
                     <div className={cn(
-                      "w-16 h-16 rounded-[24px] flex items-center justify-center shrink-0 border border-dashed transition-all duration-500",
+                      "w-12 h-12 rounded-lg flex items-center justify-center shrink-0 border transition-all duration-300",
                       config.bg, config.color, config.border,
-                      "group-hover:scale-110"
+                      "group-hover:scale-105"
                     )}>
-                      <config.icon size={28} strokeWidth={1} />
+                      <config.icon size={20} strokeWidth={2} />
                     </div>
                     
-                    <div className="flex-1 space-y-2">
+                    <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-4">
                         <h3 className={cn(
-                          "font-black tracking-tight text-xl uppercase font-sans",
-                          notif.isRead ? 'text-muted-foreground' : 'text-foreground group-hover:text-blue-500 transition-colors'
+                          "font-bold text-base",
+                          notif.isRead ? 'text-muted-foreground' : 'text-foreground group-hover:text-blue-600 transition-colors'
                         )}>
                           {notif.title}
                         </h3>
                       </div>
                       <p className={cn(
-                        "text-sm tracking-tight leading-relaxed max-w-2xl font-mono",
+                        "text-sm max-w-2xl",
                         notif.isRead ? 'text-muted-foreground/60' : 'text-muted-foreground'
                       )}>
                         {notif.message}
                       </p>
-                      <div className="flex items-center gap-4 pt-2">
-                        <p className="text-[10px] font-mono font-black uppercase tracking-widest text-muted-foreground/40">
+                      <div className="flex items-center gap-3 pt-1">
+                        <p className="text-xs font-medium text-muted-foreground/60">
                           {new Date(notif.createdAt).toLocaleString(undefined, {
                             month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
                           })}
                         </p>
-                        <div className="h-px w-8 bg-border/20" />
-                        <span className="text-[9px] font-mono uppercase text-muted-foreground/30">Entry {notif.id.slice(0, 8)}</span>
                       </div>
                     </div>
 

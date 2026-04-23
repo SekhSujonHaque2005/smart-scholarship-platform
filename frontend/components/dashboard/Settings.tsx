@@ -112,13 +112,13 @@ export const Settings = () => {
 
   return (
     <div className="space-y-16 py-8">
-      {/* Vercel-Style Header */}
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 relative z-20">
-        <div className="space-y-4">
+        <div className="space-y-1">
           <motion.h1 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-foreground leading-[0.9]"
+            className="text-3xl font-bold tracking-tight text-foreground"
           >
             Settings
           </motion.h1>
@@ -126,11 +126,11 @@ export const Settings = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="flex items-center gap-4 text-muted-foreground font-mono text-[11px] uppercase tracking-widest"
+            className="flex items-center gap-3 text-sm text-muted-foreground"
           >
             <span>Account Controls</span>
-            <div className="h-px w-8 bg-border/40" />
-            <span className="text-blue-500 font-black">Privacy & Security</span>
+            <div className="h-px w-8 bg-border" />
+            <span className="text-blue-600 font-medium">Privacy & Security</span>
           </motion.div>
         </div>
       </div>
@@ -140,28 +140,28 @@ export const Settings = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="rounded-[48px] border border-dashed border-border/60 bg-card/30 dark:bg-white/[0.01] p-12 shadow-2xl space-y-10 h-fit"
+          className="rounded-2xl border bg-card p-8 shadow-sm space-y-8 h-fit"
         >
-          <div className="flex items-center gap-6 mb-4">
-            <div className="w-14 h-14 rounded-[20px] bg-blue-500/10 border border-dashed border-blue-500/30 text-blue-500 flex items-center justify-center">
-              <Shield size={28} />
+          <div className="flex items-center gap-5 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center">
+              <Shield size={24} strokeWidth={1.5} />
             </div>
             <div className="space-y-1">
-              <h2 className="text-xl font-black text-foreground uppercase tracking-widest leading-none">Security</h2>
-              <p className="text-muted-foreground text-[10px] font-mono font-black uppercase tracking-widest">Update your password</p>
+              <h2 className="text-lg font-bold text-foreground">Security</h2>
+              <p className="text-sm text-muted-foreground">Update your password</p>
             </div>
           </div>
 
-          <form onSubmit={handleSubmit(onPasswordSubmit)} className="space-y-10">
-            <div className="space-y-3">
-              <label className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest ml-1">Current Password</label>
+          <form onSubmit={handleSubmit(onPasswordSubmit)} className="space-y-6">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">Current Password</label>
               <div className="relative group/field">
-                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within/field:text-blue-500 transition-colors" size={18} />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" size={18} />
                 <Input 
                   {...register('currentPassword')}
                   type={showCurrentPassword ? 'text' : 'password'} 
                   placeholder="••••••••" 
-                  className="h-14 pl-14 pr-14 bg-accent/50 dark:bg-white/[0.03] border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 transition-all font-mono text-sm" 
+                  className="pl-10 pr-10 bg-background" 
                 />
                 <button 
                   type="button" 
@@ -171,80 +171,80 @@ export const Settings = () => {
                   {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {errors.currentPassword && <p className="text-rose-500 text-[9px] font-mono mt-2 ml-1 uppercase tracking-widest">{errors.currentPassword.message}</p>}
+              {errors.currentPassword && <p className="text-rose-500 text-xs mt-1">{errors.currentPassword.message}</p>}
             </div>
 
-            <div className="space-y-3">
-              <label className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest ml-1">New Password</label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground">New Password</label>
               <div className="relative group/field">
-                <Lock className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground/40 group-focus-within/field:text-blue-500 transition-colors" size={18} />
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/60" size={18} />
                 <Input 
                   {...register('newPassword')}
                   type={showNewPassword ? 'text' : 'password'} 
-                  placeholder="MIN 8 CHARS" 
-                  className="h-14 pl-14 pr-14 bg-accent/50 dark:bg-white/[0.03] border-dashed border-border/60 rounded-xl text-foreground focus:border-blue-500/40 transition-all font-mono text-sm uppercase" 
+                  placeholder="Min 8 characters" 
+                  className="pl-10 pr-10 bg-background" 
                 />
                 <button 
                   type="button" 
                   onClick={() => setShowNewPassword(!showNewPassword)}
-                  className="absolute right-6 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
-              {errors.newPassword && <p className="text-rose-500 text-[9px] font-mono mt-2 ml-1 uppercase tracking-widest">{errors.newPassword.message}</p>}
-              {passwordError && <p className="text-rose-500 text-[9px] font-mono mt-2 ml-1 uppercase tracking-widest">{passwordError}</p>}
+              {errors.newPassword && <p className="text-rose-500 text-xs mt-1">{errors.newPassword.message}</p>}
+              {passwordError && <p className="text-rose-500 text-xs mt-1">{passwordError}</p>}
             </div>
 
-            <div className="pt-4 space-y-4">
+            <div className="pt-2 space-y-4">
                {passwordSaved && (
                   <motion.div 
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="flex items-center gap-3 justify-center py-4 rounded-xl bg-emerald-500/5 border border-dashed border-emerald-500/20"
+                    className="flex items-center gap-2 justify-center py-3 rounded-lg bg-emerald-50 border border-emerald-100"
                   >
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[9px] font-mono font-black text-emerald-500 uppercase tracking-[0.2em]">Password Updated Successfully</span>
+                    <span className="text-sm font-semibold text-emerald-600">Password Updated Successfully</span>
                   </motion.div>
                )}
               <Button 
                 type="submit"
                 disabled={savingPassword}
-                className="w-full h-16 bg-foreground text-background font-mono font-black uppercase tracking-[0.2em] text-[10px] rounded-2xl hover:scale-[1.01] active:scale-[0.98] transition-all disabled:opacity-50"
+                className="w-full"
               >
-                {savingPassword ? 'SAVING...' : 'CHANGE PASSWORD →'}
+                {savingPassword ? 'Saving...' : 'Change Password'}
               </Button>
             </div>
           </form>
 
           {/* 2FA Toggle */}
-          <div className="pt-10 border-t border-dashed border-border/60">
+          <div className="pt-6 border-t">
             <div 
               onClick={!toggling2FA ? onToggle2FA : undefined}
               className={cn(
-                "flex items-center justify-between p-6 rounded-[32px] bg-white/[0.02] border border-dashed border-border/60 group hover:border-blue-500/40 transition-all cursor-pointer",
+                "flex items-center justify-between p-5 rounded-xl border bg-muted/20 group hover:border-blue-500/40 transition-all cursor-pointer",
                 toggling2FA && "opacity-50 cursor-not-allowed"
               )}
             >
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-4">
                 <div className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
-                  is2FAEnabled ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/30" : "bg-accent/50 dark:bg-white/5 text-muted-foreground border border-border/40"
+                  "w-10 h-10 rounded-lg flex items-center justify-center transition-all",
+                  is2FAEnabled ? "bg-emerald-50 text-emerald-600 border border-emerald-200" : "bg-muted text-muted-foreground border border-border"
                 )}>
-                  <Shield size={20} />
+                  <Shield size={18} />
                 </div>
                 <div className="space-y-1">
-                  <h4 className="text-foreground font-black text-sm uppercase tracking-tight font-mono">Two-Factor Auth</h4>
-                  <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-mono font-black">Secure your login</p>
+                  <h4 className="text-foreground font-semibold text-sm">Two-Factor Auth</h4>
+                  <p className="text-xs text-muted-foreground">Secure your login</p>
                 </div>
               </div>
               <div className={cn(
-                "w-14 h-7 rounded-full relative transition-all duration-500 border",
-                is2FAEnabled ? "bg-emerald-500 border-emerald-600" : "bg-accent/80 dark:bg-white/10 border-border/40"
+                "w-12 h-6 rounded-full relative transition-all duration-300 border",
+                is2FAEnabled ? "bg-emerald-500 border-emerald-600" : "bg-muted-foreground/30 border-transparent"
               )}>
                 <div className={cn(
-                  "absolute top-1 w-[18px] h-[18px] rounded-full transition-all duration-500",
-                  is2FAEnabled ? "left-[32px] bg-background" : "left-1 bg-muted-foreground"
+                  "absolute top-0.5 w-5 h-5 rounded-full transition-all duration-300 bg-white shadow-sm",
+                  is2FAEnabled ? "left-[22px]" : "left-0.5"
                 )} />
               </div>
             </div>
@@ -256,49 +256,49 @@ export const Settings = () => {
           initial={{ opacity: 0, scale: 0.98 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="rounded-[48px] border border-dashed border-border/60 bg-card/30 dark:bg-white/[0.01] p-12 shadow-2xl space-y-10 h-fit"
+          className="rounded-2xl border bg-card p-8 shadow-sm space-y-8 h-fit"
         >
-          <div className="flex items-center gap-6 mb-4">
-            <div className="w-14 h-14 rounded-[20px] bg-emerald-500/10 border border-dashed border-emerald-500/30 text-emerald-500 flex items-center justify-center">
-              <Bell size={28} />
+          <div className="flex items-center gap-5 mb-4">
+            <div className="w-12 h-12 rounded-xl bg-emerald-50 border border-emerald-100 text-emerald-600 flex items-center justify-center">
+              <Bell size={24} strokeWidth={1.5} />
             </div>
             <div className="space-y-1">
-              <h2 className="text-xl font-black text-foreground uppercase tracking-widest leading-none">Preferences</h2>
-              <p className="text-muted-foreground text-[10px] font-mono font-black uppercase tracking-widest">Notifications and privacy</p>
+              <h2 className="text-lg font-bold text-foreground">Preferences</h2>
+              <p className="text-sm text-muted-foreground">Notifications and privacy</p>
             </div>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-4">
             {preferenceItems.map((pref) => {
               const status = preferences[pref.key];
               return (
                 <div 
                   key={pref.key} 
                   onClick={() => togglePreference(pref.key)}
-                  className="flex items-center justify-between p-7 rounded-[32px] bg-accent/30 dark:bg-white/[0.02] border border-dashed border-border/60 group hover:border-blue-500/40 transition-all cursor-pointer"
+                  className="flex items-center justify-between p-5 rounded-xl border bg-muted/20 group hover:border-blue-500/40 transition-all cursor-pointer"
                 >
                   <div className="space-y-1">
-                    <h4 className="text-foreground font-black text-sm uppercase tracking-tight font-mono">{pref.label}</h4>
-                    <p className="text-[9px] text-muted-foreground uppercase tracking-widest font-mono font-black">{pref.info}</p>
+                    <h4 className="text-foreground font-semibold text-sm">{pref.label}</h4>
+                    <p className="text-xs text-muted-foreground">{pref.info}</p>
                   </div>
                   <div className={cn(
-                    "w-14 h-7 rounded-full relative transition-all duration-500 border",
-                    status ? "bg-blue-500 border-blue-600" : "bg-accent/80 dark:bg-white/10 border-border/40"
+                    "w-12 h-6 rounded-full relative transition-all duration-300 border",
+                    status ? "bg-blue-500 border-blue-600" : "bg-muted-foreground/30 border-transparent"
                   )}>
                     <div className={cn(
-                      "absolute top-1 w-[18px] h-[18px] rounded-full transition-all duration-500",
-                      status ? "left-[32px] bg-background" : "left-1 bg-muted-foreground"
+                      "absolute top-0.5 w-5 h-5 rounded-full transition-all duration-300 bg-white shadow-sm",
+                      status ? "left-[22px]" : "left-0.5"
                     )} />
                   </div>
                 </div>
               )
             })}
 
-            <div className="pt-10 flex items-center justify-between px-4 border-t border-dashed border-border/60 mt-10">
-              <span className="text-[10px] font-mono font-black uppercase tracking-widest flex items-center gap-3 text-muted-foreground">
+            <div className="pt-6 flex items-center justify-between border-t mt-6">
+              <span className="text-sm font-medium flex items-center gap-2 text-muted-foreground">
                 <Globe size={16} className="text-blue-500" /> System Language
               </span>
-              <span className="text-foreground font-mono font-black uppercase tracking-widest text-[10px] bg-accent/50 dark:bg-white/5 px-3 py-1 rounded-sm border border-dashed border-border/40">English (US)</span>
+              <span className="text-foreground text-xs font-semibold bg-muted px-2 py-1 rounded-md border">English (US)</span>
             </div>
           </div>
         </motion.div>

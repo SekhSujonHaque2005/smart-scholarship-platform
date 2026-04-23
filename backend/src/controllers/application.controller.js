@@ -222,8 +222,8 @@ const getApplicationById = async (req, res) => {
     const application = await prisma.application.findUnique({
       where: { id },
       include: {
-        student: { select: { name: true, cgpa: true, fieldOfStudy: true } },
-        scholarship: { select: { title: true, amount: true, deadline: true } },
+        student: { select: { id: true, userId: true, name: true, cgpa: true, fieldOfStudy: true, location: true } },
+        scholarship: { select: { title: true, amount: true, deadline: true, criteriaJson: true } },
         documents: true
       }
     });

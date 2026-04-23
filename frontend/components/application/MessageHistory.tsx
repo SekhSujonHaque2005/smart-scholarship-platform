@@ -4,12 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Send, 
   Loader2, 
-  User, 
   ShieldCheck, 
-  Lock,
-  Clock,
   MessageSquare,
-  ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import api from '@/app/lib/api';
@@ -36,7 +32,6 @@ export const MessageHistory = ({ applicationId, receiverId, currentUserId }: any
 
   useEffect(() => {
     fetchMessages();
-    // Poll for new messages every 10 seconds as a fallback for WebSockets
     const interval = setInterval(fetchMessages, 10000);
     return () => clearInterval(interval);
   }, [applicationId]);
@@ -61,50 +56,46 @@ export const MessageHistory = ({ applicationId, receiverId, currentUserId }: any
       
       setMessages([...messages, res.data.message]);
       setContent('');
-      toast.success('Message routed through secure channel');
+      toast.success('Message sent');
     } catch (err) {
       console.error('Failed to send message:', err);
-      toast.error('Network interference: Failed to deliver memo.');
+      toast.error('Failed to send message.');
     } finally {
       setSending(false);
     }
   };
 
   return (
-    <div className="flex flex-col h-full bg-card border border-border rounded-[32px] overflow-hidden shadow-2xl relative">
-      {/* Encryption Header */}
-      <div className="p-6 border-b border-border bg-accent/30 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400">
-             <Lock size={18} />
+    <div className="flex flex-col h-full bg-card border rounded-2xl overflow-hidden shadow-sm">
+      {/* Header */}
+      <div className="px-4 py-3 border-b bg-muted/30 flex items-center justify-between">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/20">
+             <MessageSquare size={14} />
           </div>
           <div>
-            <h4 className="text-[11px] font-mono font-black uppercase tracking-widest text-foreground">Encrypted Channel</h4>
-            <p className="text-[9px] font-mono text-emerald-500 uppercase font-bold flex items-center gap-1.5">
-               <ShieldCheck size={10} /> end-to-end active
+            <h4 className="text-sm font-semibold text-foreground">Messages</h4>
+            <p className="text-[10px] text-emerald-600 flex items-center gap-1">
+               <ShieldCheck size={9} /> Secure
             </p>
           </div>
-        </div>
-        <div className="flex -space-x-2">
-           <div className="w-8 h-8 rounded-full bg-indigo-600 border-2 border-card flex items-center justify-center text-[10px] font-black text-white shadow-lg">P</div>
-           <div className="w-8 h-8 rounded-full bg-accent border-2 border-card flex items-center justify-center text-[10px] font-black text-muted-foreground shadow-lg">C</div>
         </div>
       </div>
 
       {/* Message Feed */}
       <div 
         ref={scrollRef}
-        className="flex-1 overflow-y-auto p-6 space-y-6 no-scrollbar bg-[radial-gradient(circle_at_50%_50%,rgba(99,102,241,0.03),transparent)]"
+        className="flex-1 overflow-y-auto p-4 space-y-3"
       >
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-full opacity-20">
-            <Loader2 className="animate-spin text-indigo-500" size={32} />
+          <div className="flex items-center justify-center h-full">
+            <Loader2 className="animate-spin text-blue-500" size={20} />
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center space-y-4 opacity-40">
-             <MessageSquare size={48} className="text-muted-foreground/30" />
-             <p className="text-[10px] font-mono uppercase font-black tracking-[0.2em] max-w-[200px]">
-                No communications found in decentralized ledger. Start the protocol.
+          <div className="flex flex-col items-center justify-center h-full text-center space-y-2 py-8">
+             <MessageSquare size={32} className="text-muted-foreground/20" />
+             <p className="text-xs text-muted-foreground">
+                No messages yet. Start the conversation.
              </p>
           </div>
         ) : (
@@ -114,27 +105,23 @@ export const MessageHistory = ({ applicationId, receiverId, currentUserId }: any
               return (
                 <motion.div 
                   key={msg.id || i}
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
                   className={cn(
                     "flex flex-col max-w-[80%] group",
                     isMe ? "ml-auto items-end" : "mr-auto items-start"
                   )}
                 >
-                  <p className="text-[8px] font-mono text-muted-foreground uppercase font-black tracking-widest mb-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {isMe ? 'Internal Node' : 'Candidate Node'} • {new Date(msg.createdAt).toLocaleTimeString()}
-                  </p>
                   <div className={cn(
-                    "px-4 py-3 rounded-2xl text-[12px] font-bold leading-relaxed shadow-sm transition-all",
-                    isMe ? "bg-indigo-600 text-white rounded-tr-none hover:bg-indigo-700" : "bg-accent border border-border text-foreground rounded-tl-none hover:border-indigo-500/30"
+                    "px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed",
+                    isMe ? "bg-blue-600 text-white rounded-br-md" : "bg-muted border text-foreground rounded-bl-md"
                   )}>
                     {msg.content}
                   </div>
-                  {isMe && msg.isRead && (
-                    <div className="mt-1 flex items-center gap-1 text-[8px] font-mono text-emerald-500 uppercase font-black tracking-widest">
-                       READ <ShieldCheck size={8} />
-                    </div>
-                  )}
+                  <span className="text-[10px] text-muted-foreground mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {isMe && msg.isRead && <span className="ml-1.5 text-blue-500">✓✓</span>}
+                  </span>
                 </motion.div>
               );
             })}
@@ -142,10 +129,10 @@ export const MessageHistory = ({ applicationId, receiverId, currentUserId }: any
         )}
       </div>
 
-      {/* Input Area */}
-      <form onSubmit={handleSend} className="p-6 bg-accent/20 border-t border-border mt-auto">
-        <div className="relative group">
-          <textarea 
+      {/* Input */}
+      <form onSubmit={handleSend} className="p-3 border-t bg-muted/10">
+        <div className="flex items-center gap-2">
+          <input 
             value={content}
             onChange={(e) => setContent(e.target.value)}
             onKeyDown={(e) => {
@@ -154,20 +141,16 @@ export const MessageHistory = ({ applicationId, receiverId, currentUserId }: any
                 handleSend(e);
               }
             }}
-            placeholder="COMPOSE TRANSMISSION..."
-            className="w-full bg-card border border-border rounded-2xl py-4 pl-6 pr-14 text-xs font-bold text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:border-indigo-500/50 transition-all font-mono resize-none min-h-[56px] max-h-32 shadow-inner"
+            placeholder="Type a message..."
+            className="flex-1 bg-muted/50 border rounded-lg py-2.5 px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
           />
           <button 
             type="submit"
             disabled={!content.trim() || sending}
-            className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center hover:bg-indigo-700 transition-all shadow-lg hover:shadow-indigo-600/30 disabled:opacity-50 disabled:grayscale"
+            className="w-9 h-9 rounded-lg bg-blue-600 text-white flex items-center justify-center hover:bg-blue-700 transition-all disabled:opacity-40 shrink-0"
           >
-            {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+            {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
           </button>
-        </div>
-        <div className="mt-3 flex items-center justify-between text-[8px] font-mono text-muted-foreground uppercase tracking-widest font-black opacity-40">
-           <span>Shift + Enter for multiline</span>
-           <span className="flex items-center gap-1">SECURE PROTOCOL v.4.0 <Lock size={8} /></span>
         </div>
       </form>
     </div>

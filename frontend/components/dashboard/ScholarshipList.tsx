@@ -312,14 +312,14 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
            </div>
         </div>
       ) : filteredScholarships.length === 0 ? (
-        <div className="text-center py-20 bg-muted/40 rounded-2xl border border-border leading-loose shadow-sm">
-          <Award className="mx-auto text-muted-foreground/50 mb-4" size={48} strokeWidth={1.5} />
-          <h3 className="text-lg font-semibold text-foreground">No matches found</h3>
-          <p className="text-muted-foreground mt-2 text-sm">Try adjusting your filters or search terms.</p>
+        <div className="text-center py-20 bg-muted/40 rounded-3xl border border-dashed border-border leading-loose shadow-inner">
+          <Award className="mx-auto text-muted-foreground/20 mb-4" size={64} strokeWidth={1} />
+          <h3 className="text-xl font-bold text-muted-foreground/80 uppercase tracking-widest">No matches found</h3>
+          <p className="text-muted-foreground/50 mt-2 text-xs font-bold">Try adjusting your filters or search terms.</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
-          {filteredScholarships.map((scholarship, index) => {
+          {filteredScholarships.map((scholarship: any, index: number) => {
             const daysLeft = getDaysLeft(scholarship.deadline);
             const isSaved = savedIds.has(scholarship.id);
             const isApplied = appliedIds.has(scholarship.id);

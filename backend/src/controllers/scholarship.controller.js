@@ -1,5 +1,6 @@
 const prisma = require('../lib/prisma');
 const { calculateMatchScore } = require('../utils/matching');
+const { getMatchScores } = require('../services/ai.service');
 
 // GET ALL SCHOLARSHIPS (Public - with search & filter)
 const getAllScholarships = async (req, res) => {
@@ -31,7 +32,7 @@ const getAllScholarships = async (req, res) => {
       prisma.scholarship.findMany({
         where,
         include: {
-          provider: { select: { orgName: true, trustScore: true } },
+          provider: { select: { id: true, orgName: true, trustScore: true } },
           _count: { select: { applications: true } }
         },
         orderBy: { createdAt: 'desc' },
@@ -50,18 +51,47 @@ const getAllScholarships = async (req, res) => {
           where: { userId: req.user.userId }
         });
 
-        if (student) {
-          scholarshipsWithScores = scholarships.map(s => {
-            const matchScore = calculateMatchScore(student, s);
-            return {
-              ...s,
-              matchScore,
-              matchReasons: matchScore > 70 ? ['Highly compatible with your profile'] : []
-            };
-          });
+        if (student && scholarships.length > 0) {
+          try {
+            // Fetch match scores from Python AI Service
+            const aiMatches = await getMatchScores(student, scholarships);
+            
+            // Map the results back to the scholarships
+            const matchMap = new Map(aiMatches.map(m => [m.scholarshipId, m]));
+            
+            scholarshipsWithScores = scholarships.map(s => {
+              const aiResult = matchMap.get(s.id);
+              // Fallback to local utility if AI service fails or returns empty
+              if (aiResult) {
+                return {
+                  ...s,
+                  matchScore: aiResult.matchScore,
+                  matchReasons: aiResult.reasons || []
+                };
+              } else {
+                const fallbackScore = calculateMatchScore(student, s);
+                return {
+                  ...s,
+                  matchScore: fallbackScore,
+                  matchReasons: fallbackScore > 70 ? ['Compatible with your profile'] : []
+                };
+              }
+            });
 
-          // Sort by match score if available
-          scholarshipsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+            // Sort by match score if available
+            scholarshipsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+          } catch (aiError) {
+             console.error('AI match service failed, falling back to local computation:', aiError.message);
+             scholarshipsWithScores = scholarships.map(s => {
+               const fallbackScore = calculateMatchScore(student, s);
+               return {
+                 ...s,
+                 matchScore: fallbackScore,
+                 matchReasons: fallbackScore > 70 ? ['Compatible with your profile'] : []
+               };
+             });
+             scholarshipsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+          }
         }
       } catch (error) {
         console.error('AI match error:', error.message);
@@ -93,7 +123,7 @@ const getScholarshipById = async (req, res) => {
       where: { id },
       include: {
         provider: {
-          select: { orgName: true, orgType: true, trustScore: true }
+          select: { id: true, orgName: true, orgType: true, trustScore: true }
         },
         _count: { select: { applications: true } }
       }

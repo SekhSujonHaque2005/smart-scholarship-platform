@@ -31,7 +31,7 @@ def run_scrapers(source: str | None = None) -> list[ScrapedScholarship]:
     if source:
         scraper_cls = get_scraper_by_name(source)
         if not scraper_cls:
-            print(f"❌ Unknown source: '{source}'")
+            print(f"[-] Unknown source: '{source}'")
             print(f"   Available: {', '.join(s.name for s in ALL_SCRAPERS)}")
             sys.exit(1)
         scrapers_to_run = [scraper_cls]
@@ -40,13 +40,13 @@ def run_scrapers(source: str | None = None) -> list[ScrapedScholarship]:
 
     for scraper_cls in scrapers_to_run:
         scraper = scraper_cls()
-        print(f"🔍 Scraping {scraper.name} ({scraper.base_url})...")
+        print(f"[*] Scraping {scraper.name} ({scraper.base_url})...")
         try:
             items = scraper.scrape()
             results.extend(items)
-            print(f"   ✅ Found {len(items)} scholarships")
+            print(f"   [+] Found {len(items)} scholarships")
         except Exception as e:
-            print(f"   ❌ Error: {e}")
+            print(f"   [-] Error: {e}")
 
     return results
 
@@ -75,7 +75,7 @@ def main():
 
     if not args.dry_run and not args.live:
         parser.print_help()
-        print("\n⚠️  Please specify --dry-run or --live")
+        print("\n[!] Please specify --dry-run or --live")
         sys.exit(1)
 
     print("=" * 60)
@@ -88,25 +88,25 @@ def main():
     scholarships = run_scrapers(source=args.source)
 
     if not scholarships:
-        print("\n⚠️  No scholarships scraped.")
+        print("\n[!] No scholarships scraped.")
         sys.exit(0)
 
-    print(f"\n📊 Total scholarships scraped: {len(scholarships)}")
+    print(f"\n[*] Total scholarships scraped: {len(scholarships)}")
 
     if args.dry_run:
         print("\n--- DRY RUN OUTPUT (JSON) ---\n")
         output = [s.model_dump() for s in scholarships]
         print(json.dumps(output, indent=2, default=str))
-        print(f"\n✅ Dry run complete. {len(scholarships)} scholarships ready.")
+        print(f"\n[+] Dry run complete. {len(scholarships)} scholarships ready.")
     else:
-        print("\n🚀 Pushing to backend API...")
+        print("\n[*] Pushing to backend API...")
         try:
             from sync import sync_to_backend
             result = sync_to_backend(scholarships)
-            print(f"\n✅ Sync complete!")
+            print(f"\n[+] Sync complete!")
             print(f"   Response: {json.dumps(result, indent=2)}")
         except Exception as e:
-            print(f"\n❌ Sync failed: {e}")
+            print(f"\n[-] Sync failed: {e}")
             sys.exit(1)
 
 

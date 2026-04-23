@@ -34,30 +34,30 @@ const ApplicationTableRow = ({ id, student, scholarship, status, fraudFlag, subm
   return (
     <tr 
       onClick={() => onOpen(id)}
-      className="group border-b border-border/50 hover:bg-accent/30 transition-colors cursor-pointer"
+      className="group border-b hover:bg-muted/50 transition-colors cursor-pointer"
     >
       <td className="py-4 px-4">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-accent border border-border flex items-center justify-center text-[10px] font-black text-muted-foreground group-hover:bg-indigo-500/10 group-hover:text-indigo-500 group-hover:border-indigo-500/20 transition-all">
+          <div className="w-8 h-8 rounded-full bg-accent border flex items-center justify-center text-sm font-semibold text-muted-foreground group-hover:bg-blue-50 group-hover:text-blue-600 group-hover:border-blue-200 dark:group-hover:bg-blue-500/10 dark:group-hover:border-blue-500/20 transition-colors">
             {student?.name?.[0] || 'S'}
           </div>
           <div>
-            <div className="text-[12px] font-bold text-foreground mb-0.5">{student?.name || 'Unknown Student'}</div>
-            <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-tighter font-bold opacity-60">{student?.email || 'N/A'}</div>
+            <div className="text-sm font-medium text-foreground">{student?.name || 'Unknown Student'}</div>
+            <div className="text-xs text-muted-foreground">{student?.email || 'N/A'}</div>
           </div>
         </div>
       </td>
       <td className="py-4 px-4">
-        <div className="text-[11px] font-mono text-muted-foreground uppercase tracking-tight truncate max-w-[200px] font-bold opacity-60">
+        <div className="text-sm text-foreground truncate max-w-[200px]">
           {scholarship?.title || 'N/A'}
         </div>
       </td>
       <td className="py-4 px-4">
         <div className={cn(
-          "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[9px] font-mono uppercase tracking-widest",
-          status === 'APPROVED' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" :
-          status === 'REJECTED' ? "bg-rose-500/10 border-rose-500/20 text-rose-400" :
-          "bg-amber-500/10 border-amber-500/20 text-amber-400"
+          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium",
+          status === 'APPROVED' ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400" :
+          status === 'REJECTED' ? "bg-rose-100 text-rose-700 dark:bg-rose-500/10 dark:text-rose-400" :
+          "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
         )}>
           {status === 'APPROVED' ? <CheckCircle2 size={10} /> : status === 'REJECTED' ? <XCircle size={10} /> : <Clock size={10} />}
           {status}
@@ -75,8 +75,8 @@ const ApplicationTableRow = ({ id, student, scholarship, status, fraudFlag, subm
             />
           </div>
           <span className={cn(
-            "text-[10px] font-mono font-bold",
-            score > 80 ? "text-emerald-400" : score > 50 ? "text-amber-400" : "text-rose-400"
+            "text-sm font-medium",
+            score > 80 ? "text-emerald-600 dark:text-emerald-400" : score > 50 ? "text-amber-600 dark:text-amber-400" : "text-rose-600 dark:text-rose-400"
           )}>{score}%</span>
         </div>
       </td>
@@ -161,71 +161,71 @@ export default function ApplicationReviewPage() {
 
   return (
     <ProviderLayout>
-      <div className="space-y-10 pb-20">
+      <div className="space-y-8 pb-20 max-w-7xl mx-auto pt-6">
         {/* Header */}
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[9px] font-mono uppercase tracking-[0.2em] animate-pulse">
-                System Awaiting Review: {pendingCount} New
+              <span className="px-3 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400 text-xs font-semibold">
+                {pendingCount} Awaiting Review
               </span>
             </div>
-            <h1 className="text-4xl font-black text-foreground tracking-tighter uppercase">
-              Application <span className="text-indigo-500">Manager</span>
+            <h1 className="text-3xl font-bold text-foreground tracking-tight">
+              Application Manager
             </h1>
-            <p className="text-muted-foreground text-sm font-mono max-w-xl uppercase font-black tracking-tight opacity-70">
+            <p className="text-muted-foreground text-base max-w-xl">
               Review and manage your current scholarship candidates.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-indigo-500 transition-colors" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
               <input 
                 type="text" 
-                placeholder="BY NAME, PROGRAM..." 
+                placeholder="Search candidates..." 
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-accent/50 border border-border rounded-xl py-2.5 pl-10 pr-4 text-[11px] font-mono text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-indigo-500/50 transition-all w-64 uppercase font-bold"
+                className="bg-background border rounded-xl py-2 pl-10 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow w-64"
               />
             </div>
 
-            <div className="flex bg-accent/50 p-1 rounded-xl border border-border">
+            <div className="flex bg-muted/50 p-1 rounded-xl border">
               <button 
                 onClick={() => setViewMode('TABLE')}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-mono font-black uppercase tracking-widest transition-all",
-                  viewMode === 'TABLE' ? "bg-white text-black shadow-lg" : "text-muted-foreground hover:text-foreground"
+                  "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                  viewMode === 'TABLE' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <List size={14} /> List View
+                <List size={16} /> List
               </button>
               <button 
                 onClick={() => setViewMode('KANBAN')}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-1.5 rounded-lg text-[10px] font-mono font-black uppercase tracking-widest transition-all",
-                  viewMode === 'KANBAN' ? "bg-white text-black shadow-lg" : "text-muted-foreground hover:text-foreground"
+                  "flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
+                  viewMode === 'KANBAN' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                <LayoutGrid size={14} /> Kanban View
+                <LayoutGrid size={16} /> Kanban
               </button>
             </div>
           </div>
         </section>
 
         {/* Filters */}
-        <section className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-3xl bg-accent border border-border shadow-sm">
+        <section className="flex flex-wrap items-center justify-between gap-4 p-3 rounded-2xl bg-card border shadow-sm">
           <div className="flex items-center gap-1 overflow-x-auto no-scrollbar pb-2 sm:pb-0">
             {['ALL', 'PENDING', 'APPROVED', 'REJECTED'].map((f) => (
               <button 
                 key={f}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "px-4 py-2 rounded-xl text-[10px] font-mono tracking-widest uppercase transition-all whitespace-nowrap font-black",
-                  filter === f ? "bg-foreground text-background dark:bg-white dark:text-black" : "text-muted-foreground hover:text-foreground"
+                  "px-4 py-1.5 rounded-lg text-sm font-medium transition-colors whitespace-nowrap capitalize",
+                  filter === f ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"
                 )}
               >
-                {f}
+                {f.toLowerCase()}
               </button>
             ))}
           </div>
@@ -235,13 +235,13 @@ export default function ApplicationReviewPage() {
               <button 
                 onClick={() => setShowProgramFilter(!showProgramFilter)}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-xl bg-accent/50 border border-border text-[10px] font-mono hover:text-foreground transition-all font-black",
-                  programFilter !== 'ALL' ? "text-indigo-500 border-indigo-500/30 bg-indigo-500/5" : "text-muted-foreground"
+                  "flex items-center gap-2 px-3 py-1.5 rounded-lg border text-sm font-medium hover:bg-muted transition-colors",
+                  programFilter !== 'ALL' ? "text-blue-600 border-blue-200 bg-blue-50 dark:bg-blue-500/10 dark:border-blue-500/20" : "bg-background text-muted-foreground"
                 )}
               >
-                <Filter size={14} /> 
-                {programFilter === 'ALL' ? 'FILTER BY PROGRAM' : programs.find(p => p.id === programFilter)?.title || 'PROTOCOLO FILTERED'}
-                <ChevronDown size={12} className={cn("transition-transform", showProgramFilter && "rotate-180")} />
+                <Filter size={16} /> 
+                {programFilter === 'ALL' ? 'Filter by Program' : programs.find(p => p.id === programFilter)?.title || 'Filtered'}
+                <ChevronDown size={14} className={cn("transition-transform", showProgramFilter && "rotate-180")} />
               </button>
               
               <AnimatePresence>
@@ -254,10 +254,10 @@ export default function ApplicationReviewPage() {
                       exit={{ opacity: 0, y: 10, scale: 0.95 }}
                       className="absolute right-0 mt-2 w-64 bg-card border border-border rounded-2xl shadow-2xl z-50 overflow-hidden"
                     >
-                      <div className="p-2 space-y-1">
+                      <div className="p-1 space-y-0.5">
                         <button 
                           onClick={() => { setProgramFilter('ALL'); setShowProgramFilter(false); }}
-                          className="w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-mono uppercase tracking-widest font-black hover:bg-accent transition-colors"
+                          className="w-full text-left px-3 py-2 rounded-md text-sm font-medium hover:bg-muted transition-colors"
                         >
                           All Programs
                         </button>
@@ -267,8 +267,8 @@ export default function ApplicationReviewPage() {
                             key={p.id || `prog-${idx}`}
                             onClick={() => { setProgramFilter(p.id); setShowProgramFilter(false); }}
                             className={cn(
-                              "w-full text-left px-4 py-2.5 rounded-xl text-[10px] font-mono uppercase tracking-widest font-black hover:bg-accent transition-colors truncate",
-                              programFilter === p.id ? "text-indigo-500 bg-indigo-500/5" : "text-muted-foreground"
+                              "w-full text-left px-3 py-2 rounded-md text-sm font-medium hover:bg-muted transition-colors truncate",
+                              programFilter === p.id ? "text-blue-600 bg-blue-50 dark:bg-blue-500/10" : "text-muted-foreground"
                             )}
                           >
                             {p.title}
@@ -285,9 +285,9 @@ export default function ApplicationReviewPage() {
             <button 
               onClick={handleExport}
               disabled={filteredApps.length === 0}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-indigo-500 text-white border border-indigo-500/20 text-[10px] font-mono hover:bg-indigo-600 transition-all font-black disabled:opacity-50"
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
             >
-              <Download size={14} /> EXPORT DATA
+              <Download size={16} /> Export Data
             </button>
           </div>
         </section>
@@ -295,16 +295,16 @@ export default function ApplicationReviewPage() {
         {/* View Content */}
         <div className="min-h-[400px]">
           {viewMode === 'TABLE' ? (
-            <div className="bg-card border border-border rounded-[48px] overflow-hidden shadow-sm">
+            <div className="bg-card border rounded-2xl overflow-hidden shadow-sm">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-border bg-accent/30">
-                      <th className="py-4 px-6 text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-bold">Candidate Info</th>
-                      <th className="py-4 px-4 text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-bold">Scholarship Program</th>
-                      <th className="py-4 px-4 text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-bold">Current Status</th>
-                      <th className="py-4 px-4 text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-bold">Match Score</th>
-                      <th className="py-4 px-4 text-right"></th>
+                    <tr className="border-b bg-muted/30">
+                      <th className="py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">Candidate Info</th>
+                      <th className="py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">Scholarship Program</th>
+                      <th className="py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">Current Status</th>
+                      <th className="py-3 px-4 text-xs font-medium text-muted-foreground uppercase tracking-wider">Match Score</th>
+                      <th className="py-3 px-4 text-right"></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -327,10 +327,10 @@ export default function ApplicationReviewPage() {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan={5} className="py-20 text-center">
-                            <Inbox className="mx-auto text-muted-foreground/20 mb-4" size={64} />
-                            <h3 className="text-sm font-black text-foreground uppercase tracking-widest">No Applications Detected</h3>
-                            <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-1 font-bold opacity-60">Try adjusting your filters or wait for submissions</p>
+                          <td colSpan={5} className="py-16 text-center">
+                            <Inbox className="mx-auto text-muted-foreground/30 mb-3" size={48} />
+                            <h3 className="text-sm font-semibold text-foreground">No Applications Found</h3>
+                            <p className="text-sm text-muted-foreground mt-1">Try adjusting your filters or wait for submissions</p>
                           </td>
                         </tr>
                       )}
@@ -340,14 +340,14 @@ export default function ApplicationReviewPage() {
               </div>
               
               {/* Pagination/Controls Footer */}
-              <div className="p-6 bg-accent/30 border-t border-border flex items-center justify-between">
-                <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-bold">
+              <div className="p-4 bg-muted/10 border-t flex items-center justify-between">
+                <div className="text-sm text-muted-foreground font-medium">
                   Showing <span className="text-foreground">{filteredApps.length}</span> entries
                 </div>
-                <div className="flex items-center gap-2">
-                  <button disabled className="px-3 py-1 rounded-lg border border-border text-muted-foreground/40 cursor-not-allowed text-xs font-black">«</button>
-                  <button className="px-3 py-1 rounded-lg bg-indigo-600 text-white text-xs font-bold shadow-[0_10px_20px_rgba(99,102,241,0.3)]">1</button>
-                  <button disabled className="px-3 py-1 rounded-lg border border-border text-muted-foreground/40 cursor-not-allowed text-xs font-black">»</button>
+                <div className="flex items-center gap-1">
+                  <button disabled className="px-2 py-1 rounded border text-muted-foreground/40 cursor-not-allowed text-sm">Previous</button>
+                  <button className="px-3 py-1 rounded bg-blue-600 text-white text-sm font-medium">1</button>
+                  <button disabled className="px-2 py-1 rounded border text-muted-foreground/40 cursor-not-allowed text-sm">Next</button>
                 </div>
               </div>
             </div>
@@ -363,43 +363,40 @@ export default function ApplicationReviewPage() {
         </div>
 
         {/* Intelligence Sidebar / Summary */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 bg-gradient-to-br from-indigo-500/10 via-accent/30 to-transparent border border-border rounded-[48px] p-8 relative overflow-hidden group shadow-sm">
-            <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-              <ShieldAlert size={120} className="text-foreground" />
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2 bg-gradient-to-br from-blue-500/5 to-transparent border rounded-2xl p-6 relative overflow-hidden group shadow-sm flex flex-col md:flex-row items-center gap-6">
+            <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
+              <ShieldAlert size={100} className="text-foreground" />
             </div>
-            <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-              <div className="w-24 h-24 rounded-full border-4 border-indigo-500/30 border-t-indigo-500 flex items-center justify-center animate-[spin_3s_linear_infinite]">
-                <div className="w-16 h-16 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-400 animate-[spin_2s_linear_infinite_reverse]">
-                  <Cpu size={24} />
-                </div>
+            <div className="w-20 h-20 rounded-full border-4 border-blue-100 dark:border-blue-500/20 border-t-blue-500 flex items-center justify-center animate-spin shrink-0">
+              <div className="w-14 h-14 rounded-full bg-blue-50 dark:bg-blue-500/10 flex items-center justify-center text-blue-500 animate-[spin_2s_linear_infinite_reverse]">
+                <Cpu size={20} />
               </div>
-              <div>
-                <h3 className="text-lg font-black text-foreground tracking-tight mb-2 uppercase">AI Candidate Audit</h3>
-                <p className="text-[11px] font-mono text-muted-foreground leading-relaxed uppercase tracking-wider max-w-lg mb-4 font-bold opacity-70">
-                  Our system is currently checking academic credentials and identity documents to ensure application quality.
-                </p>
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                    <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-widest">Identity Sync</span>
-                  </div>
-                  <div className="flex items-center gap-2 opacity-50">
-                    <div className="w-2 h-2 rounded-full bg-zinc-600" />
-                    <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Fraud Cache</span>
-                  </div>
+            </div>
+            <div className="relative z-10">
+              <h3 className="text-lg font-bold tracking-tight mb-1">AI Candidate Audit</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-lg mb-4">
+                Our system is currently checking academic credentials and identity documents to ensure application quality.
+              </p>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-500">Identity Sync</span>
+                </div>
+                <div className="flex items-center gap-2 opacity-60">
+                  <div className="w-2 h-2 rounded-full bg-zinc-400 dark:bg-zinc-600" />
+                  <span className="text-xs font-medium text-muted-foreground">Fraud Cache</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-[48px] p-8 flex flex-col justify-center text-center space-y-4 shadow-sm">
-             <div className="text-muted-foreground text-[10px] font-mono uppercase tracking-[0.3em] font-black opacity-60">Total Processed</div>
-             <div className="text-5xl font-black text-foreground tracking-tighter">
+          <div className="bg-card border rounded-2xl p-6 flex flex-col justify-center text-center space-y-2 shadow-sm">
+             <div className="text-sm font-semibold text-muted-foreground">Total Processed</div>
+             <div className="text-4xl font-bold tracking-tight">
                {applications.filter(a => a.status !== 'PENDING').length}
-               <span className="text-xs text-muted-foreground font-mono font-bold"> UNITS</span>
              </div>
-             <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest leading-relaxed font-bold opacity-60">
+             <p className="text-sm text-muted-foreground">
                Historical throughput for your current organization profile.
              </p>
           </div>

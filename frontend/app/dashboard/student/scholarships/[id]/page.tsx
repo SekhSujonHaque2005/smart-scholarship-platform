@@ -3,14 +3,13 @@
 import { useEffect, useState, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import gsap from 'gsap';
 import api from '@/app/lib/api';
 import { useAuthStore } from '@/app/store/auth.store';
 import DashboardLayout from '@/components/dashboard/DashboardLayout';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Building2, Calendar, IndianRupee, ChevronRight, ArrowLeft } from 'lucide-react';
+import { Building2, Calendar, GraduationCap, MapPin, ChevronRight, ArrowLeft, Sparkles, ShieldCheck, Loader2, Users, Clock, ExternalLink } from 'lucide-react';
 
 interface Scholarship {
   id: string;
@@ -42,54 +41,118 @@ interface Scholarship {
 export default function ScholarshipDetailPage() {
   const { id } = useParams();
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
-  const headerRef = useRef<HTMLDivElement>(null);
+  const { isAuthenticated, user } = useAuthStore();
   const [scholarship, setScholarship] = useState<Scholarship | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+  const [aiTips, setAiTips] = useState<string | null>(null);
+  const [aiTipsLoading, setAiTipsLoading] = useState(false);
+  const [aiEligibility, setAiEligibility] = useState<string | null>(null);
+  const [aiEligibilityLoading, setAiEligibilityLoading] = useState(false);
+  const [studentProfile, setStudentProfile] = useState<any>(null);
+
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.push('/login');
-      return;
-    }
-    const fetchScholarship = async () => {
+    if (!isAuthenticated) { router.push('/login'); return; }
+    const fetchData = async () => {
       try {
-        const { data } = await api.get(`scholarships/${id}`);
-        setScholarship(data);
+        const [scholarshipRes, profileRes] = await Promise.all([
+          api.get(`scholarships/${id}`),
+          api.get('auth/me').catch(() => null),
+        ]);
+        setScholarship(scholarshipRes.data);
+        if (profileRes) setStudentProfile(profileRes.data.profile);
       } catch (error) {
         setError('Scholarship not found');
       } finally {
         setLoading(false);
       }
     };
-    fetchScholarship();
+    fetchData();
   }, [id]);
-
-  useEffect(() => {
-    if (!loading && scholarship) {
-      gsap.fromTo(
-        headerRef.current,
-        { opacity: 0, y: -30 },
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }
-      );
-    }
-  }, [loading, scholarship]);
 
   const getDaysLeft = (deadline: string) => {
     if (!deadline) return null;
     return Math.ceil((new Date(deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   };
 
+  const getCriteriaString = () => {
+    if (!scholarship) return '';
+    const c = scholarship.criteriaJson;
+    if (!c) return '';
+    const parts: string[] = [];
+    if (c.minCgpa) parts.push(`Minimum CGPA: ${c.minCgpa}`);
+    if (c.allowedFields?.length) parts.push(`Fields: ${c.allowedFields.join(', ')}`);
+    if (c.allowedLocations?.length) parts.push(`Locations: ${c.allowedLocations.join(', ')}`);
+    if (c.eligibility) parts.push(c.eligibility);
+    return parts.join('. ') || 'Open to all';
+  };
+
+  const handleGetTips = async () => {
+    if (!scholarship) return;
+    setAiTipsLoading(true);
+    try {
+      const res = await fetch('http://localhost:8000/api/generate/tips', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          scholarshipTitle: scholarship.title,
+          scholarshipDescription: scholarship.description,
+          criteria: getCriteriaString(),
+          studentField: studentProfile?.fieldOfStudy || '',
+          studentCgpa: studentProfile?.cgpa?.toString() || '',
+          studentLocation: studentProfile?.location || '',
+        }),
+      });
+      if (!res.ok) throw new Error((await res.json()).detail || 'Failed');
+      const data = await res.json();
+      setAiTips(data.tips);
+    } catch (err: any) {
+      setAiTips(`Error: ${err.message}`);
+    } finally {
+      setAiTipsLoading(false);
+    }
+  };
+
+  const handleEligibilityCheck = async () => {
+    if (!scholarship) return;
+    setAiEligibilityLoading(true);
+    try {
+      const res = await fetch('http://localhost:8000/api/generate/eligibility-check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          scholarshipTitle: scholarship.title,
+          scholarshipCriteria: getCriteriaString(),
+          studentField: studentProfile?.fieldOfStudy || '',
+          studentCgpa: studentProfile?.cgpa?.toString() || '',
+          studentLocation: studentProfile?.location || '',
+          studentIncome: studentProfile?.incomeLevel || '',
+        }),
+      });
+      if (!res.ok) throw new Error((await res.json()).detail || 'Failed');
+      const data = await res.json();
+      setAiEligibility(data.result);
+    } catch (err: any) {
+      setAiEligibility(`Error: ${err.message}`);
+    } finally {
+      setAiEligibilityLoading(false);
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="p-6 max-w-4xl mx-auto">
+        <div className="p-6 max-w-5xl mx-auto">
           <div className="animate-pulse space-y-4">
-            <div className="h-8 bg-secondary rounded-xl w-3/4" />
-            <div className="h-4 bg-secondary rounded-xl w-1/2" />
-            <div className="h-48 bg-secondary rounded-2xl" />
-            <div className="h-32 bg-secondary rounded-2xl" />
+            <div className="h-6 bg-muted rounded-lg w-1/3" />
+            <div className="h-10 bg-muted rounded-lg w-2/3" />
+            <div className="h-40 bg-muted rounded-xl" />
+            <div className="grid grid-cols-3 gap-4">
+              <div className="h-24 bg-muted rounded-xl" />
+              <div className="h-24 bg-muted rounded-xl" />
+              <div className="h-24 bg-muted rounded-xl" />
+            </div>
           </div>
         </div>
       </DashboardLayout>
@@ -99,15 +162,10 @@ export default function ScholarshipDetailPage() {
   if (error || !scholarship) {
     return (
       <DashboardLayout>
-        <div className="p-6 text-center">
-          <p className="text-5xl mb-4">😕</p>
-          <p className="text-foreground text-xl">{error || 'Scholarship not found'}</p>
-          <Button
-            onClick={() => router.back()}
-            className="mt-4 bg-blue-600 hover:bg-blue-700 font-bold"
-          >
-            Go Back
-          </Button>
+        <div className="p-6 text-center min-h-[50vh] flex flex-col items-center justify-center gap-3">
+          <p className="text-4xl">😕</p>
+          <p className="text-base font-medium">{error || 'Scholarship not found'}</p>
+          <Button onClick={() => router.back()} variant="outline">Go Back</Button>
         </div>
       </DashboardLayout>
     );
@@ -115,247 +173,205 @@ export default function ScholarshipDetailPage() {
 
   const daysLeft = getDaysLeft(scholarship.deadline);
   const isExpired = daysLeft !== null && daysLeft <= 0;
-
-  // Fallback AI Match Data
-  const matchScore = scholarship.matchScore !== undefined && scholarship.matchScore !== null 
-    ? scholarship.matchScore 
-    : 85 + (parseInt(scholarship.id[0] || '1', 36) % 10);
-
-  const matchReasons = scholarship.matchReasons && scholarship.matchReasons.length > 0
-    ? scholarship.matchReasons
-    : [
-        "Strong alignment with your current field of study",
-        "Meets the minimum CGPA requirements",
-        "Provider has high trust rating for your institution"
-      ];
+  const matchScore = scholarship.matchScore ?? (85 + (parseInt(scholarship.id[0] || '1', 36) % 10));
+  const matchReasons = scholarship.matchReasons?.length ? scholarship.matchReasons : [
+    "Strong alignment with your current field of study",
+    "Meets the minimum CGPA requirements",
+    "Provider has high trust rating"
+  ];
 
   return (
     <DashboardLayout>
-      <div className="p-6 md:p-12 max-w-6xl mx-auto space-y-12">
-        {/* Navigation & Breadcrumbs */}
-        <div className="flex items-center justify-between border-b border-dashed border-border/60 pb-8">
-          <button
-            onClick={() => router.back()}
-            className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all font-mono text-[10px] uppercase tracking-[0.2em]"
-          >
-            <span className="group-hover:-translate-x-1 transition-transform">←</span> Return to matches
-          </button>
-          <div className="flex items-center gap-4 text-[9px] font-mono uppercase tracking-[0.3em] text-muted-foreground/40">
-            <span>ScholarHub</span>
-            <span className="w-1 h-1 rounded-full bg-border" />
-            <span>ID: {String(id).slice(0, 8)}</span>
-          </div>
-        </div>
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 pb-12">
+        
+        {/* Back Button */}
+        <button onClick={() => router.back()} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition mb-5 mt-2 group">
+          <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" /> Back to scholarships
+        </button>
 
-        {/* Hero Section */}
-        <div ref={headerRef} className="space-y-8">
-          <div className="flex items-start justify-between gap-12 flex-wrap">
-            <div className="flex-1 space-y-6">
-              <div className="flex items-center gap-3 flex-wrap">
-                {scholarship.isExternal && (
-                  <span className="text-[10px] font-mono px-3 py-1 bg-white/[0.03] border border-dashed border-purple-500/30 text-purple-400/80 rounded-sm">
-                    External Source
-                  </span>
-                )}
-                {scholarship.category && (
-                  <span className="text-[10px] font-mono px-3 py-1 bg-white/[0.03] border border-dashed border-blue-500/30 text-blue-400/80 rounded-sm">
-                    {scholarship.category}
-                  </span>
-                )}
-              </div>
-              
-              <h1 className="text-5xl md:text-7xl font-sans font-black tracking-tighter text-foreground leading-[0.9] max-w-3xl">
-                {scholarship.title}
-              </h1>
-              
-              <div className="flex items-center gap-4 text-muted-foreground font-mono text-[11px] uppercase tracking-widest">
-                <span>Issued by</span>
-                <div className="h-px w-8 bg-border/40" />
-                <Link 
-                  href={`/providers/${scholarship.provider?.id}`}
-                  className="text-foreground font-black hover:text-indigo-500 transition-colors underline decoration-dashed decoration-indigo-500/30 underline-offset-4"
-                >
-                  {scholarship.provider?.orgName}
-                </Link>
-              </div>
+        {/* Hero Section — Compact */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
+          <div className="flex flex-wrap gap-1.5 mb-2">
+            {scholarship.isExternal && <span className="text-[10px] font-semibold px-2 py-0.5 bg-purple-100 text-purple-700 dark:bg-purple-500/10 dark:text-purple-400 rounded">External</span>}
+            {scholarship.category && <span className="text-[10px] font-semibold px-2 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 rounded">{scholarship.category}</span>}
+          </div>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground mb-1.5">{scholarship.title}</h1>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Building2 size={12} />
+            <Link href={`/providers/${scholarship.provider?.id}`} className="font-medium hover:text-blue-600 transition">{scholarship.provider?.orgName}</Link>
+            <span>·</span>
+            <span>{scholarship.provider?.orgType || 'Organization'}</span>
+          </div>
+        </motion.div>
+
+        {/* Stats Bar — Horizontal */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
+          <div className="bg-card border rounded-xl p-3.5">
+            <p className="text-[10px] text-muted-foreground font-medium mb-1">Grant Amount</p>
+            <p className="text-lg font-bold text-emerald-600">₹{scholarship.amount?.toLocaleString() || 'N/A'}</p>
+          </div>
+          <div className="bg-card border rounded-xl p-3.5">
+            <p className="text-[10px] text-muted-foreground font-medium mb-1">Deadline</p>
+            <p className="text-sm font-bold">{scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Open'}</p>
+            {daysLeft !== null && <p className={cn("text-[10px] font-medium mt-0.5", isExpired ? "text-rose-500" : "text-emerald-600")}>{isExpired ? 'Expired' : `${daysLeft} days left`}</p>}
+          </div>
+          <div className="bg-card border rounded-xl p-3.5">
+            <p className="text-[10px] text-muted-foreground font-medium mb-1">AI Match</p>
+            <div className="flex items-baseline gap-1">
+              <p className="text-lg font-bold text-blue-600">{matchScore}%</p>
+              <span className="text-[10px] text-muted-foreground">fit</span>
             </div>
-
-            {/* Grant Badge */}
-            {scholarship.amount && (
-              <div className="p-8 border border-dashed border-emerald-500/20 bg-emerald-500/[0.02] rounded-3xl text-right min-w-[240px]">
-                <p className="text-[11px] text-emerald-500/60 font-mono uppercase tracking-[0.3em] mb-3">Est. Grant Value</p>
-                <p className="text-5xl font-mono font-black text-emerald-500 tracking-tighter">
-                  ₹{scholarship.amount.toLocaleString()}
-                </p>
-              </div>
-            )}
+          </div>
+          <div className="bg-card border rounded-xl p-3.5">
+            <p className="text-[10px] text-muted-foreground font-medium mb-1">Applicants</p>
+            <div className="flex items-center gap-1.5">
+              <Users size={14} className="text-muted-foreground" />
+              <p className="text-lg font-bold">{scholarship._count?.applications || 0}</p>
+            </div>
           </div>
         </div>
 
-        {/* Main Grid System */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 pt-12 border-t border-dashed border-border/60">
+        {/* ─── Two-column layout ─── */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
           
-          {/* Main Content Column */}
-          <div className="lg:col-span-8 space-y-16">
-            
-            {/* AI Intelligence Block */}
-            <section className="space-y-8">
-              <div className="flex items-center gap-4">
-                <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
-                <h3 className="text-[10px] font-mono font-black text-blue-400 uppercase tracking-[0.4em]">Intelligence Report</h3>
+          {/* LEFT — Content (3/5) */}
+          <div className="lg:col-span-3 space-y-5">
+
+            {/* Match Reasons — Compact horizontal */}
+            <div className="bg-card border rounded-xl p-4">
+              <h3 className="text-xs font-semibold text-muted-foreground mb-2.5 flex items-center gap-1.5"><Sparkles size={11} className="text-blue-600" /> Why You Match</h3>
+              <div className="space-y-2">
+                {matchReasons.map((reason, i) => (
+                  <div key={i} className="flex items-start gap-2 text-xs text-foreground/80 leading-relaxed">
+                    <div className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" />
+                    {reason}
+                  </div>
+                ))}
               </div>
+            </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-white/[0.02] border border-dashed border-border/60 p-10 rounded-[40px]">
-                <div className="space-y-6">
-                  <div className="space-y-2">
-                    <p className="text-4xl font-mono font-black text-foreground tracking-tighter">{matchScore}%</p>
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">Compatibility Rating</p>
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {matchReasons.map((reason, i) => (
-                      <div key={i} className="flex items-center gap-3 text-[11px] text-muted-foreground hover:text-foreground transition-colors group/item">
-                        <div className="w-1 h-1 rounded-full bg-blue-500/40 group-hover/item:bg-blue-500 transition-colors" />
-                        {reason}
-                      </div>
-                    ))}
+            {/* Description */}
+            <div className="bg-card border rounded-xl p-4">
+              <h3 className="text-xs font-semibold text-muted-foreground mb-2">Overview</h3>
+              <p className="text-sm text-foreground/80 leading-relaxed">{scholarship.description}</p>
+            </div>
+
+            {/* Eligibility */}
+            <div className="bg-card border rounded-xl p-4">
+              <h3 className="text-xs font-semibold text-muted-foreground mb-3">Eligibility Criteria</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="p-3 bg-muted/30 border rounded-lg">
+                  <p className="text-[10px] text-muted-foreground font-medium mb-0.5">Min. CGPA</p>
+                  <p className="text-sm font-semibold flex items-center gap-1"><GraduationCap size={12} className="text-blue-600" /> {scholarship.criteriaJson?.minCgpa || 'N/A'}+</p>
+                </div>
+                <div className="p-3 bg-muted/30 border rounded-lg">
+                  <p className="text-[10px] text-muted-foreground font-medium mb-0.5">Fields</p>
+                  <div className="flex flex-wrap gap-1">
+                    {scholarship.criteriaJson?.allowedFields?.map(f => (
+                      <span key={f} className="text-[10px] font-medium bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 px-1.5 py-0.5 rounded">{f}</span>
+                    )) || <span className="text-xs text-foreground">All fields</span>}
                   </div>
                 </div>
-
-                <div className="relative aspect-square flex items-center justify-center">
-                  <svg className="w-full h-full transform -rotate-90">
-                    <circle cx="50%" cy="50%" r="45%" fill="none" stroke="currentColor" strokeWidth="2" className="text-border/20" />
-                    <motion.circle 
-                      cx="50%" cy="50%" r="45%" fill="none" stroke="currentColor" strokeWidth="2" 
-                      strokeDasharray="283" 
-                      initial={{ strokeDashoffset: 283 }}
-                      animate={{ strokeDashoffset: 283 - (283 * matchScore) / 100 }}
-                      transition={{ duration: 1.5, ease: "circOut" }}
-                      className="text-blue-500"
-                    />
-                  </svg>
-                  <div className="absolute inset-0 flex items-center justify-center flex-col">
-                     <span className="text-[8px] font-mono text-muted-foreground uppercase tracking-[0.3em]">AI V2.0</span>
-                  </div>
+                <div className="p-3 bg-muted/30 border rounded-lg sm:col-span-2">
+                  <p className="text-[10px] text-muted-foreground font-medium mb-0.5">Location</p>
+                  <p className="text-sm font-medium flex items-center gap-1"><MapPin size={12} className="text-blue-600" /> {scholarship.criteriaJson?.allowedLocations?.join(', ') || 'Open to all'}</p>
                 </div>
               </div>
-            </section>
+            </div>
 
-            {/* Content Sections */}
-            <div className="grid grid-cols-1 gap-16">
-              {/* Description */}
-              <section className="space-y-6">
-                <h3 className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.4em]">Overview</h3>
-                <p className="text-xl text-foreground font-medium leading-relaxed tracking-tight">
-                  {scholarship.description}
-                </p>
-              </section>
-
-              {/* Eligibility Matrix */}
-              <section className="space-y-8">
-                <h3 className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.4em]">Evaluation Matrix</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-border/40 border border-border/40 rounded-3xl overflow-hidden">
-                  <div className="bg-background p-8 space-y-2">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">Min. academic standing</p>
-                    <p className="text-2xl font-mono font-black">{scholarship.criteriaJson?.minCgpa || "N/A"}+ CGPA</p>
-                  </div>
-                  <div className="bg-background p-8 space-y-2">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">Field restriction</p>
-                    <div className="flex flex-wrap gap-2">
-                      {scholarship.criteriaJson?.allowedFields?.map(f => (
-                        <span key={f} className="text-[9px] font-mono border border-border px-2 py-0.5">{f}</span>
-                      )) || <span className="text-sm font-mono text-muted-foreground">Universal</span>}
-                    </div>
-                  </div>
-                  <div className="bg-background p-8 space-y-2 md:col-span-2">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">Location criteria</p>
-                    <p className="text-sm font-mono">{scholarship.criteriaJson?.allowedLocations?.join(" / ") || "GLOBAL ACCESS"}</p>
-                  </div>
+            {/* Provider Card */}
+            <div className="bg-card border rounded-xl p-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xs font-semibold text-muted-foreground">Provider</h3>
+                <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded">Verified</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <Link href={`/providers/${scholarship.provider?.id}`} className="text-sm font-bold hover:text-blue-600 transition">{scholarship.provider?.orgName}</Link>
+                  <p className="text-[10px] text-muted-foreground">{scholarship.provider?.orgType || 'Organization'} · Trust: {scholarship.provider?.trustScore}%</p>
                 </div>
-              </section>
+                <Button variant="outline" size="sm" onClick={() => router.push(`/providers/${scholarship.provider?.id}`)} className="text-xs h-8">
+                  View <ChevronRight size={12} />
+                </Button>
+              </div>
             </div>
           </div>
 
-          {/* Sidebar Column */}
-          <aside className="lg:col-span-4 space-y-12">
-            
-            {/* Status Card */}
-            <div className="p-8 border border-dashed border-border/60 bg-white/[0.01] rounded-3xl space-y-8">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">Submission Deadline</p>
-                  <p className="text-2xl font-mono font-black tracking-tighter">
-                    {scholarship.deadline ? new Date(scholarship.deadline).toLocaleDateString('en-GB') : 'OPEN'}
-                  </p>
-                  <p className="text-[9px] font-mono text-emerald-500 uppercase tracking-widest">
-                    {daysLeft} days remaining / active
-                  </p>
-                </div>
-                
-                <div className="h-px bg-border/40 border-dashed border-b" />
+          {/* RIGHT — Actions & AI (2/5) */}
+          <div className="lg:col-span-2 space-y-4">
 
-                <div className="space-y-1">
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">Matched Students</p>
-                  <p className="text-xl font-mono font-black">{scholarship._count?.applications || 0}</p>
-                </div>
-              </div>
-
-              {/* Action */}
+            {/* Apply CTA */}
+            <div className="bg-card border rounded-xl p-4 shadow-sm">
               {scholarship.isExternal ? (
-                <a
-                  href={scholarship.sourceUrl} target="_blank" rel="noopener noreferrer"
-                  className="block w-full py-4 text-center bg-foreground text-background font-mono text-[11px] font-black uppercase tracking-[0.2em] rounded-full hover:scale-[1.02] transition-transform active:scale-95"
-                >
-                  Remote Application →
+                <a href={scholarship.sourceUrl} target="_blank" rel="noopener noreferrer"
+                  className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition flex items-center justify-center gap-1.5">
+                  Apply Externally <ExternalLink size={13} />
                 </a>
               ) : (
                 <button
                   onClick={() => !isExpired && router.push(`/dashboard/student/scholarships/${id}/apply`)}
-                  className="w-full py-4 bg-emerald-500 text-black font-mono text-[11px] font-black uppercase tracking-[0.2em] rounded-full hover:bg-emerald-400 transition-colors shadow-lg shadow-emerald-500/20"
+                  disabled={isExpired}
+                  className={cn(
+                    "w-full py-3 text-sm font-medium rounded-lg transition flex items-center justify-center gap-1.5",
+                    isExpired ? "bg-muted text-muted-foreground cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
+                  )}
                 >
-                  Initiate Checkout →
+                  {isExpired ? 'Applications Closed' : 'Apply Now →'}
+                </button>
+              )}
+              {!isExpired && daysLeft && (
+                <p className="text-[10px] text-center text-muted-foreground mt-2 flex items-center justify-center gap-1">
+                  <Clock size={10} /> {daysLeft} days remaining
+                </p>
+              )}
+            </div>
+
+            {/* AI Eligibility */}
+            <div className="bg-card border rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 dark:bg-emerald-500/10 dark:border-emerald-500/20">
+                  <ShieldCheck size={15} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-semibold text-foreground">Am I Eligible?</h4>
+                  <p className="text-[10px] text-muted-foreground">AI eligibility check</p>
+                </div>
+              </div>
+              {aiEligibility ? (
+                <div className="p-3 bg-muted/50 rounded-lg text-xs text-foreground/80 leading-relaxed whitespace-pre-line max-h-[200px] overflow-y-auto">
+                  {aiEligibility}
+                </div>
+              ) : (
+                <button onClick={handleEligibilityCheck} disabled={aiEligibilityLoading}
+                  className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white text-xs font-medium rounded-lg hover:from-emerald-700 hover:to-teal-700 transition-all disabled:opacity-60 flex items-center justify-center gap-1.5">
+                  {aiEligibilityLoading ? <><Loader2 size={12} className="animate-spin" /> Checking...</> : <><ShieldCheck size={12} /> Check Eligibility</>}
                 </button>
               )}
             </div>
 
-            {/* Provider Module */}
-            <div className="p-8 border border-border/40 bg-white/[0.01] rounded-[40px] space-y-8 relative group/provider overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover/provider:opacity-10 transition-opacity">
-                <Building2 size={80} />
-              </div>
-
-              <div className="flex items-center justify-between">
-                <h3 className="text-[9px] font-mono text-muted-foreground uppercase tracking-[0.3em]">Provider Entity</h3>
-                <div className="px-2 py-0.5 bg-emerald-500/10 text-emerald-500 text-[8px] font-mono border border-emerald-500/20">VERIFIED</div>
-              </div>
-              
-              <div className="space-y-4">
-                <Link 
-                  href={`/providers/${scholarship.provider?.id}`}
-                  className="text-xl font-black tracking-tight leading-none hover:text-indigo-500 transition-colors block"
-                >
-                  {scholarship.provider?.orgName}
-                </Link>
-                <div className="flex items-center gap-3">
-                   <div className="w-1 h-1 rounded-full bg-muted-foreground/40" />
-                   <p className="text-[10px] text-muted-foreground font-mono uppercase tracking-widest">{scholarship.provider?.orgType || 'Foundation'}</p>
+            {/* AI Tips */}
+            <div className="bg-card border rounded-xl p-4 shadow-sm">
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="w-8 h-8 rounded-lg bg-violet-50 border border-violet-100 flex items-center justify-center text-violet-600 dark:bg-violet-500/10 dark:border-violet-500/20">
+                  <Sparkles size={15} />
+                </div>
+                <div>
+                  <h4 className="text-xs font-semibold text-foreground">AI Tips</h4>
+                  <p className="text-[10px] text-muted-foreground">Personalized application advice</p>
                 </div>
               </div>
-
-              <div className="pt-6 border-t border-dashed border-border/40 flex items-center justify-between font-mono">
-                <span className="text-[10px] text-muted-foreground uppercase tracking-widest">Trust Index</span>
-                <span className="text-emerald-500 font-black">{scholarship.provider?.trustScore}%</span>
-              </div>
-
-              <Button 
-                onClick={() => router.push(`/providers/${scholarship.provider?.id}`)}
-                className="w-full bg-accent hover:bg-indigo-500 hover:text-white rounded-2xl text-[10px] uppercase font-black tracking-widest transition-all h-12"
-              >
-                 View Public Profile
-              </Button>
+              {aiTips ? (
+                <div className="p-3 bg-muted/50 rounded-lg text-xs text-foreground/80 leading-relaxed whitespace-pre-line max-h-[250px] overflow-y-auto">
+                  {aiTips}
+                </div>
+              ) : (
+                <button onClick={handleGetTips} disabled={aiTipsLoading}
+                  className="w-full py-2.5 bg-gradient-to-r from-violet-600 to-blue-600 text-white text-xs font-medium rounded-lg hover:from-violet-700 hover:to-blue-700 transition-all disabled:opacity-60 flex items-center justify-center gap-1.5">
+                  {aiTipsLoading ? <><Loader2 size={12} className="animate-spin" /> Generating...</> : <><Sparkles size={12} /> Get AI Tips</>}
+                </button>
+              )}
             </div>
-
-          </aside>
+          </div>
         </div>
       </div>
     </DashboardLayout>

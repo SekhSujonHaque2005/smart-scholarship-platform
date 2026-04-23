@@ -44,13 +44,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="antialiased">
-        <Toaster position="top-right" theme="dark" richColors />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
+          <Toaster position="top-right" richColors closeButton />
           <AuthProvider>
             <Suspense fallback={null}>
               <GlobalLoaderProvider>

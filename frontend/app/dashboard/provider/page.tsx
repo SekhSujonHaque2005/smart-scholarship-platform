@@ -32,32 +32,30 @@ const StatCard = ({ label, value, description, icon: Icon, trend, loading }: any
       hidden: { opacity: 0, y: 20 },
       show: { opacity: 1, y: 0 }
     }}
-    className="group relative bg-card border border-border rounded-[48px] p-8 overflow-hidden transition-all duration-300 hover:shadow-xl dark:hover:shadow-indigo-500/10"
+    className="bg-card border rounded-2xl p-6 shadow-sm overflow-hidden"
   >
-    <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-32 h-32 bg-indigo-500/5 blur-[60px] group-hover:bg-indigo-500/10 transition-colors" />
-    
     <div className="flex justify-between items-start mb-4">
-      <div className="w-12 h-12 rounded-2xl bg-accent border border-border flex items-center justify-center text-muted-foreground group-hover:text-indigo-500 transition-colors">
+      <div className="w-12 h-12 rounded-xl bg-muted border flex items-center justify-center text-muted-foreground">
         <Icon size={24} />
       </div>
       {trend && (
-        <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[10px] font-mono">
-          <ArrowUpRight size={12} />
+        <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-600 text-xs font-semibold">
+          <ArrowUpRight size={14} />
           {trend}
         </div>
       )}
     </div>
 
     <div className="space-y-1">
-      <h3 className="text-muted-foreground dark:text-muted-foreground/70 text-[10px] font-mono uppercase tracking-[0.2em] font-black"> {label}</h3>
+      <h3 className="text-sm font-medium text-muted-foreground">{label}</h3>
       <div className="flex items-baseline gap-2">
         {loading ? (
-          <div className="h-9 w-24 bg-accent animate-pulse rounded-lg" />
+          <div className="h-8 w-24 bg-muted animate-pulse rounded-md" />
         ) : (
-          <span className="text-3xl font-black text-foreground tracking-tighter">{value}</span>
+          <span className="text-2xl font-bold text-foreground">{value}</span>
         )}
       </div>
-      <p className="text-muted-foreground/80 dark:text-muted-foreground/60 text-[11px] font-mono leading-relaxed mt-2 font-bold uppercase tracking-tight">{description}</p>
+      <p className="text-xs text-muted-foreground mt-2">{description}</p>
     </div>
   </motion.div>
 );
@@ -65,24 +63,24 @@ const StatCard = ({ label, value, description, icon: Icon, trend, loading }: any
 const ActivityItem = ({ title, time, type, status, id, onClick }: any) => (
   <div 
     onClick={onClick}
-    className="flex items-center justify-between py-4 border-b border-border/50 last:border-0 hover:bg-accent/30 px-4 -mx-4 rounded-xl transition-colors group cursor-pointer"
+    className="flex items-center justify-between py-4 border-b last:border-0 hover:bg-muted/50 px-4 -mx-4 rounded-lg transition-colors cursor-pointer"
   >
     <div className="flex items-center gap-4">
-      <div className="w-10 h-10 rounded-xl bg-accent border border-border flex items-center justify-center text-muted-foreground group-hover:text-foreground transition-colors">
+      <div className="w-10 h-10 rounded-lg bg-muted border flex items-center justify-center text-muted-foreground">
         <Clock size={16} />
       </div>
       <div>
-        <h4 className="text-[12px] font-bold text-foreground mb-0.5">{title}</h4>
-        <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-black opacity-80 dark:opacity-60">{type} • {time}</p>
+        <h4 className="text-sm font-semibold text-foreground mb-0.5">{title}</h4>
+        <p className="text-xs text-muted-foreground">{type} • {time}</p>
       </div>
     </div>
     <div className={cn(
-      "px-3 py-1 rounded-full border text-[9px] font-mono uppercase tracking-widest",
-      status === 'APPROVED' || status === 'Active' || status === 'Completed' ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" :
-      status === 'PENDING' || status === 'Pending' ? "bg-amber-500/10 border-amber-500/20 text-amber-400" :
-      "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
+      "px-2.5 py-0.5 rounded-full text-xs font-semibold capitalize",
+      status === 'APPROVED' || status === 'Active' || status === 'Completed' ? "bg-emerald-50 text-emerald-600" :
+      status === 'PENDING' || status === 'Pending' ? "bg-amber-50 text-amber-600" :
+      "bg-blue-50 text-blue-600"
     )}>
-      {status}
+      {status?.toLowerCase()}
     </div>
   </div>
 );
@@ -185,19 +183,15 @@ export default function ProviderDashboardPage() {
       <div className="space-y-8 pb-20">
         {/* Hero Section */}
         <section className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-              <h3 className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.3em] font-black">Performance Metrics</h3>
-            </div>
+          <div className="space-y-1">
             <motion.h1 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="text-4xl font-black text-foreground tracking-tighter uppercase leading-[0.85]"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-3xl font-bold tracking-tight text-foreground"
             >
-              Operational <span className="text-indigo-500">Overview</span>
+              Provider Overview
             </motion.h1>
-            <p className="text-muted-foreground text-sm font-mono max-w-xl uppercase font-black tracking-tight opacity-70">
+            <p className="text-sm text-muted-foreground max-w-xl">
               Welcome back. Here is a summary of your scholarship programs and student activity.
             </p>
           </div>
@@ -206,31 +200,31 @@ export default function ProviderDashboardPage() {
             <button 
               onClick={handleExport}
               disabled={loading || activities.length === 0}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-accent border border-border text-[10px] font-mono text-muted-foreground hover:text-foreground transition-all uppercase tracking-widest font-black disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-background border text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
             >
-              <Download size={14} />
+              <Download size={16} />
               Export
             </button>
             <button 
               onClick={() => setRefreshKey(prev => prev + 1)}
               disabled={loading}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-indigo-500 text-white border border-indigo-500/20 text-[10px] font-mono hover:bg-indigo-600 transition-all uppercase tracking-widest font-black disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50"
             >
-              <RefreshCcw size={14} className={cn(loading && "animate-spin")} />
+              <RefreshCcw size={16} className={cn(loading && "animate-spin")} />
               Refresh
             </button>
           </div>
         </section>
 
         {error ? (
-          <div className="p-12 bg-rose-500/5 border border-rose-500/10 rounded-[48px] text-center space-y-4">
+          <div className="p-12 bg-rose-50 border border-rose-100 rounded-2xl text-center space-y-4 dark:bg-rose-500/5 dark:border-rose-500/10">
             <AlertCircle className="mx-auto text-rose-500" size={40} />
-            <h3 className="text-lg font-black text-rose-500 uppercase tracking-tight">{error}</h3>
+            <h3 className="text-lg font-semibold text-rose-600">{error}</h3>
             <button 
               onClick={() => setRefreshKey(prev => prev + 1)}
-              className="px-6 py-2 bg-rose-500 text-white rounded-full text-[10px] font-mono uppercase tracking-widest font-black hover:bg-rose-600 transition-colors"
+              className="px-6 py-2.5 bg-rose-600 text-white rounded-lg text-sm font-medium hover:bg-rose-700 transition-colors"
             >
-              Re-establish Connection
+              Try Again
             </button>
           </div>
         ) : (
@@ -274,14 +268,13 @@ export default function ProviderDashboardPage() {
 
             <div className="grid grid-cols-12 gap-8">
               {/* Main Feed */}
-              <div className="col-span-12 lg:col-span-8 space-y-8">
+              <div className="col-span-12 lg:col-span-8 flex flex-col gap-8">
 
                 {/* --- TRENDS ANALYTICS CHART --- */}
-                <div className="bg-card border border-border rounded-[48px] p-8 shadow-sm relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/5 blur-[80px] pointer-events-none" />
-                  <div className="mb-8">
-                     <h3 className="text-lg font-black text-foreground tracking-tight uppercase">Acquisition Velocity</h3>
-                     <p className="text-muted-foreground text-[11px] font-mono uppercase tracking-widest font-black opacity-80 dark:opacity-60">Candidate influx over last 7 days</p>
+                <div className="bg-card border rounded-2xl p-6 shadow-sm overflow-hidden">
+                  <div className="mb-6">
+                     <h3 className="text-lg font-bold text-foreground">Candidate Acquisition</h3>
+                     <p className="text-sm text-muted-foreground mt-1">Influx over last 7 days</p>
                   </div>
                   
                   <div className="h-[240px] w-full">
@@ -331,18 +324,18 @@ export default function ProviderDashboardPage() {
                   </div>
                 </div>
 
-                <div className="bg-card border border-border rounded-[48px] p-8 shadow-sm">
-                  <div className="flex items-center justify-between mb-8">
+                <div className="bg-card border rounded-2xl p-6 shadow-sm flex-1 flex flex-col">
+                  <div className="flex items-center justify-between mb-6">
                     <div>
-                      <h3 className="text-lg font-black text-foreground tracking-tight uppercase">Recent Activity Log</h3>
-                      <p className="text-muted-foreground text-[11px] font-mono uppercase tracking-widest font-black opacity-80 dark:opacity-60">System Events & Submissions</p>
+                      <h3 className="text-lg font-bold text-foreground">Recent Activity</h3>
+                      <p className="text-sm text-muted-foreground mt-1">System events & submissions</p>
                     </div>
-                    <Link href="/dashboard/provider/applications" className="flex items-center gap-2 px-4 py-2 rounded-xl bg-accent border border-border text-[10px] font-mono text-muted-foreground hover:text-foreground transition-all uppercase tracking-widest font-black">
-                      VIEW FULL LEDGER <ExternalLink size={12} />
+                    <Link href="/dashboard/provider/applications" className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700">
+                      View All <ExternalLink size={14} />
                     </Link>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 flex-1">
                     {activities.length > 0 ? (
                       activities.map((activity) => (
                         <ActivityItem 
@@ -359,8 +352,8 @@ export default function ProviderDashboardPage() {
                       ))
                     ) : (
                       <div className="py-10 text-center space-y-4">
-                        <Activity className="mx-auto text-zinc-700" size={32} />
-                        <p className="text-zinc-500 text-xs font-mono uppercase tracking-widest">No recent activity detected</p>
+                        <Activity className="mx-auto text-muted-foreground opacity-50" size={32} />
+                        <p className="text-muted-foreground text-sm font-medium">No recent activity detected</p>
                       </div>
                     )}
                   </div>
@@ -368,18 +361,18 @@ export default function ProviderDashboardPage() {
               </div>
               
               {/* Side Panels */}
-              <div className="col-span-12 lg:col-span-4 space-y-8">
+              <div className="col-span-12 lg:col-span-4 space-y-6 lg:sticky lg:top-32 h-fit">
                 {/* Candidate Funnel */}
-                <div className="bg-card border border-border rounded-[48px] p-8 shadow-sm relative overflow-hidden">
-                   <h3 className="text-[12px] font-black text-foreground uppercase tracking-[0.2em] mb-6 font-black">Acquisition Velocity</h3>
+                <div className="bg-card border rounded-2xl p-6 shadow-sm">
+                   <h3 className="text-base font-semibold mb-4 text-foreground">Application Funnel</h3>
                    <div className="space-y-4">
                       {stats?.funnel?.map((item: any) => (
-                         <div key={item.status} className="space-y-1.5">
-                            <div className="flex justify-between text-[10px] font-mono uppercase tracking-widest font-black">
-                               <span className="text-muted-foreground">{item.status.replace('_', ' ')}</span>
+                         <div key={item.status} className="space-y-2">
+                            <div className="flex justify-between text-sm font-medium">
+                               <span className="text-muted-foreground capitalize">{item.status.toLowerCase().replace('_', ' ')}</span>
                                <span className="text-foreground">{item.count}</span>
                             </div>
-                            <div className="h-1.5 w-full bg-accent rounded-full overflow-hidden">
+                            <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                <motion.div 
                                   initial={{ width: 0 }}
                                   animate={{ width: stats.applications > 0 ? `${(item.count / stats.applications) * 100}%` : '0%' }}
@@ -387,7 +380,7 @@ export default function ProviderDashboardPage() {
                                      "h-full rounded-full transition-all",
                                      item.status === 'APPROVED' ? 'bg-emerald-500' :
                                      item.status === 'REJECTED' ? 'bg-rose-500' :
-                                     'bg-indigo-500'
+                                     'bg-blue-600'
                                   )}
                                />
                             </div>
@@ -397,21 +390,20 @@ export default function ProviderDashboardPage() {
                 </div>
 
                 {/* Quick Actions */}
-                <div className="bg-card border border-border rounded-[48px] p-8 overflow-hidden relative group shadow-sm">
-                  <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-indigo-500/40 to-transparent opacity-50" />
-                  <h3 className="text-[12px] font-black text-foreground uppercase tracking-[0.2em] mb-6 font-black">Quick Executions</h3>
+                <div className="bg-card border rounded-2xl p-6 shadow-sm">
+                  <h3 className="text-base font-semibold mb-4 text-foreground">Quick Actions</h3>
                   
-                  <div className="space-y-3">
-                    <Link href="/dashboard/provider/scholarships/create" className="w-full flex items-center justify-between p-4 rounded-3xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 hover:bg-indigo-600 hover:text-white transition-all group/btn shadow-sm">
-                      <span className="text-[11px] font-mono uppercase tracking-widest font-black">Deploy New Program</span>
-                      <PlusCircle size={18} className="group-hover/btn:rotate-90 transition-transform" />
+                  <div className="space-y-2">
+                    <Link href="/dashboard/provider/scholarships/create" className="w-full flex items-center justify-between p-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors group">
+                      <span className="text-sm font-medium">Create New Program</span>
+                      <PlusCircle size={18} className="group-hover:rotate-90 transition-transform" />
                     </Link>
-                    <Link href="/dashboard/provider/applications" className="w-full flex items-center justify-between p-4 rounded-3xl bg-accent border border-border text-muted-foreground hover:bg-accent/80 hover:text-foreground transition-all font-black">
-                      <span className="text-[11px] font-mono uppercase tracking-widest">Audit Applications</span>
+                    <Link href="/dashboard/provider/applications" className="w-full flex items-center justify-between p-3 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-colors">
+                      <span className="text-sm font-medium">Review Applications</span>
                       <Activity size={18} />
                     </Link>
-                    <Link href="/dashboard/provider/profile" className="w-full flex items-center justify-between p-4 rounded-3xl bg-accent border border-border text-muted-foreground hover:bg-accent/80 hover:text-foreground transition-all font-black">
-                      <span className="text-[11px] font-mono uppercase tracking-widest">Security Clearance</span>
+                    <Link href="/dashboard/provider/profile" className="w-full flex items-center justify-between p-3 rounded-lg bg-muted text-muted-foreground hover:bg-muted/80 transition-colors">
+                      <span className="text-sm font-medium">Profile & Settings</span>
                       <ShieldCheck size={18} />
                     </Link>
                   </div>

@@ -50,7 +50,7 @@ export const TrustScoreBreakdown = ({
   ];
 
   return (
-    <div className={cn("bg-card border border-border rounded-[32px] p-6 lg:p-8 space-y-8 relative overflow-hidden", className)}>
+    <div className={cn("bg-card border shadow-sm rounded-2xl p-6 lg:p-8 space-y-8 relative overflow-hidden", className)}>
       <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
         <ShieldCheck size={120} />
       </div>
@@ -76,23 +76,23 @@ export const TrustScoreBreakdown = ({
              />
            </svg>
            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-[8px] font-mono text-muted-foreground uppercase tracking-[0.2em] font-black">Score</span>
-              <span className="text-3xl font-black text-foreground tracking-tighter">{score}%</span>
+              <span className="text-xs font-medium text-muted-foreground uppercase">Score</span>
+              <span className="text-2xl font-bold text-foreground">{score}%</span>
            </div>
         </div>
 
         <div className="flex-1 space-y-4 w-full">
            <div>
-              <h3 className="text-sm font-black text-foreground uppercase tracking-tight">Trust Breakdown</h3>
-              <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-black opacity-60">Audit & Consensus</p>
+              <h3 className="text-base font-semibold text-foreground">Trust Breakdown</h3>
+              <p className="text-sm font-medium text-muted-foreground">Audit & Consensus</p>
            </div>
            
            <div className="space-y-4">
               {components.map((c, i) => (
                 <div key={i} className="space-y-2">
-                   <div className="flex justify-between items-center text-[10px] font-mono uppercase tracking-widest font-black">
+                   <div className="flex justify-between items-center text-sm font-medium">
                       <div className="flex items-center gap-2">
-                         <c.icon size={12} className={c.color} />
+                         <c.icon size={16} className={c.color} />
                          <span className="text-muted-foreground">{c.label}</span>
                       </div>
                       <span className="text-foreground">{c.score}%</span>
@@ -111,16 +111,16 @@ export const TrustScoreBreakdown = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-dashed border-border/60">
-         <div className="flex items-start gap-3 p-4 rounded-3xl bg-indigo-500/5 border border-indigo-500/10">
-            <div className="mt-1"><Info size={16} className="text-indigo-400 shrink-0" /></div>
-            <p className="text-[10px] font-mono text-indigo-400/80 uppercase leading-relaxed font-bold">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-border">
+         <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50 border">
+            <div className="mt-0.5"><Info size={16} className="text-blue-500 shrink-0" /></div>
+            <p className="text-sm font-medium text-muted-foreground leading-relaxed">
                Scores are calculated using the ScholarHub Consensus Protocol v2.1. Verified payouts significantly boost academic veracity ratings.
             </p>
          </div>
-         <div className="flex items-start gap-3 p-4 rounded-3xl bg-emerald-500/5 border border-emerald-500/10">
-            <div className="mt-1"><CheckCircle2 size={16} className="text-emerald-400 shrink-0" /></div>
-            <p className="text-[10px] font-mono text-emerald-400/80 uppercase leading-relaxed font-bold">
+         <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50 border">
+            <div className="mt-0.5"><CheckCircle2 size={16} className="text-emerald-500 shrink-0" /></div>
+            <p className="text-sm font-medium text-muted-foreground leading-relaxed">
                This entity has successfully synchronized with the Smart Verification Layer. External audits are performed biannually.
             </p>
          </div>

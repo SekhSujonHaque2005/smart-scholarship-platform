@@ -24,24 +24,24 @@ import api from '@/app/lib/api';
 import { toast } from 'sonner';
 
 const StatCard = ({ label, value, description, icon: Icon, trend }: any) => (
-  <div className="bg-card border border-border rounded-[32px] p-6 relative overflow-hidden group shadow-sm">
+  <div className="bg-card border rounded-2xl p-6 relative overflow-hidden group shadow-sm">
     <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
       <Icon size={48} />
     </div>
     <div className="space-y-1 relative z-10">
-      <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-black">{label}</p>
+      <p className="text-sm font-medium text-muted-foreground">{label}</p>
       <div className="flex items-baseline gap-2">
-        <h3 className="text-3xl font-black text-foreground tracking-tighter">{value}</h3>
+        <h3 className="text-2xl font-bold text-foreground">{value}</h3>
         {trend && (
           <span className={cn(
-            "text-[10px] font-mono font-bold",
+            "text-xs font-semibold",
             trend > 0 ? "text-emerald-500" : "text-rose-500"
           )}>
             {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
           </span>
         )}
       </div>
-      <p className="text-[10px] font-mono text-muted-foreground uppercase font-bold opacity-60">{description}</p>
+      <p className="text-sm text-muted-foreground">{description}</p>
     </div>
   </div>
 );
@@ -53,15 +53,15 @@ const ReviewCard = ({ review }: any) => {
     <motion.div 
       initial={{ opacity: 0, scale: 0.98 }}
       animate={{ opacity: 1, scale: 1 }}
-      className="p-6 bg-card border border-border rounded-3xl space-y-4 hover:border-indigo-500/30 transition-all group"
+      className="p-6 bg-card border rounded-2xl space-y-4 hover:shadow-md transition-all group"
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-10 h-10 rounded-xl bg-accent border border-border flex items-center justify-center text-muted-foreground group-hover:bg-indigo-500/10 group-hover:text-indigo-500 transition-colors">
+          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-muted-foreground">
             <User size={18} />
           </div>
           <div>
-            <h4 className="text-sm font-black text-foreground uppercase tracking-tight">{review.student?.name || 'Anonymous Student'}</h4>
+            <h4 className="text-sm font-semibold text-foreground">{review.student?.name || 'Anonymous Student'}</h4>
             <div className="flex items-center gap-2">
               <div className="flex items-center">
                 {[1, 2, 3, 4, 5].map((s) => (
@@ -72,24 +72,24 @@ const ReviewCard = ({ review }: any) => {
                   />
                 ))}
               </div>
-              <span className="text-[9px] font-mono text-muted-foreground uppercase font-bold">{date}</span>
+              <span className="text-xs text-muted-foreground">{date}</span>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-1">
-          <button className="p-2 text-muted-foreground hover:text-indigo-500 transition-colors"><ThumbsUp size={14} /></button>
+          <button className="p-2 text-muted-foreground hover:text-blue-500 transition-colors"><ThumbsUp size={14} /></button>
           <button className="p-2 text-muted-foreground hover:text-rose-500 transition-colors"><Flag size={14} /></button>
           <button className="p-2 text-muted-foreground hover:text-foreground transition-colors"><MoreVertical size={14} /></button>
         </div>
       </div>
       
-      <p className="text-sm text-foreground/80 leading-relaxed font-medium pl-14">
+      <p className="text-sm text-foreground/80 leading-relaxed pl-14">
         "{review.comment || 'No comment provided.'}"
       </p>
 
       <div className="pl-14 pt-2 flex items-center gap-3">
-         <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 text-[8px] font-mono font-black uppercase tracking-widest">Verified Payout</span>
-         <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-500 text-[8px] font-mono font-black uppercase tracking-widest">Active Scholar</span>
+         <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 text-xs font-medium">Verified Payout</span>
+         <span className="px-2.5 py-0.5 rounded-full bg-blue-500/10 text-blue-500 text-xs font-medium">Active Scholar</span>
       </div>
     </motion.div>
   );
@@ -142,24 +142,24 @@ export default function ReputationLedgerPage() {
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[10px] font-mono uppercase tracking-widest">Prestige Ledger</span>
+              <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-xs font-semibold">Prestige Ledger</span>
             </div>
-            <h1 className="text-4xl font-black text-foreground tracking-tighter uppercase leading-none">
-              Student <span className="text-indigo-500">Feedback</span>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">
+              Student Feedback
             </h1>
-            <p className="text-muted-foreground text-sm font-mono max-w-xl uppercase font-black tracking-tight opacity-70">
+            <p className="text-sm text-muted-foreground max-w-xl">
               Track your student success rates and program reviews.
             </p>
           </div>
           <div className="flex items-center gap-3">
              <div className="relative group">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-indigo-500 transition-colors" size={16} />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-blue-500 transition-colors" size={16} />
                 <input 
                   type="text" 
-                  placeholder="SEARCH REVIEWS..." 
+                  placeholder="Search reviews..." 
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-accent/50 border border-border rounded-xl py-2.5 pl-10 pr-4 text-[11px] font-mono text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-indigo-500/50 transition-all w-64 uppercase font-bold"
+                  className="bg-card border rounded-lg py-2 pl-10 pr-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all w-64"
                 />
              </div>
           </div>
@@ -191,12 +191,11 @@ export default function ReputationLedgerPage() {
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-           {/* Sidebar Filters */}
            <div className="lg:col-span-1 space-y-6">
-              <div className="bg-card border border-border rounded-[32px] p-6 space-y-6">
+              <div className="bg-card border rounded-2xl p-6 space-y-6 shadow-sm">
                  <div className="flex items-center gap-2">
-                    <Filter size={16} className="text-indigo-500" />
-                    <h3 className="text-xs font-black text-foreground uppercase tracking-widest">Protocol Filters</h3>
+                    <Filter size={16} className="text-muted-foreground" />
+                    <h3 className="text-sm font-semibold text-foreground">Protocol Filters</h3>
                  </div>
                  <div className="space-y-2">
                     {['ALL', '5', '4', '3', '2', '1'].map((val) => (
@@ -204,26 +203,25 @@ export default function ReputationLedgerPage() {
                         key={val}
                         onClick={() => setFilter(val)}
                         className={cn(
-                          "w-full flex items-center justify-between p-3 rounded-2xl text-[10px] font-mono uppercase tracking-widest transition-all font-black border",
+                          "w-full flex items-center justify-between p-3 rounded-lg text-sm font-medium transition-all",
                           filter === val 
-                            ? "bg-indigo-500 text-white border-indigo-500 shadow-lg shadow-indigo-500/20" 
-                            : "bg-accent/50 border-border text-muted-foreground hover:bg-accent hover:text-foreground"
+                            ? "bg-blue-600 text-white" 
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
                         )}
                       >
                         <span>{val === 'ALL' ? 'Everything' : `${val} Stars`}</span>
-                        {filter === val && <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
                       </button>
                     ))}
                  </div>
               </div>
 
-              <div className="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-[32px] p-6 text-white relative overflow-hidden group">
-                 <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:scale-110 transition-transform">
+              <div className="bg-card border rounded-2xl p-6 relative overflow-hidden group shadow-sm">
+                 <div className="absolute top-0 right-0 p-4 opacity-5 transition-transform">
                     <TrendingUp size={64} />
                  </div>
-                 <h4 className="text-[10px] font-mono uppercase tracking-widest opacity-80 mb-4 font-black">Prestige Goal</h4>
-                 <div className="text-3xl font-black tracking-tighter mb-2">PLATINUM</div>
-                 <p className="text-[10px] font-mono opacity-80 leading-relaxed font-bold">
+                 <h4 className="text-sm font-semibold text-foreground mb-1">Prestige Goal</h4>
+                 <div className="text-2xl font-bold mb-2">PLATINUM</div>
+                 <p className="text-sm text-muted-foreground leading-relaxed">
                     Maintain a 4.5+ average to unlock featured placement in student matrices.
                  </p>
               </div>
@@ -243,11 +241,11 @@ export default function ReputationLedgerPage() {
                   ))}
                 </div>
               ) : (
-                <div className="bg-card border border-border border-dashed rounded-[48px] p-20 text-center space-y-4">
-                  <MessageSquare className="mx-auto text-muted-foreground/20" size={64} />
+                <div className="bg-card border border-dashed rounded-2xl p-20 text-center space-y-4 shadow-sm">
+                  <MessageSquare className="mx-auto text-muted-foreground/50" size={48} />
                   <div className="space-y-1">
-                    <h3 className="text-lg font-black text-foreground tracking-tight mb-2 uppercase">Platform Prestige</h3>
-                    <p className="text-[11px] font-mono text-muted-foreground leading-relaxed uppercase tracking-wider max-w-lg mb-4 font-bold opacity-70">
+                    <h3 className="text-lg font-semibold text-foreground mb-2">Platform Prestige</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto mb-4">
                       Your reputation is calculated based on verified student payouts and positive endorsements.
                     </p>
                   </div>

@@ -5,24 +5,42 @@ exports.sendMessage = async (req, res) => {
     const { applicationId, receiverId, content } = req.body;
     const senderId = req.user.userId;
 
-    // Check if models exist (so it doesn't crash if they haven't run the migration yet)
+    // Validate required fields
+    if (!applicationId || !content) {
+      return res.status(400).json({ message: 'applicationId and content are required.' });
+    }
+
+    // If receiverId is missing, look it up from the application's student
+    let resolvedReceiverId = receiverId;
+    if (!resolvedReceiverId) {
+      const application = await prisma.application.findUnique({
+        where: { id: applicationId },
+        include: { student: { select: { userId: true } } }
+      });
+      if (application?.student?.userId) {
+        resolvedReceiverId = application.student.userId;
+      } else {
+        return res.status(400).json({ message: 'Could not determine recipient.' });
+      }
+    }
+
+    // Check if Message model exists
     if (!prisma.message) {
       return res.status(200).json({ 
-        message: 'MESSAGE_SENT_STORE_MOCKED',
-        data: { id: 'mock-id', content, senderId, receiverId, createdAt: new Date() }
+        message: { id: 'mock-id', content, senderId, receiverId: resolvedReceiverId, createdAt: new Date() }
       });
     }
 
     const newMessage = await prisma.message.create({
       data: {
-        applicationId,
-        senderId,
-        receiverId,
-        content
+        content,
+        sender: { connect: { id: senderId } },
+        receiver: { connect: { id: resolvedReceiverId } },
+        application: { connect: { id: applicationId } },
       }
     });
 
-    res.status(201).json(newMessage);
+    res.status(201).json({ message: newMessage });
   } catch (error) {
     console.error('Send message error:', error);
     res.status(500).json({ message: 'Internal server error' });

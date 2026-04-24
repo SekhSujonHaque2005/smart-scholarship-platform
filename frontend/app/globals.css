@@ -1,0 +1,121 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+  --card: #ffffff;
+  --card-foreground: #000000;
+  --popover: #ffffff;
+  --popover-foreground: #000000;
+  --primary: #fbbf24; /* Amber Accent */
+  --primary-foreground: #000000;
+  --secondary: #fafafa;
+  --secondary-foreground: #000000;
+  --muted: #fafafa;
+  --muted-foreground: #666666;
+  --accent: #fbbf24;
+  --accent-foreground: #000000;
+  --destructive: #eb5757;
+  --border: #eaeaea;
+  --input: #eaeaea;
+  --ring: #fbbf24;
+  --radius: 0px; 
+}
+
+.dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #0a0a0a;
+  --card-foreground: #ffffff;
+  --popover: #0a0a0a;
+  --popover-foreground: #ffffff;
+  --primary: #fbbf24; /* Amber Accent */
+  --primary-foreground: #000000;
+  --secondary: #0a0a0a;
+  --secondary-foreground: #ffffff;
+  --muted: #0a0a0a;
+  --muted-foreground: #888888;
+  --accent: #fbbf24;
+  --accent-foreground: #000000;
+  --destructive: #ff4d4d;
+  --border: #1a1a1a;
+  --input: #1a1a1a;
+  --ring: #fbbf24;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui;
+  --font-serif: var(--font-plus-jakarta), ui-serif, Georgia;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas;
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-destructive: var(--destructive);
+}
+
+@layer base {
+  * {
+    border-radius: 0px !important;
+    box-shadow: none !important;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    background-image: 
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 50px 50px;
+    background-attachment: fixed;
+  }
+
+  /* Refined Typography Hierarchy */
+  h1, h2, h3 {
+    @apply font-serif font-extrabold tracking-tight;
+    line-height: 1.05;
+  }
+
+  h4, h5, h6 {
+    @apply font-serif font-bold tracking-tight;
+    line-height: 1.2;
+  }
+
+  p {
+    @apply text-muted-foreground;
+  }
+
+  /* Technical Labels */
+  .label-technical {
+    @apply font-sans font-bold uppercase tracking-[0.2em] text-[10px] text-primary italic;
+  }
+
+  /* Massive Headers for Design Engineer Feel */
+  .display-massive {
+    @apply font-serif font-extrabold tracking-tighter;
+    line-height: 0.9;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+}
+
+/* Glassmorphism Classes */
+.glass {
+  @apply bg-background/40 backdrop-blur-xl border border-border;
+}

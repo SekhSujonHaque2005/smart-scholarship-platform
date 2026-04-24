@@ -1,84 +1,160 @@
-import React from 'react';
-import { UserPlus, Sparkles, Send, Activity } from 'lucide-react';
+'use client';
 
-const steps = [
+import React, { useRef } from 'react';
+import { UserPlus, Sparkles, Send, Activity, Zap } from 'lucide-react';
+import { motion, useScroll, useSpring } from 'framer-motion';
+import { cn } from '@/lib/utils';
+
+const milestones = [
     {
-        title: "Create Profile",
-        description: "Tell us about your academics, background, and goals in less than 5 minutes.",
+        title: "Create Your Profile",
+        description: "Fill in your academic and personal details once. We find everything you're eligible for.",
         icon: UserPlus,
-        color: "from-blue-500 to-cyan-400",
-        shadow: "shadow-cyan-500/20",
+        badge: "Step 01",
     },
     {
-        title: "AI Finds Matches",
-        description: "Our algorithm scans thousands of verified scholarships to find your perfect fit.",
+        title: "Smart AI Matching",
+        description: "Our AI engine scans thousands of government and private scholarships for the best matches.",
         icon: Sparkles,
-        color: "from-purple-500 to-pink-500",
-        shadow: "shadow-purple-500/20",
+        badge: "Step 02",
     },
     {
-        title: "One-Click Apply",
-        description: "Auto-fill applications and submit your documents securely through our portal.",
+        title: "Online Application",
+        description: "Upload documents securely and apply to multiple scholarships with a single click.",
         icon: Send,
-        color: "from-orange-500 to-rose-400",
-        shadow: "shadow-orange-500/20",
+        badge: "Step 03",
     },
     {
-        title: "Track Progress",
-        description: "Get real-time updates on your application status until the funds reach you.",
+        title: "Track Your Funds",
+        description: "Get real-time updates and receive scholarship funds directly into your bank account.",
         icon: Activity,
-        color: "from-emerald-400 to-teal-500",
-        shadow: "shadow-emerald-500/20",
+        badge: "Step 04",
     }
 ];
 
 export default function HowItWorks() {
+    const containerRef = useRef<HTMLDivElement>(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start center", "end center"]
+    });
+
+    const pathLength = useSpring(scrollYProgress, {
+        stiffness: 100,
+        damping: 30,
+        restDelta: 0.001
+    });
+
     return (
-        <section className="py-24 relative overflow-hidden bg-white dark:bg-slate-950 transition-colors duration-500">
-            {/* Background elements */}
-            <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/5 dark:bg-blue-600/5 blur-[80px] rounded-full pointer-events-none" />
+        <section ref={containerRef} className="relative py-32 bg-background border-b border-border overflow-hidden">
             
+            {/* THE "CHAI" PATH - Compact & Thick */}
+            <div className="absolute top-0 bottom-0 left-1/2 -translate-x-1/2 w-[600px] pointer-events-none z-0 opacity-10 md:opacity-100">
+                <svg className="w-full h-full" viewBox="0 0 600 1200" fill="none" preserveAspectRatio="none">
+                    <motion.path 
+                        d="M 300 0 
+                           C 500 150, 500 250, 300 350 
+                           C 100 450, 100 550, 300 650 
+                           C 500 750, 500 850, 300 950 
+                           C 100 1050, 100 1150, 300 1250" 
+                        stroke="#fbbf24" 
+                        strokeWidth="5" 
+                        strokeLinecap="round"
+                        style={{ pathLength: pathLength }}
+                        className="drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]"
+                    />
+                    
+                    {[350, 650, 950, 1250].map((y, i) => (
+                        <motion.circle 
+                            key={i}
+                            cx="300"
+                            cy={y}
+                            r="6"
+                            fill="#fbbf24"
+                            initial={{ scale: 0 }}
+                            whileInView={{ scale: 1 }}
+                            viewport={{ once: false }}
+                        />
+                    ))}
+                </svg>
+            </div>
+
             <div className="max-w-7xl mx-auto px-6 relative z-10">
-                <div className="text-center max-w-2xl mx-auto mb-20">
-                    <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-4">
-                        How ScholarHub Works
+                <div className="text-center mb-24 max-w-2xl mx-auto">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 border border-primary/20 bg-primary/5 text-primary text-[10px] font-bold uppercase tracking-[0.3em] italic mb-6">
+                        Easy 4-Step Process
+                    </div>
+                    <h2 className="text-6xl md:text-8xl font-bold text-foreground tracking-tighter italic leading-[0.9] mb-8">
+                        How It <br />
+                        <span className="text-primary">Works.</span>
                     </h2>
-                    <p className="text-slate-600 dark:text-slate-400 text-lg">
-                        We've simplified the scholarship process so you can focus on your education, not paperwork.
+                    <p className="text-muted-foreground text-lg italic leading-relaxed">
+                        Getting funded shouldn't be a struggle. Follow our simple roadmap to secure your scholarship.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative">
-                    {/* Connecting dashed line (visible on desktop) */}
-                    <div className="hidden lg:block absolute top-12 left-[10%] right-[10%] h-[2px] bg-gradient-to-r from-transparent via-slate-300 dark:via-white/10 to-transparent border-t-2 border-dashed border-slate-300 dark:border-white/20 -z-10" />
+                <div className="relative space-y-4">
+                    {milestones.map((milestone, idx) => {
+                        const isEven = idx % 2 === 0;
 
-                    {steps.map((step, idx) => (
-                        <div key={idx} className="relative group perspective-1000">
-                            {/* Step Number Badge */}
-                            <div className="absolute -top-4 -left-4 w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 flex items-center justify-center font-black text-slate-900 dark:text-white text-lg z-20 shadow-xl group-hover:scale-110 transition-transform duration-300">
-                                {idx + 1}
+                        return (
+                            <div key={idx} className="relative h-[250px] flex items-center justify-center">
+                                <motion.div 
+                                    initial={{ opacity: 0, x: isEven ? 100 : -100 }}
+                                    whileInView={{ opacity: 1, x: isEven ? 260 : -260 }}
+                                    viewport={{ once: false, margin: "-50px" }}
+                                    transition={{ duration: 0.6, type: "spring", bounce: 0.2 }}
+                                    className={cn(
+                                        "absolute w-full max-w-[380px] p-6 bg-background/90 backdrop-blur-xl border border-border group",
+                                        "hover:border-primary/50 transition-all duration-300"
+                                    )}
+                                >
+                                    <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary/40" />
+                                    <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary/40" />
+
+                                    <div className="text-primary font-bold text-[8px] uppercase tracking-[0.4em] mb-4 italic">
+                                        {milestone.badge}
+                                    </div>
+
+                                    <div className="flex items-start gap-5">
+                                        <div className="w-10 h-10 border border-border bg-background flex items-center justify-center shrink-0">
+                                            <milestone.icon className="w-5 h-5 text-foreground group-hover:text-primary transition-colors" />
+                                        </div>
+                                        <div className="space-y-3">
+                                            <h3 className="text-xl font-bold text-foreground italic tracking-tight">
+                                                {milestone.title}
+                                            </h3>
+                                            <p className="text-muted-foreground text-[13px] leading-relaxed italic">
+                                                {milestone.description}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className={cn(
+                                        "absolute top-1/2 -translate-y-1/2 w-16 h-px bg-primary/20",
+                                        isEven ? "-left-16" : "-right-16"
+                                    )} />
+                                </motion.div>
                             </div>
+                        );
+                    })}
+                </div>
 
-                            <div className="h-full bg-slate-50 dark:bg-slate-900/50 backdrop-blur-sm border border-slate-200 dark:border-white/5 rounded-3xl p-8 hover:bg-white dark:hover:bg-slate-800/50 transition-colors duration-500 relative overflow-hidden shadow-sm dark:shadow-none hover:shadow-lg dark:hover:shadow-none">
-                                {/* Hover Gradient Background */}
-                                <div className={`absolute inset-0 bg-gradient-to-br transition-opacity duration-500 ${step.color} opacity-0 group-hover:opacity-[0.03] dark:group-hover:opacity-5`} />
-                                
-                                {/* Icon container */}
-                                <div className={`w-16 h-16 rounded-2xl mb-6 flex items-center justify-center bg-gradient-to-br transition-transform duration-500 shadow-sm border border-slate-200 dark:border-white/10 group-hover:scale-110 group-hover:-rotate-3 ${step.color} bg-opacity-10 dark:shadow-lg dark:${step.shadow}`}>
-                                    <step.icon className="w-8 h-8 text-slate-700 dark:text-white mix-blend-overlay dark:mix-blend-normal opacity-80 dark:opacity-100" />
-                                </div>
-
-                                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 tracking-tight">
-                                    {step.title}
-                                </h3>
-                                <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed">
-                                    {step.description}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
+                {/* Bottom Call to Action - Compact */}
+                <div className="mt-24 text-center">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        className="p-8 border border-primary/20 bg-primary/5 inline-block"
+                    >
+                        <h4 className="text-3xl font-bold italic tracking-tighter mb-6">Start Your Journey</h4>
+                        <button className="h-14 px-10 bg-primary text-primary-foreground font-bold italic hover:scale-105 transition-all text-sm uppercase tracking-widest">
+                            Get Your Scholarship Match
+                        </button>
+                    </motion.div>
                 </div>
             </div>
+
         </section>
     );
 }

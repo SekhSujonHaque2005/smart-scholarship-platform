@@ -1,0 +1,71 @@
+name: Deploy to Google Cloud Run
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  REGION: us-central1 # Change to your preferred region
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCP
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      # 1. Build and Deploy Backend
+      - name: Build and Push Backend
+        run: |
+          docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/backend:${{ github.sha }} ./backend
+          docker push us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/backend:${{ github.sha }}
+
+      - name: Deploy Backend to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: scholarhub-backend
+          image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/scholarhub/backend:${{ github.sha }}
+          region: ${{ env.REGION }}
+          env_vars: |
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            JWT_SECRET=${{ secrets.JWT_SECRET }}
+            NODE_ENV=production
+
+      # 2. Build and Deploy AI Service
+      - name: Build and Push AI Service
+        run: |
+          docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/ai-service:${{ github.sha }} ./ai_service
+          docker push us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/ai-service:${{ github.sha }}
+
+      - name: Deploy AI Service to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: scholarhub-ai-service
+          image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/scholarhub/ai-service:${{ github.sha }}
+          region: ${{ env.REGION }}
+
+      # 3. Build and Deploy Frontend
+      - name: Build and Push Frontend
+        run: |
+          docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/frontend:${{ github.sha }} ./frontend
+          docker push us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/frontend:${{ github.sha }}
+
+      - name: Deploy Frontend to Cloud Run
+        uses: google-github-actions/deploy-cloudrun@v2
+        with:
+          service: scholarhub-frontend
+          image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/scholarhub/frontend:${{ github.sha }}
+          region: ${{ env.REGION }}

@@ -1,99 +1,137 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
-import { useRef } from 'react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ScholarHubLogo } from '@/components/ui/logo';
+import { Github, Twitter, Linkedin, ArrowUpRight } from 'lucide-react';
+
+const RotatingCurvedText = () => {
+    return (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] pointer-events-none opacity-[0.03] select-none">
+            <motion.svg
+                animate={{ rotate: 360 }}
+                transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+                viewBox="0 0 300 300"
+                className="w-full h-full"
+            >
+                <path
+                    id="circlePath"
+                    d="M 150, 150 m -120, 0 a 120,120 0 0,1 240,0 a 120,120 0 0,1 -240,0"
+                    fill="none"
+                />
+                <text className="fill-foreground font-bold italic uppercase text-[12px] tracking-[1.2em]">
+                    <textPath href="#circlePath">
+                        SCHOLARHUB — INDIA'S SMARTEST SCHOLARSHIP MARKETPLACE — DESIGNED FOR EXCELLENCE — 
+                    </textPath>
+                </text>
+            </motion.svg>
+        </div>
+    );
+};
 
 export default function Footer() {
-    const containerRef = useRef<HTMLElement>(null);
-    const { scrollYProgress } = useScroll({
-        target: containerRef,
-        offset: ["start end", "end end"]
-    });
-
-    // Animate the text sliding along the curve
-    const textOffset = useTransform(scrollYProgress, [0, 1], ["40%", "50%"]);
-    // Parallax the whole SVG up slightly
-    const yOffset = useTransform(scrollYProgress, [0, 1], [50, 0]);
-
     return (
-        <footer ref={containerRef} className="relative bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300 overflow-hidden border-t border-slate-200 dark:border-white/10 pt-16">
-            {/* Massive Brand Typography with Curved SVG textPath */}
-            <motion.div style={{ y: yOffset }} className="w-full flex justify-center px-4 md:px-8 mb-12 relative z-10 group pb-4">
-                {/* SVG ensures the text scales perfectly edge-to-edge across all screen sizes. Expanded viewBox prevents cutoff. */}
-                <svg className="w-full h-auto" viewBox="0 0 1400 300" preserveAspectRatio="xMidYMid meet">
-                    {/* Define the curve explicitly to fit inside the 1400px box. */}
-                    <path id="footerCurve" d="M 50 250 Q 700 80 1350 250" fill="transparent" />
-                    
-                    <motion.text 
-                        className="text-[170px] font-black font-sans tracking-tighter fill-transparent stroke-slate-300 dark:stroke-white/20 stroke-[3px] group-hover:fill-slate-200 dark:group-hover:fill-white/10 transition-colors duration-1000 ease-out pointer-events-none uppercase"
-                    >
-                        <motion.textPath href="#footerCurve" textAnchor="middle" style={{ startOffset: textOffset } as any}>
-                            ScholarHub
-                        </motion.textPath>
-                    </motion.text>
-                    
-                    <motion.text 
-                        className="text-[170px] font-black font-sans tracking-tighter fill-slate-900 dark:fill-white group-hover:fill-blue-600 dark:group-hover:fill-blue-500 transition-colors duration-1000 ease-out pointer-events-none uppercase [clip-path:polygon(0_50%,100%_50%,100%_100%,0_100%)]"
-                    >
-                        <motion.textPath href="#footerCurve" textAnchor="middle" style={{ startOffset: textOffset } as any}>
-                            ScholarHub
-                        </motion.textPath>
-                    </motion.text>
-                </svg>
-            </motion.div>
+        <footer className="relative bg-background text-foreground overflow-hidden border-t border-border pt-32 pb-12">
+            
+            {/* Curved Animated Background Text */}
+            <RotatingCurvedText />
 
             <div className="max-w-7xl mx-auto px-6 relative z-10">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+                
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-32">
                     <div className="col-span-1 md:col-span-1">
-                        <div className="flex items-center mb-6">
-                            <ScholarHubLogo className="w-8 h-8 md:w-10 md:h-10" />
+                        <div className="flex items-center mb-10">
+                            <ScholarHubLogo className="w-12 h-12" />
                         </div>
-                        <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed max-w-xs">
-                            India's smartest scholarship marketplace. Connecting ambitious students with verified institutional funding.
+                        <p className="text-muted-foreground text-lg leading-relaxed italic max-w-xs border-l border-primary/20 pl-6">
+                            Architecting the next generation of student funding. Zero-fault infrastructure for scholars.
                         </p>
                     </div>
 
                     <div>
-                        <h4 className="text-slate-900 dark:text-white font-bold mb-6 tracking-wide">Students</h4>
-                        <ul className="space-y-4">
-                            <li><Link href="/scholarships" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white hover:translate-x-1 inline-block transition-all text-sm font-medium">Browse Scholarships</Link></li>
-                            <li><Link href="/register" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white hover:translate-x-1 inline-block transition-all text-sm font-medium">Create Account</Link></li>
-                            <li><Link href="/login" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white hover:translate-x-1 inline-block transition-all text-sm font-medium">Sign In</Link></li>
+                        <div className="text-primary font-bold mb-10 tracking-[0.4em] uppercase text-[10px] italic">RESOURCES</div>
+                        <ul className="space-y-6">
+                            {[
+                                { name: "Scholarships", href: "/scholarships" },
+                                { name: "Success Stories", href: "/stories" },
+                                { name: "AI Matcher", href: "/matcher" }
+                            ].map((link) => (
+                                <li key={link.name}>
+                                    <Link href={link.href} className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all text-base font-bold italic uppercase tracking-tighter">
+                                        {link.name}
+                                        <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     <div>
-                        <h4 className="text-slate-900 dark:text-white font-bold mb-6 tracking-wide">Providers</h4>
-                        <ul className="space-y-4">
-                            <li><Link href="/register" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white hover:translate-x-1 inline-block transition-all text-sm font-medium">Post a Scholarship</Link></li>
-                            <li><Link href="/login" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white hover:translate-x-1 inline-block transition-all text-sm font-medium">Provider Portal</Link></li>
-                            <li><Link href="/verification" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white hover:translate-x-1 inline-block transition-all text-sm font-medium">Verification Process</Link></li>
+                        <div className="text-primary font-bold mb-10 tracking-[0.4em] uppercase text-[10px] italic">ENTERPRISE</div>
+                        <ul className="space-y-6">
+                            {[
+                                { name: "Provider Portal", href: "/login" },
+                                { name: "Verification", href: "/verification" },
+                                { name: "API Docs", href: "/docs" }
+                            ].map((link) => (
+                                <li key={link.name}>
+                                    <Link href={link.href} className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all text-base font-bold italic uppercase tracking-tighter">
+                                        {link.name}
+                                        <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
                     <div>
-                        <h4 className="text-slate-900 dark:text-white font-bold mb-6 tracking-wide">Legal & Company</h4>
-                        <ul className="space-y-4">
-                            <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white hover:translate-x-1 inline-block transition-all text-sm font-medium">About Us</Link></li>
-                            <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white hover:translate-x-1 inline-block transition-all text-sm font-medium">Privacy Policy</Link></li>
-                            <li><Link href="#" className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-white hover:translate-x-1 inline-block transition-all text-sm font-medium">Terms of Service</Link></li>
+                        <div className="text-primary font-bold mb-10 tracking-[0.4em] uppercase text-[10px] italic">NETWORK</div>
+                        <ul className="space-y-6">
+                            {[
+                                { name: "About Enclave", href: "/about" },
+                                { name: "Privacy Node", href: "/privacy" },
+                                { name: "Contact Support", href: "/contact" }
+                            ].map((link) => (
+                                <li key={link.name}>
+                                    <Link href={link.href} className="group flex items-center gap-2 text-muted-foreground hover:text-foreground transition-all text-base font-bold italic uppercase tracking-tighter">
+                                        {link.name}
+                                        <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-primary" />
+                                    </Link>
+                                </li>
+                            ))}
                         </ul>
                     </div>
                 </div>
 
-                <div className="border-t border-slate-200 dark:border-white/10 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
-                    <p className="text-slate-500 text-sm font-medium">
-                        © {new Date().getFullYear()} ScholarHub. All rights reserved.
-                    </p>
-                    <div className="flex gap-6">
-                        <Link href="#" className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">Twitter</Link>
-                        <Link href="#" className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">LinkedIn</Link>
-                        <Link href="#" className="text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">Instagram</Link>
+                <div className="border-t border-border pt-12 flex flex-col md:flex-row items-center justify-between gap-8">
+                    <div className="flex items-center gap-6">
+                        <p className="text-muted-foreground text-[11px] font-bold italic tracking-wider">
+                            © {new Date().getFullYear()} SCHOLARHUB ARCHITECTURE.
+                        </p>
+                        <div className="w-px h-4 bg-border hidden md:block" />
+                        <p className="text-muted-foreground text-[11px] font-bold italic uppercase tracking-widest hidden md:block">
+                            System Status: Active
+                        </p>
+                    </div>
+                    
+                    <div className="flex gap-10">
+                        {[
+                            { icon: Twitter, name: "Twitter" },
+                            { icon: Github, name: "GitHub" },
+                            { icon: Linkedin, name: "LinkedIn" }
+                        ].map((social) => (
+                            <Link key={social.name} href="#" className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-all font-bold text-[10px] uppercase tracking-[0.3em] italic group">
+                                <social.icon size={14} className="group-hover:scale-110 transition-transform" />
+                                <span className="hidden sm:inline">{social.name}</span>
+                            </Link>
+                        ))}
                     </div>
                 </div>
             </div>
+
+            {/* Final Background Accents */}
+            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
         </footer>
     );
 }

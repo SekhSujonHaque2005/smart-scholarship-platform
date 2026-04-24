@@ -14,6 +14,7 @@ import { Notifications } from '@/components/dashboard/Notifications';
 import { NotificationsDropdown } from '@/components/dashboard/NotificationsDropdown';
 import { ProfileDropdown } from '@/components/dashboard/ProfileDropdown';
 import { motion, AnimatePresence } from 'framer-motion';
+import { OrbitalLoader } from '@/components/ui/orbital-loader';
 import { Badge } from '@/components/ui/badge';
 import { 
   Bell, 
@@ -71,6 +72,7 @@ export default function StudentDashboard() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showProfile, setShowProfile] = useState(false);
+  const hasFetched = useRef(false);
 
   useEffect(() => {
     setMounted(true);
@@ -115,12 +117,17 @@ export default function StudentDashboard() {
         setProfileStrength(profileRes.data.profileStrength || 0);
         setMissingFields(profileRes.data.missingFields || []);
         
-        // Update global store with latest profile info
+        // Update global store only if data has actually changed to prevent loops
         if (profileRes.data.profile) {
-          updateUser({
-            name: profileRes.data.profile.name,
-            profilePicture: profileRes.data.profilePicture
-          });
+          const newName = profileRes.data.profile.name;
+          const newPic = profileRes.data.profilePicture;
+          
+          if (newName !== user?.name || newPic !== user?.profilePicture) {
+            updateUser({
+              name: newName,
+              profilePicture: newPic
+            });
+          }
         }
 
         // Fetch student-specific data separately (requires STUDENT role)
@@ -148,7 +155,8 @@ export default function StudentDashboard() {
       }
     };
     
-    if (isAuthenticated && user?.role === 'STUDENT') {
+    if (isAuthenticated && user?.role?.toUpperCase() === 'STUDENT' && !hasFetched.current) {
+      hasFetched.current = true;
       fetchData();
     }
   }, [isAuthenticated, user?.role]);
@@ -187,10 +195,12 @@ export default function StudentDashboard() {
     // Only redirect to login if BOTH stores say we are unauthenticated
     if (!isAuthenticated && sessionStatus === 'unauthenticated') {
       router.push('/login');
-    } else if (isAuthenticated && user?.role && user.role !== 'STUDENT') {
-      // Redirect to correct dashboard based on role
+    } else if (isAuthenticated && user?.role && user.role.toUpperCase() !== 'STUDENT') {
+      // Only redirect if they are on the WRONG dashboard
       const dashboardPath = `/dashboard/${user.role.toLowerCase()}`;
-      router.push(dashboardPath);
+      if (window.location.pathname !== dashboardPath) {
+        router.push(dashboardPath);
+      }
     }
   }, [isAuthenticated, user?.role, router, isHydrated, sessionStatus]);
 
@@ -198,6 +208,14 @@ export default function StudentDashboard() {
     logout();
     signOut({ callbackUrl: '/login' });
   };
+
+  if (!isHydrated || sessionStatus === 'loading') {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+        <OrbitalLoader message="Establishing Secure Session" />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) return null;
 

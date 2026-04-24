@@ -10,11 +10,10 @@ import FAQ from '@/components/landing/FAQ';
 import FinalCTA from '@/components/landing/FinalCTA';
 import NewsletterAlerts from '@/components/landing/NewsletterAlerts';
 import Footer from '@/components/landing/Footer';
-import { SpotlightBackground } from '@/components/ui/spotlight-background';
 
 export default function LandingPage() {
     return (
-        <SpotlightBackground gridSize={64} spotlightColor="56, 189, 248" spotlightSize={440}>
+        <main className="min-h-screen">
             <Navbar />
             <Hero />
             <HowItWorks />
@@ -27,6 +26,6 @@ export default function LandingPage() {
             <FinalCTA />
             <NewsletterAlerts />
             <Footer />
-        </SpotlightBackground>
+        </main>
     );
 }

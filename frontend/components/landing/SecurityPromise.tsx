@@ -1,71 +1,74 @@
+'use client';
+
 import React from 'react';
-import { Lock, FileKey, ShieldAlert, Fingerprint } from 'lucide-react';
+import { Lock, FileKey, ShieldAlert, Fingerprint, Terminal, Zap, ShieldCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function SecurityPromise() {
   return (
-    <section className="py-24 relative overflow-hidden bg-slate-50 dark:bg-slate-900 border-y border-slate-200 dark:border-white/[0.05] transition-colors duration-500">
-      {/* Background Graphic */}
-      <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-emerald-100/50 dark:from-emerald-500/5 to-transparent pointer-events-none" />
+    <section className="py-20 relative overflow-hidden bg-background border-b border-border">
       
-      <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center gap-16">
+      {/* Background Grid Accent */}
+      <div className="absolute top-1/2 left-0 w-full h-px bg-primary/5 -translate-y-1/2" />
+      <div className="absolute top-0 left-1/2 w-px h-full bg-primary/5 -translate-x-1/2" />
+
+      <div className="max-w-7xl mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-center gap-16 md:gap-24">
         
-        <div className="lg:w-1/2">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-100 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold uppercase tracking-widest mb-6">
-            <Lock size={14} />
-            Enterprise-Grade Security
-          </div>
-          <h2 className="text-3xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight mb-6 leading-tight">
-            Your data is strictly <br />
-            yours. Always.
+        <div className="lg:w-1/2 text-left">
+          <h2 className="text-5xl md:text-8xl font-bold text-foreground tracking-tighter italic leading-[0.85] mb-10 uppercase">
+            Your data is <br />
+            strictly <span className="text-primary">yours.</span>
           </h2>
-          <p className="text-slate-600 dark:text-slate-400 text-lg mb-8 leading-relaxed">
-            Applying for scholarships requires sensitive personal and financial data. We built ScholarHub with bank-level encryption to ensure your profile is 100% secure. We never sell your data, and it is only shared with the specific scholarship providers you choose to apply to.
+          <p className="text-muted-foreground text-xl leading-relaxed max-w-xl mb-12 border-l border-primary/20 pl-8">
+            Your privacy comes first. We use industry-standard security to keep your personal information safe, private, and protected.
           </p>
 
-          <div className="flex flex-col gap-6">
-            <div className="flex items-start gap-4">
-              <div className="mt-1 w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-500/10 flex items-center justify-center shrink-0">
-                <FileKey size={18} className="text-emerald-600 dark:text-emerald-400" />
+          <div className="grid sm:grid-cols-2 gap-0 border border-border">
+            <div className="p-10 space-y-6 border-b sm:border-b-0 sm:border-r border-border group hover:bg-secondary/10 transition-all">
+              <div className="w-12 h-12 border border-border bg-background flex items-center justify-center group-hover:border-primary transition-all">
+                <FileKey size={20} className="text-foreground group-hover:text-primary transition-colors" />
               </div>
               <div>
-                <h4 className="text-slate-900 dark:text-white font-bold mb-1">End-to-End Encryption</h4>
-                <p className="text-slate-600 dark:text-slate-500 text-sm">All uploaded documents (income certificates, IDs) are encrypted at rest using AES-256 standards.</p>
+                <h4 className="text-2xl font-bold text-foreground tracking-tight uppercase mb-2">Secure Storage</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">All your uploaded documents are encrypted and stored safely.</p>
               </div>
             </div>
-            <div className="flex items-start gap-4">
-              <div className="mt-1 w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-500/10 flex items-center justify-center shrink-0">
-                <ShieldAlert size={18} className="text-blue-600 dark:text-blue-400" />
+            <div className="p-10 space-y-6 group hover:bg-secondary/10 transition-all">
+              <div className="w-12 h-12 border border-border bg-background flex items-center justify-center group-hover:border-primary transition-all">
+                <ShieldAlert size={20} className="text-foreground group-hover:text-primary transition-colors" />
               </div>
               <div>
-                <h4 className="text-slate-900 dark:text-white font-bold mb-1">No Data Brokers</h4>
-                <p className="text-slate-600 dark:text-slate-500 text-sm">We are funded by institutional partners. Your inbox won't be flooded with college spam or third-party marketing.</p>
+                <h4 className="text-2xl font-bold text-foreground tracking-tight uppercase mb-2">100% Private</h4>
+                <p className="text-muted-foreground text-sm leading-relaxed">We never sell your data. It is used only to help you apply for scholarships.</p>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Visual Trust Graphic */}
-        <div className="lg:w-1/2 w-full relative">
-          <div className="aspect-square max-w-md mx-auto relative flex items-center justify-center">
-            {/* Pulsing rings */}
-            <div className="absolute inset-0 rounded-full border border-emerald-300 dark:border-emerald-500/20 animate-ping opacity-20 dark:opacity-20" style={{ animationDuration: '3s' }} />
-            <div className="absolute inset-8 rounded-full border border-emerald-300 dark:border-emerald-500/30 animate-[spin_10s_linear_infinite]" />
-            <div className="absolute inset-16 rounded-full border border-dashed border-emerald-300 dark:border-emerald-500/30 animate-[spin_15s_linear_infinite_reverse]" />
+        <div className="lg:w-1/2 w-full">
+          <div className="aspect-square max-w-md mx-auto relative flex items-center justify-center border border-border bg-secondary/5 group overflow-hidden">
             
-            {/* Central Shield */}
-            <div className="w-32 h-32 rounded-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 shadow-[0_0_50px_rgba(16,185,129,0.1)] dark:shadow-[0_0_50px_rgba(16,185,129,0.2)] flex items-center justify-center relative z-20 group">
-               <div className="absolute inset-0 rounded-full bg-emerald-100/50 dark:bg-emerald-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-               <Fingerprint size={50} className="text-emerald-500 dark:text-emerald-400" />
+            {/* Architectural Accent Grid */}
+            <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 opacity-10">
+                {Array.from({ length: 64 }).map((_, i) => (
+                    <div key={i} className="border border-border/20" />
+                ))}
             </div>
 
-            {/* Floating badges */}
-            <div className="absolute top-[20%] right-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 px-4 py-2 rounded-xl shadow-xl flex items-center gap-2 animate-[float_4s_ease-in-out_infinite]">
-                <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                <span className="text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider">SSL Secure</span>
+            {/* Visual focus element */}
+            <div className="relative w-48 h-48 bg-background border border-border flex items-center justify-center group">
+               <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+               <Fingerprint size={80} className="text-foreground opacity-30 group-hover:text-primary group-hover:opacity-100 transition-all" />
+               
+               {/* Corner Markers */}
+               <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-primary/40" />
+               <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-primary/40" />
             </div>
-            <div className="absolute bottom-[20%] left-0 bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 px-4 py-2 rounded-xl shadow-xl flex items-center gap-2 animate-[float_5s_ease-in-out_1s_infinite]">
-                <div className="w-2 h-2 rounded-full bg-blue-500" />
-                <span className="text-slate-700 dark:text-slate-300 text-xs font-bold uppercase tracking-wider">ISO Compliant</span>
+            
+            {/* Status indicators simplified */}
+            <div className="absolute top-10 right-10 bg-background border border-border px-4 py-2 flex items-center gap-3">
+                <div className="w-2 h-2 bg-primary animate-pulse" />
+                <span className="text-foreground text-[10px] font-bold uppercase tracking-widest">Secure Storage</span>
             </div>
           </div>
         </div>

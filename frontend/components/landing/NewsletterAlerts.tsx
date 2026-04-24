@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { BellRing, Mail, CheckCircle2 } from 'lucide-react';
+import { BellRing, Mail, CheckCircle2, Send, Zap } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export default function NewsletterAlerts() {
   const [email, setEmail] = useState('');
@@ -41,67 +42,75 @@ export default function NewsletterAlerts() {
   };
 
   return (
-    <section className="py-20 relative bg-slate-50 dark:bg-slate-950 border-t border-slate-200 dark:border-white/[0.05] transition-colors duration-500">
-      <div className="max-w-4xl mx-auto px-6 relative z-10">
-        <div className="bg-white dark:bg-slate-900 border border-indigo-100 dark:border-indigo-500/20 rounded-[2rem] p-8 md:p-12 relative overflow-hidden shadow-[0_0_40px_rgba(79,70,229,0.05)] dark:shadow-[0_0_40px_rgba(79,70,229,0.1)]">
+    <section className="py-32 relative bg-background border-b border-border overflow-hidden">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        <div className="border border-border p-12 md:p-24 relative overflow-hidden bg-secondary/5">
           
-          {/* Subtle glowing orb inside the card */}
-          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 dark:bg-indigo-500/20 blur-[80px] rounded-full pointer-events-none" />
+          <div className="absolute top-0 right-0 p-8 opacity-[0.03]">
+            <Zap size={200} />
+          </div>
 
-          <div className="flex flex-col md:flex-row items-center justify-between gap-10 relative z-10">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-20 relative z-10 text-left">
             
-            <div className="flex-1 text-center md:text-left">
-              <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 mb-6 shadow-[0_0_15px_rgba(99,102,241,0.1)] dark:shadow-[0_0_15px_rgba(99,102,241,0.3)] border border-indigo-100 dark:border-indigo-500/30">
-                <BellRing className="w-6 h-6 animate-[wiggle_2s_ease-in-out_infinite]" />
+            <div className="flex-1">
+              <div className="w-12 h-12 border border-border bg-background flex items-center justify-center mb-10 group-hover:border-primary transition-all">
+                <BellRing className="w-5 h-5 text-primary" />
               </div>
               
-              <h3 className="text-2xl md:text-3xl font-black text-slate-900 dark:text-white tracking-tight mb-3">
-                Not ready to build a profile yet?
+              <h3 className="text-6xl md:text-7xl font-serif font-extrabold text-foreground tracking-tighter mb-8 leading-none">
+                Get new <br /> 
+                <span className="text-primary italic">scholarship alerts.</span>
               </h3>
-              <p className="text-slate-600 dark:text-indigo-100/70 text-base max-w-md mx-auto md:mx-0">
-                Drop your email to get weekly alerts on the top 5 newest scholarships available for Indian students. No spam, ever.
+              <p className="text-muted-foreground text-xl leading-relaxed max-w-lg border-l border-primary/20 pl-8 font-sans">
+                Join thousands of students who receive the best scholarship matches directly in their inbox every week.
               </p>
             </div>
 
-            <div className="w-full md:w-[400px] shrink-0">
+            <div className="w-full lg:w-[450px] shrink-0">
               {subscribed ? (
-                <div className="bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/20 rounded-2xl p-6 flex flex-col items-center justify-center text-center animate-in fade-in zoom-in duration-500">
-                  <CheckCircle2 className="w-12 h-12 text-emerald-500 dark:text-emerald-400 mb-3" />
-                  <h4 className="text-emerald-700 dark:text-emerald-400 font-bold text-lg">You're on the list!</h4>
-                  <p className="text-emerald-600 dark:text-emerald-400/70 text-sm">Keep an eye on your inbox for upcoming scholarship alerts.</p>
-                </div>
+                <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="border border-primary/20 bg-primary/5 p-12 flex flex-col items-center justify-center text-center space-y-6"
+                >
+                  <div className="w-16 h-16 border border-primary flex items-center justify-center bg-background">
+                    <CheckCircle2 className="w-8 h-8 text-primary" />
+                  </div>
+                  <h4 className="text-foreground font-bold text-2xl uppercase tracking-tighter">You're Subscribed!</h4>
+                  <p className="text-muted-foreground text-lg leading-snug">We'll send the latest scholarships to your email soon.</p>
+                </motion.div>
               ) : (
-                <form onSubmit={handleSubmit} className="relative flex flex-col gap-3">
-                  <div className="relative group">
-                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                      <Mail className="h-5 w-5 text-slate-400 dark:text-indigo-400/50 group-focus-within:text-indigo-600 dark:group-focus-within:text-indigo-400 transition-colors" />
-                    </div>
+                <form onSubmit={handleSubmit} className="flex flex-col gap-0 border border-border shadow-2xl">
+                  <div className="relative border-b border-border">
                     <input
                       type="email"
                       required
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
-                      className="block w-full pl-11 pr-4 py-4 bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-indigo-500/30 rounded-2xl text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-indigo-200/30 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-transparent transition-all shadow-sm dark:shadow-[inset_0_2px_10px_rgba(0,0,0,0.2)] disabled:opacity-50"
+                      placeholder="Enter your email"
+                      className="w-full h-24 px-10 bg-background text-foreground font-bold text-lg placeholder:text-muted-foreground/30 focus:outline-none focus:bg-secondary/50 transition-all tracking-wide"
                       disabled={loading}
                     />
+                    <div className="absolute right-8 top-1/2 -translate-y-1/2 opacity-20">
+                        <Mail size={24} />
+                    </div>
                   </div>
                   
-                  {error && (
-                    <p className="text-red-500 dark:text-red-400 text-sm text-center font-medium animate-in fade-in">{error}</p>
-                  )}
-
                   <button 
                     type="submit"
                     disabled={loading}
-                    className="w-full py-4 bg-indigo-600 hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-400 disabled:bg-indigo-400 dark:disabled:bg-indigo-500/50 disabled:cursor-not-allowed text-white font-bold rounded-2xl transition-all shadow-md dark:shadow-[0_0_20px_rgba(99,102,241,0.4)] disabled:shadow-none flex items-center justify-center gap-2 group"
+                    className="h-24 bg-primary text-primary-foreground font-bold text-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-4 relative group overflow-hidden"
                   >
-                    {loading ? 'Subscribing...' : 'Subscribe to Alerts'}
-                    {!loading && <BellRing className="w-4 h-4 group-hover:rotate-12 transition-transform" />}
+                    <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary-foreground/30" />
+                    {loading ? 'SENDING...' : 'JOIN NEWSLETTER'}
+                    <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
                   </button>
-                  <p className="text-center text-[11px] text-slate-500 uppercase tracking-widest mt-2">
-                    Unsubscribe at any time
-                  </p>
+
+                  {error && (
+                    <div className="p-4 bg-destructive/10 text-destructive text-[11px] font-bold border-t border-destructive/20 text-center uppercase tracking-widest">
+                        {error}
+                    </div>
+                  )}
                 </form>
               )}
             </div>

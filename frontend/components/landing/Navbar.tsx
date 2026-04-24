@@ -16,21 +16,13 @@ import {
     BookOpen,
     GraduationCap,
     Search,
-    Star,
     Building2,
     ShieldCheck,
     Zap,
-    Bell,
-    BarChart3,
-    PenSquare,
-    FileText,
-    Megaphone,
-    BookMarked,
     ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
-import { NeonButton } from "@/components/ui/neon-button";
 
 export default function ResizableNavbar() {
     const navItems = [
@@ -41,26 +33,14 @@ export default function ResizableNavbar() {
                 {
                     name: "Browse All",
                     link: "/scholarships",
-                    description: "Explore thousands of scholarships from top providers",
+                    description: "Explore all verified grants",
                     icon: <Search size={16} />,
                 },
                 {
-                    name: "Recommended For You",
+                    name: "AI Matched",
                     link: "/scholarships/recommended",
-                    description: "AI-matched scholarships based on your profile",
-                    icon: <Star size={16} />,
-                },
-                {
-                    name: "By Category",
-                    link: "/scholarships/categories",
-                    description: "Merit, need-based, STEM, arts, and more",
-                    icon: <BookMarked size={16} />,
-                },
-                {
-                    name: "Apply Now",
-                    link: "/scholarships/apply",
-                    description: "Start or continue your scholarship application",
-                    icon: <GraduationCap size={16} />,
+                    description: "Tailored to your profile",
+                    icon: <Zap size={16} />,
                 },
             ],
         },
@@ -69,76 +49,34 @@ export default function ResizableNavbar() {
             link: "/providers",
             children: [
                 {
-                    name: "All Providers",
-                    link: "/providers",
-                    description: "Discover verified scholarship providers",
-                    icon: <Building2 size={16} />,
-                },
-                {
-                    name: "Verified Providers",
+                    name: "Verified",
                     link: "/providers/verified",
-                    description: "Only legitimate, background-checked organizations",
+                    description: "Trusted organizations only",
                     icon: <ShieldCheck size={16} />,
                 },
                 {
-                    name: "Provider Dashboard",
+                    name: "Submit Award",
                     link: "/providers/dashboard",
-                    description: "Manage your scholarships and applicants",
-                    icon: <BarChart3 size={16} />,
+                    description: "Post a new scholarship",
+                    icon: <Building2 size={16} />,
                 },
             ],
         },
         {
-            name: "Features",
-            link: "/#features",
+            name: "Resources",
+            link: "/community",
             children: [
                 {
-                    name: "AI Matching",
-                    link: "/#features",
-                    description: "Smart algorithm that finds your best scholarship fit",
-                    icon: <Zap size={16} />,
-                },
-                {
-                    name: "Real-Time Tracking",
-                    link: "/#features",
-                    description: "Track application status and get instant updates",
-                    icon: <Bell size={16} />,
-                },
-                {
-                    name: "Analytics Dashboard",
-                    link: "/#features",
-                    description: "Deep insights on your applications and progress",
-                    icon: <BarChart3 size={16} />,
-                },
-            ],
-        },
-        {
-            name: "Blogs",
-            link: "/blogs",
-            children: [
-                {
-                    name: "Write a Blog",
-                    link: "/blogs/new",
-                    description: "Share your scholarship journey and tips",
-                    icon: <PenSquare size={16} />,
-                },
-                {
-                    name: "Documentation",
-                    link: "/blogs/docs",
-                    description: "Guides, how-tos, and platform documentation",
-                    icon: <FileText size={16} />,
-                },
-                {
-                    name: "Announcements",
-                    link: "/blogs/announcements",
-                    description: "Latest updates and news from ScholarHub",
-                    icon: <Megaphone size={16} />,
-                },
-                {
-                    name: "All Articles",
-                    link: "/blogs",
-                    description: "Browse all community articles and posts",
+                    name: "Community",
+                    link: "/community",
+                    description: "Student stories and tips",
                     icon: <BookOpen size={16} />,
+                },
+                {
+                    name: "Guides",
+                    link: "/guides",
+                    description: "How to win awards",
+                    icon: <GraduationCap size={16} />,
                 },
             ],
         },
@@ -147,26 +85,24 @@ export default function ResizableNavbar() {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     return (
-        <div className="relative w-full">
+        <div className="relative w-full z-[100]">
             <Navbar>
-                {/* Desktop Navigation */}
-                <NavBody>
+                <NavBody className="rounded-none">
                     <NavbarLogo />
                     <NavItems items={navItems} />
-                    <div className="flex shrink-0 items-center justify-center gap-2 whitespace-nowrap">
+                    <div className="flex shrink-0 items-center justify-center gap-3">
                         <AnimatedThemeToggler />
-                        <NavbarButton as={Link} href="/login" variant="ghost">Sign In</NavbarButton>
+                        <NavbarButton as={Link} href="/login" variant="ghost" className="italic rounded-none">Sign In</NavbarButton>
                         <Link href="/register">
-                            <NeonButton className="px-5 py-2 w-auto h-[38px] rounded-xl text-sm shadow-[1px_1px_5px_rgba(0,0,0,0.5),-1px_-1px_5px_rgba(255,255,255,0.05)]">
+                            <button className="px-6 py-2 bg-foreground text-background font-bold rounded-none text-sm italic hover:bg-foreground/90 transition-all">
                                 Get Started
-                            </NeonButton>
+                            </button>
                         </Link>
                     </div>
                 </NavBody>
 
-                {/* Mobile Navigation */}
                 <MobileNav>
-                    <MobileNavHeader>
+                    <MobileNavHeader className="rounded-none">
                         <NavbarLogo />
                         <MobileNavToggle
                             isOpen={isMobileMenuOpen}
@@ -177,43 +113,30 @@ export default function ResizableNavbar() {
                     <MobileNavMenu
                         isOpen={isMobileMenuOpen}
                         onClose={() => setIsMobileMenuOpen(false)}
+                        className="rounded-none"
                     >
                         {navItems.map((item, idx) => (
                             <div key={`mobile-section-${idx}`} className="w-full">
-                                {item.children && item.children.length > 0 ? (
-                                    <MobileDropdownSection
-                                        item={item}
-                                        onClose={() => setIsMobileMenuOpen(false)}
-                                    />
-                                ) : (
-                                    <a
-                                        href={item.link}
-                                        onClick={() => setIsMobileMenuOpen(false)}
-                                        className="relative text-slate-300 hover:text-white py-2 block"
-                                    >
-                                        {item.name}
-                                    </a>
-                                )}
+                                <MobileDropdownSection
+                                    item={item}
+                                    onClose={() => setIsMobileMenuOpen(false)}
+                                />
                             </div>
                         ))}
-                        <div className="flex w-full items-center justify-between mt-2 py-2 border-t border-slate-700">
-                            <span className="text-sm text-slate-400">Theme</span>
-                            <AnimatedThemeToggler />
-                        </div>
-                        <div className="flex w-full flex-col gap-4 mt-2">
+                        <div className="flex w-full flex-col gap-4 mt-6 pt-6 border-t border-border">
                             <NavbarButton
                                 as={Link}
                                 href="/login"
                                 onClick={() => setIsMobileMenuOpen(false)}
                                 variant="ghost"
-                                className="w-full border border-slate-700"
+                                className="w-full italic rounded-none"
                             >
                                 Sign In
                             </NavbarButton>
                             <Link href="/register" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
-                                <NeonButton className="w-full py-3 h-auto rounded-xl shadow-[1px_1px_5px_rgba(0,0,0,0.5),-1px_-1px_5px_rgba(255,255,255,0.05)] text-sm">
+                                <button className="w-full py-3 bg-foreground text-background font-bold rounded-none text-sm italic">
                                     Get Started
-                                </NeonButton>
+                                </button>
                             </Link>
                         </div>
                     </MobileNavMenu>
@@ -223,7 +146,6 @@ export default function ResizableNavbar() {
     );
 }
 
-// Mobile accordion dropdown section
 function MobileDropdownSection({
     item,
     onClose,
@@ -236,24 +158,23 @@ function MobileDropdownSection({
         <div className="w-full">
             <button
                 onClick={() => setOpen(!open)}
-                className="flex w-full items-center justify-between py-2 text-slate-300 hover:text-white transition-colors"
+                className="flex w-full items-center justify-between py-3 text-foreground hover:opacity-70 transition-all"
             >
-                <span className="font-medium">{item.name}</span>
+                <span className="font-bold italic">{item.name}</span>
                 <ChevronDown
                     size={16}
                     className={cn("transition-transform duration-200", open && "rotate-180")}
                 />
             </button>
             {open && (
-                <div className="ml-3 mt-1 border-l border-slate-700 pl-3 flex flex-col gap-1">
+                <div className="ml-4 flex flex-col gap-2">
                     {item.children?.map((child, cidx) => (
                         <Link
                             key={cidx}
                             href={child.link}
                             onClick={onClose}
-                            className="flex items-center gap-2 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                            className="flex items-center gap-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-all italic"
                         >
-                            {child.icon && <span className="text-blue-400">{child.icon}</span>}
                             {child.name}
                         </Link>
                     ))}

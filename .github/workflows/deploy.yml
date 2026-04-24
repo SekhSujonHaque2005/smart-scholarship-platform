@@ -7,7 +7,7 @@ on:
 
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-  REGION: us-central1 # Change to your preferred region
+  REGION: us-central1 
 
 jobs:
   deploy:
@@ -34,6 +34,7 @@ jobs:
           docker push us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/backend:${{ github.sha }}
 
       - name: Deploy Backend to Cloud Run
+        id: deploy-backend
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: scholarhub-backend
@@ -42,6 +43,14 @@ jobs:
           env_vars: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
+            JWT_REFRESH_SECRET=${{ secrets.JWT_REFRESH_SECRET }}
+            EMAIL_USER=${{ secrets.EMAIL_USER }}
+            EMAIL_PASS=${{ secrets.EMAIL_PASS }}
+            EMAIL_FROM=${{ secrets.EMAIL_FROM }}
+            CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }}
+            CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }}
+            CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }}
+            SCRAPER_KEY=${{ secrets.SCRAPER_KEY }}
             NODE_ENV=production
 
       # 2. Build and Deploy AI Service
@@ -56,11 +65,16 @@ jobs:
           service: scholarhub-ai-service
           image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/scholarhub/ai-service:${{ github.sha }}
           region: ${{ env.REGION }}
+          env_vars: |
+            HF_API_TOKEN=${{ secrets.HF_API_TOKEN }}
+            BACKEND_URL=${{ steps.deploy-backend.outputs.url }}/api
 
       # 3. Build and Deploy Frontend
       - name: Build and Push Frontend
         run: |
-          docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/frontend:${{ github.sha }} ./frontend
+          docker build \
+            --build-arg NEXT_PUBLIC_API_URL=${{ steps.deploy-backend.outputs.url }}/api \
+            -t us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/frontend:${{ github.sha }} ./frontend
           docker push us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/frontend:${{ github.sha }}
 
       - name: Deploy Frontend to Cloud Run
@@ -69,3 +83,9 @@ jobs:
           service: scholarhub-frontend
           image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/scholarhub/frontend:${{ github.sha }}
           region: ${{ env.REGION }}
+          env_vars: |
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            NEXT_PUBLIC_API_URL=${{ steps.deploy-backend.outputs.url }}/api
+            GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
+            GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
+            NODE_ENV=production

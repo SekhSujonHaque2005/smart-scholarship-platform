@@ -27,9 +27,11 @@ jobs:
       - name: Configure Docker for GCP
         run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
-      # 1. Build and Deploy Backend
+      # 1. Build and Deploy Backend (Including Scraper)
       - name: Build and Push Backend
         run: |
+          # Move scraper into backend context so Docker can see it
+          cp -r scraper_service backend/scraper_service
           docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/backend:${{ github.sha }} ./backend
           docker push us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/backend:${{ github.sha }}
 

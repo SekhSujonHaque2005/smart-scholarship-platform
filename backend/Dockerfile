@@ -33,7 +33,7 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/prisma ./prisma
 
-# Copy Scraper files
+# Copy Scraper files (Copied into backend context by CI)
 COPY --from=builder /app/scraper_service ./scraper_service
 
 # Install Python dependencies for the Scraper

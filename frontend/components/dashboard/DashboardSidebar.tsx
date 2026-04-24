@@ -19,7 +19,10 @@ import {
   Menu,
   X,
   HardDrive,
-  Heart
+  Heart,
+  TrendingUp,
+  Zap,
+  Activity
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Link from 'next/link';
@@ -205,10 +208,9 @@ export const DashboardSidebar = ({
           <SidebarItem
             icon={LayoutDashboard}
             label="Dashboard"
-            href="#"
-            active={activeTab === 'overview'}
+            href={user?.role === 'ADMIN' ? '/dashboard/admin' : user?.role === 'PROVIDER' ? '/dashboard/provider' : '/dashboard/student'}
+            active={pathname.includes('/dashboard')}
             collapsed={!isExpanded}
-            onClick={() => onTabChange?.('overview')}
           />
         </div>
 
@@ -222,85 +224,137 @@ export const DashboardSidebar = ({
                 exit={{ opacity: 0, height: 0 }}
                 className="px-4 mb-2 text-[10px] font-black text-sidebar-foreground/40 uppercase tracking-widest overflow-hidden"
               >
-                Workspaces
+                {user?.role === 'ADMIN' ? 'Management' : 'Workspaces'}
               </motion.div>
             )}
           </AnimatePresence>
-          <SidebarItem
-            icon={LayoutGrid}
-            label="Scholarships"
-            href="#"
-            active={activeTab === 'scholarships'}
-            collapsed={!isExpanded}
-            onClick={() => onTabChange?.('scholarships')}
-          />
-          <SidebarItem
-            icon={Database}
-            label="Applications"
-            href="#"
-            active={activeTab === 'applications'}
-            collapsed={!isExpanded}
-            onClick={() => onTabChange?.('applications')}
-          />
-          <SidebarItem
-            icon={HardDrive}
-            label="Vault"
-            href="#"
-            active={activeTab === 'vault'}
-            collapsed={!isExpanded}
-            onClick={() => onTabChange?.('vault')}
-          />
-          <SidebarItem
-            icon={Heart}
-            label="Wishlist"
-            href="#"
-            active={activeTab === 'wishlist'}
-            collapsed={!isExpanded}
-            onClick={() => onTabChange?.('wishlist')}
-          />
+          
+          {user?.role === 'ADMIN' ? (
+            <>
+              <SidebarItem
+                icon={User}
+                label="User Management"
+                href="/dashboard/admin/users"
+                active={pathname === '/dashboard/admin/users'}
+                collapsed={!isExpanded}
+              />
+              <SidebarItem
+                icon={LayoutGrid}
+                label="Scholarships"
+                href="/dashboard/admin/scholarships"
+                active={pathname === '/dashboard/admin/scholarships'}
+                collapsed={!isExpanded}
+              />
+              <SidebarItem
+                icon={TrendingUp}
+                label="AI Insights"
+                href="/dashboard/admin/ai-insights"
+                active={pathname === '/dashboard/admin/ai-insights'}
+                collapsed={!isExpanded}
+              />
+              <SidebarItem
+                icon={Zap}
+                label="Transactions"
+                href="/dashboard/admin/transactions"
+                active={pathname === '/dashboard/admin/transactions'}
+                collapsed={!isExpanded}
+              />
+              <SidebarItem
+                icon={Activity}
+                label="Audit Logs"
+                href="/dashboard/admin/logs"
+                active={pathname === '/dashboard/admin/logs'}
+                collapsed={!isExpanded}
+              />
+              <SidebarItem
+                icon={Settings}
+                label="Settings"
+                href="/dashboard/admin/settings"
+                active={pathname === '/dashboard/admin/settings'}
+                collapsed={!isExpanded}
+              />
+            </>
+          ) : (
+            <>
+              <SidebarItem
+                icon={LayoutGrid}
+                label="Scholarships"
+                href="#"
+                active={activeTab === 'scholarships'}
+                collapsed={!isExpanded}
+                onClick={() => onTabChange?.('scholarships')}
+              />
+              <SidebarItem
+                icon={Database}
+                label="Applications"
+                href="#"
+                active={activeTab === 'applications'}
+                collapsed={!isExpanded}
+                onClick={() => onTabChange?.('applications')}
+              />
+              <SidebarItem
+                icon={HardDrive}
+                label="Vault"
+                href="#"
+                active={activeTab === 'vault'}
+                collapsed={!isExpanded}
+                onClick={() => onTabChange?.('vault')}
+              />
+              {user?.role === 'STUDENT' && (
+                <SidebarItem
+                  icon={Heart}
+                  label="Wishlist"
+                  href="#"
+                  active={activeTab === 'wishlist'}
+                  collapsed={!isExpanded}
+                  onClick={() => onTabChange?.('wishlist')}
+                />
+              )}
+            </>
+          )}
         </div>
-
-
 
         {/* Account Section */}
-        <div className="space-y-1">
-          <AnimatePresence>
-            {isExpanded && (
-              <motion.div 
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="px-4 mb-2 text-[10px] font-black text-sidebar-foreground/40 uppercase tracking-widest overflow-hidden"
-              >
-                Account
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <SidebarItem
-            icon={User}
-            label="Profile"
-            href="#"
-            active={activeTab === 'profile'}
-            collapsed={!isExpanded}
-            onClick={() => onTabChange?.('profile')}
-          />
-          <SidebarItem
-            icon={Settings}
-            label="Settings"
-            href="#"
-            active={activeTab === 'settings'}
-            collapsed={!isExpanded}
-            onClick={() => onTabChange?.('settings')}
-          />
-          <SidebarItem
-            icon={Bell}
-            label="Notifications"
-            href="#"
-            active={activeTab === 'notifications'}
-            collapsed={!isExpanded}
-            onClick={() => onTabChange?.('notifications')}
-          />
-        </div>
+        {user?.role !== 'ADMIN' && (
+          <div className="space-y-1">
+            <AnimatePresence>
+              {isExpanded && (
+                <motion.div 
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="px-4 mb-2 text-[10px] font-black text-sidebar-foreground/40 uppercase tracking-widest overflow-hidden"
+                >
+                  Account
+                </motion.div>
+              )}
+            </AnimatePresence>
+            <SidebarItem
+              icon={User}
+              label="Profile"
+              href="#"
+              active={activeTab === 'profile'}
+              collapsed={!isExpanded}
+              onClick={() => onTabChange?.('profile')}
+            />
+            <SidebarItem
+              icon={Settings}
+              label="Settings"
+              href="#"
+              active={activeTab === 'settings'}
+              collapsed={!isExpanded}
+              onClick={() => onTabChange?.('settings')}
+            />
+            <SidebarItem
+              icon={Bell}
+              label="Notifications"
+              href="#"
+              active={activeTab === 'notifications'}
+              collapsed={!isExpanded}
+              onClick={() => onTabChange?.('notifications')}
+            />
+          </div>
+        )}
       </nav>
 
       <div className="mt-auto pt-4 border-t border-sidebar-border">

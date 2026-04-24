@@ -1,6 +1,7 @@
 const prisma = require('../lib/prisma');
 const { calculateMatchScore } = require('../utils/matching');
 const { getMatchScores } = require('../services/ai.service');
+const cache = require('../utils/cache');
 
 // GET ALL SCHOLARSHIPS (Public - with search & filter)
 const getAllScholarships = async (req, res) => {
@@ -20,8 +21,8 @@ const getAllScholarships = async (req, res) => {
       ...(providerId && { providerId }),
       ...(search && {
         OR: [
-          { title: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } }
+          { title: { search: search.trim().split(/\s+/).join(' & ') } },
+          { description: { search: search.trim().split(/\s+/).join(' & ') } }
         ]
       }),
       ...(minAmount && { amount: { gte: parseFloat(minAmount) } }),
@@ -52,45 +53,44 @@ const getAllScholarships = async (req, res) => {
         });
 
         if (student && scholarships.length > 0) {
-          try {
-            // Fetch match scores from Python AI Service
-            const aiMatches = await getMatchScores(student, scholarships);
-            
-            // Map the results back to the scholarships
-            const matchMap = new Map(aiMatches.map(m => [m.scholarshipId, m]));
-            
-            scholarshipsWithScores = scholarships.map(s => {
-              const aiResult = matchMap.get(s.id);
-              // Fallback to local utility if AI service fails or returns empty
-              if (aiResult) {
-                return {
-                  ...s,
-                  matchScore: aiResult.matchScore,
-                  matchReasons: aiResult.reasons || []
-                };
-              } else {
-                const fallbackScore = calculateMatchScore(student, s);
-                return {
-                  ...s,
-                  matchScore: fallbackScore,
-                  matchReasons: fallbackScore > 70 ? ['Compatible with your profile'] : []
-                };
-              }
-            });
+          // 🛡️ Check cache first to prevent hammering AI service
+          const cacheKey = `matches_${student.id}_${scholarships.map(s => s.id).sort().join('_').slice(0, 50)}`;
+          const cachedResults = cache.get(cacheKey);
 
-            // Sort by match score if available
-            scholarshipsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
-          } catch (aiError) {
-             console.error('AI match service failed, falling back to local computation:', aiError.message);
-             scholarshipsWithScores = scholarships.map(s => {
-               const fallbackScore = calculateMatchScore(student, s);
-               return {
-                 ...s,
-                 matchScore: fallbackScore,
-                 matchReasons: fallbackScore > 70 ? ['Compatible with your profile'] : []
-               };
-             });
-             scholarshipsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+          if (cachedResults) {
+            scholarshipsWithScores = cachedResults;
+          } else {
+            try {
+              // Fetch match scores from Python AI Service
+              const aiMatches = await getMatchScores(student, scholarships);
+              
+              // Map the results back to the scholarships
+              const matchMap = new Map(aiMatches.map(m => [m.scholarshipId, m]));
+              
+              scholarshipsWithScores = scholarships.map(s => {
+                const aiResult = matchMap.get(s.id);
+                if (aiResult) {
+                  return { ...s, matchScore: aiResult.matchScore, matchReasons: aiResult.reasons || [] };
+                } else {
+                  const fallbackScore = calculateMatchScore(student, s);
+                  return { ...s, matchScore: fallbackScore, matchReasons: fallbackScore > 70 ? ['Compatible with your profile'] : [] };
+                }
+              });
+
+              // Sort by match score
+              scholarshipsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+
+              // Store in cache for 30 minutes
+              cache.set(cacheKey, scholarshipsWithScores, 1800);
+              
+            } catch (aiError) {
+               console.error('AI match service failed, falling back to local computation:', aiError.message);
+               scholarshipsWithScores = scholarships.map(s => {
+                 const fallbackScore = calculateMatchScore(student, s);
+                 return { ...s, matchScore: fallbackScore, matchReasons: fallbackScore > 70 ? ['Compatible with your profile'] : [] };
+               });
+               scholarshipsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
+            }
           }
         }
       } catch (error) {

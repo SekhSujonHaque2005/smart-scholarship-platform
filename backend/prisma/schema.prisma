@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
 }
 
 datasource db {
@@ -27,6 +28,8 @@ model User {
   auditLogs     AuditLog[]
   sentMessages  Message[]  @relation("SentMessages")
   receivedMsgs  Message[]  @relation("ReceivedMessages")
+
+  @@index([role])
 }
 
 enum Role {
@@ -93,6 +96,11 @@ model Scholarship {
   provider     Provider      @relation(fields: [providerId], references: [id])
   applications Application[]
   transactions Transaction[]
+
+  @@index([providerId])
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
 }
 
 enum ScholarshipStatus {
@@ -120,6 +128,10 @@ model Application {
   transactions Transaction[]
 
   @@unique([studentId, scholarshipId])
+  @@index([studentId])
+  @@index([scholarshipId])
+  @@index([status])
+  @@index([submittedAt])
 }
 
 enum ApplicationStatus {
@@ -196,6 +208,10 @@ model AuditLog {
   timestamp  DateTime @default(now())
 
   actor User @relation(fields: [actorId], references: [id])
+
+  @@index([actorId])
+  @@index([timestamp])
+  @@index([entityType, entityId])
 }
 
 model NewsletterSubscriber {
@@ -217,6 +233,11 @@ model Message {
   application   Application @relation(fields: [applicationId], references: [id])
   sender        User        @relation("SentMessages", fields: [senderId], references: [id])
   receiver      User        @relation("ReceivedMessages", fields: [receiverId], references: [id])
+
+  @@index([applicationId])
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([createdAt])
 }
 
 model Transaction {
@@ -233,6 +254,11 @@ model Transaction {
   provider      Provider     @relation(fields: [providerId], references: [id])
   scholarship   Scholarship? @relation(fields: [scholarshipId], references: [id])
   application   Application? @relation(fields: [applicationId], references: [id])
+
+  @@index([providerId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
 }
 
 enum TransactionType {

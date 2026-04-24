@@ -1,10 +1,24 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { Inter, Plus_Jakarta_Sans } from "next/font/google";
 import { LenisProvider } from "@/components/providers/lenis-provider";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { ThemeProvider } from "next-themes";
 import { GlobalLoaderProvider } from "@/components/providers/global-loader";
 import { Suspense } from "react";
+import { Toaster } from "sonner";
+
+const inter = Inter({ 
+  subsets: ["latin"], 
+  variable: "--font-inter",
+  display: 'swap',
+});
+
+const plusJakarta = Plus_Jakarta_Sans({ 
+  subsets: ["latin"], 
+  variable: "--font-plus-jakarta",
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: "ScholarHub — AI-Powered Scholarship Matching Platform",
@@ -18,23 +32,7 @@ export const metadata: Metadata = {
     "student funding",
     "ScholarHub",
   ],
-  openGraph: {
-    title: "ScholarHub — AI-Powered Scholarship Matching",
-    description:
-      "Find scholarships matched to your profile with AI. Verified providers, real-time tracking, and a trusted community.",
-    type: "website",
-    locale: "en_IN",
-    siteName: "ScholarHub",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "ScholarHub — AI-Powered Scholarship Matching",
-    description:
-      "Find scholarships matched to your profile with AI. Verified providers, real-time tracking, and a trusted community.",
-  },
 };
-
-import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -42,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${plusJakarta.variable}`}>
       <body className="antialiased">
         <ThemeProvider
           attribute="class"

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, createContext, useContext } from "react";
+import React, { useState, useEffect, createContext, useContext, Suspense } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { OrbitalLoader } from "@/components/ui/orbital-loader";
 import { usePathname, useSearchParams } from "next/navigation";
@@ -11,57 +11,67 @@ const GlobalLoaderContext = createContext({
 
 export const useGlobalLoader = () => useContext(GlobalLoaderContext);
 
+function LoaderContent() {
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const [isNavigating, setIsNavigating] = useState(false);
+
+    useEffect(() => {
+        setIsNavigating(true);
+        const timer = setTimeout(() => {
+            setIsNavigating(false);
+        }, 600);
+        return () => clearTimeout(timer);
+    }, [pathname, searchParams]);
+
+    return isNavigating ? (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black">
+            <OrbitalLoader message="Loading Content" />
+        </div>
+    ) : null;
+}
+
 export function GlobalLoaderProvider({ children }: { children: React.ReactNode }) {
   const [isInitialMount, setIsInitialMount] = useState(true);
-  const [isNavigating, setIsNavigating] = useState(false);
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
 
-  // Handle Initial Mount (Reload)
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsInitialMount(false);
-    }, 1200); // Premium delay to show loader
+    }, 1500);
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle Navigation Loading
-  // Note: App Router navigation is usually fast, but we can trigger a brief loader
-  useEffect(() => {
-    setIsNavigating(true);
-    const timer = setTimeout(() => {
-      setIsNavigating(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [pathname, searchParams]);
-
-  const showLoader = isInitialMount || isNavigating;
-
   return (
-    <GlobalLoaderContext.Provider value={{ setIsLoading: setIsNavigating }}>
+    <GlobalLoaderContext.Provider value={{ setIsLoading: () => {} }}>
       <AnimatePresence mode="wait">
-        {showLoader && (
+        {isInitialMount && (
           <motion.div
-            key="global-loader"
+            key="initial-mount-loader"
             initial={{ opacity: 1 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-black"
+            exit={{ 
+                opacity: 0,
+                transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } 
+            }}
+            className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black"
           >
-            <div className="relative">
-              <OrbitalLoader 
-                message={isInitialMount ? "Synchronizing Hub" : "Navigating"} 
-                className="scale-125"
-              />
-              {/* Optional background aura */}
-              <div className="absolute inset-0 bg-blue-500/5 blur-3xl rounded-full -z-10" />
+            <div className="absolute inset-0 opacity-[0.03] pointer-events-none">
+                <div className="h-full w-full grid grid-cols-12 divide-x divide-foreground" />
             </div>
+            <OrbitalLoader message="Synchronizing Platform" />
+            <div className="absolute bottom-12 left-12 opacity-20">
+                <div className="text-[10px] font-mono tracking-[0.4em] uppercase">ScholarHub Interface v4.5</div>
+            </div>
+            <div className="absolute top-12 left-12 w-8 h-8 border-t border-l border-white/10" />
+            <div className="absolute bottom-12 right-12 w-8 h-8 border-b border-r border-white/10" />
           </motion.div>
         )}
       </AnimatePresence>
+
+      <Suspense fallback={null}>
+        <LoaderContent />
+      </Suspense>
       
-      {/* Render children directly to prevent height trapping or scroll conflicts */}
       {children}
     </GlobalLoaderContext.Provider>
   );

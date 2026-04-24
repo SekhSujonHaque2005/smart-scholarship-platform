@@ -209,8 +209,9 @@ export const DashboardSidebar = ({
             icon={LayoutDashboard}
             label="Dashboard"
             href={user?.role === 'ADMIN' ? '/dashboard/admin' : user?.role === 'PROVIDER' ? '/dashboard/provider' : '/dashboard/student'}
-            active={pathname.includes('/dashboard')}
+            active={pathname === '/dashboard/student' && activeTab === 'overview'}
             collapsed={!isExpanded}
+            onClick={user?.role !== 'ADMIN' ? () => onTabChange?.('overview') : undefined}
           />
         </div>
 

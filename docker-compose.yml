@@ -1,0 +1,57 @@
+services:
+  # 🚀 Frontend Service (Next.js)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:5000/api
+    depends_on:
+      - backend
+
+  # ⚙️ Backend Service (Node.js)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./backend/.env
+    depends_on:
+      - ai-service
+
+  # 🧠 AI Service (Python FastAPI)
+  ai-service:
+    build:
+      context: ./ai_service
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./ai_service/.env
+
+  # 🔍 Scraper Service (Python FastAPI)
+  scraper-service:
+    build:
+      context: ./scraper_service
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./scraper_service/.env
+    depends_on:
+      - backend
+
+  # 🛡️ Nginx Reverse Proxy (Optional)
+  # proxy:
+  #   image: nginx:alpine
+  #   ports:
+  #     - "80:80"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf
+  #   depends_on:
+  #     - frontend
+  #     - backend

@@ -1,343 +1,237 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, useMotionTemplate, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, Sparkles, CheckCircle2, Search, SlidersHorizontal, ChevronRight, ShieldCheck, GraduationCap } from 'lucide-react';
-import api from '@/app/lib/api';
-import TextType from '@/components/TextType';
-import { SpotlightBackground } from '@/components/ui/spotlight-background';
-import VariableProximity from '@/components/VariableProximity';
+import { ChevronRight, ShieldCheck, BarChart3, Users, PieChart, Activity, Crosshair } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-interface PlatformStats {
-    totalStudents: number;
-    activeScholarships: number;
-    totalAwarded: number;
-}
+const TypewriterText = ({ text, delay = 0, speed = 0.05 }: { text: string; delay?: number; speed?: number }) => {
+  const characters = text.split("");
+  
+  return (
+    <motion.span
+      initial="hidden"
+      animate="visible"
+      variants={{
+        hidden: { opacity: 1 },
+        visible: {
+          opacity: 1,
+          transition: {
+            delayChildren: delay,
+            staggerChildren: speed,
+          },
+        },
+      }}
+    >
+      {characters.map((char, index) => (
+        <motion.span
+          key={index}
+          variants={{
+            hidden: { opacity: 0, display: "none" },
+            visible: { opacity: 1, display: "inline" },
+          }}
+        >
+          {char}
+        </motion.span>
+      ))}
+    </motion.span>
+  );
+};
 
-function formatStat(num: number): string {
-    if (num >= 10000000) return `₹${(num / 10000000).toFixed(1)}Cr+`;
-    if (num >= 100000) return `₹${(num / 100000).toFixed(0)}L+`;
-    if (num >= 1000) return `${(num / 1000).toFixed(0)}K+`;
-    if (num === 0) return '0';
-    return num.toString();
-}
-
-function formatAwarded(num: number): string {
-    if (num >= 10000000) return `₹${(num / 10000000).toFixed(1)}Cr+`;
-    if (num >= 100000) return `₹${(num / 100000).toFixed(0)}L+`;
-    if (num >= 1000) return `₹${(num / 1000).toFixed(0)}K+`;
-    if (num === 0) return '₹0';
-    return `₹${num}`;
-}
-
-// Custom snapy easing for Vercel/Linear feel
-const SNAP_EASE: [number, number, number, number] = [0.16, 1, 0.3, 1];
+const BackgroundFlipGrid = () => {
+    return (
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none opacity-[0.03]">
+            <div className="grid grid-cols-6 md:grid-cols-12 gap-1 w-full h-full">
+                {Array.from({ length: 144 }).map((_, i) => (
+                    <motion.div
+                        key={i}
+                        initial={{ rotateY: 0 }}
+                        animate={{ 
+                            rotateY: [0, 180, 0],
+                            backgroundColor: ["rgba(251,191,36,0)", "rgba(251,191,36,1)", "rgba(251,191,36,0)"]
+                        }}
+                        transition={{
+                            duration: 4,
+                            repeat: Infinity,
+                            delay: Math.random() * 10,
+                            ease: "easeInOut"
+                        }}
+                        className="aspect-square border border-primary/20"
+                    />
+                ))}
+            </div>
+        </div>
+    );
+};
 
 export default function Hero() {
-    const [stats, setStats] = useState<PlatformStats | null>(null);
-    const containerRef = useRef<HTMLDivElement>(null);
+  return (
+    <section className="relative w-full bg-background overflow-hidden border-b border-border">
+      
+      {/* Cool Background Card Flip Animation */}
+      <BackgroundFlipGrid />
 
-    // Mouse tracking for 3D card tilt
-    const mouseX = useMotionValue(0.5);
-    const mouseY = useMotionValue(0.5);
+      {/* Floating Amber Orbs - Refined blur */}
+      <div className="absolute top-1/4 left-1/4 w-[600px] h-[600px] bg-primary/5 blur-[140px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-primary/5 blur-[120px] rounded-full pointer-events-none" />
 
-    const springConfig = { damping: 30, stiffness: 200, mass: 0.5 };
-    const springX = useSpring(mouseX, springConfig);
-    const springY = useSpring(mouseY, springConfig);
+      <div className="max-w-7xl mx-auto px-6 relative z-10 text-center w-full pt-16 pb-24">
+        
+        {/* Top Decorative Line */}
+        <div className="flex items-center justify-center gap-4 mb-12 opacity-40">
+            <div className="h-px w-20 bg-border" />
+            <Crosshair className="w-4 h-4 text-primary animate-pulse" />
+            <div className="h-px w-20 bg-border" />
+        </div>
 
-    const rotateX = useTransform(springY, [0, 1], [5, -5]);
-    const rotateY = useTransform(springX, [0, 1], [-5, 5]);
+        <motion.h1 
+          className="text-6xl md:text-[140px] font-bold text-foreground tracking-[-0.05em] italic leading-[0.8] mb-12 block"
+        >
+          <TypewriterText text="FIND & APPLY FOR" delay={0.2} speed={0.03} /> <br />
+          <span className="text-primary">
+            <TypewriterText text="INDIA'S BEST" delay={0.8} speed={0.05} />
+          </span> <br />
+          <TypewriterText text="SCHOLARSHIPS." delay={1.5} speed={0.04} />
+          <motion.span 
+            animate={{ opacity: [1, 0, 1] }}
+            transition={{ repeat: Infinity, duration: 1 }}
+            className="inline-block w-1.5 h-12 md:h-24 bg-primary ml-4 translate-y-1 md:translate-y-2"
+          />
+        </motion.h1>
 
-    useEffect(() => {
-        api.get('stats')
-            .then((res) => setStats(res.data))
-            .catch((err) => console.error('Failed to fetch stats:', err));
-    }, []);
+        <motion.p 
+          className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-16 px-4 border-l border-r border-primary/20"
+        >
+          <TypewriterText 
+            text="ScholarHub connects you with verified government and private scholarships using smart AI matching." 
+            delay={2.5} 
+            speed={0.01} 
+          />
+        </motion.p>
 
-    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const xPos = (e.clientX - rect.left) / rect.width;
-        const yPos = (e.clientY - rect.top) / rect.height;
-        mouseX.set(xPos);
-        mouseY.set(yPos);
-    };
+        <motion.div 
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 3.5, duration: 0.8 }}
+          className="flex flex-col sm:flex-row items-center justify-center gap-0 mb-32"
+        >
+          <Link href="/register" className="w-full sm:w-auto">
+            <button className="h-20 px-16 bg-primary text-primary-foreground font-bold text-lg hover:bg-primary/90 transition-all italic border border-primary relative group overflow-hidden w-full">
+              <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-primary-foreground/30" />
+              <div className="absolute bottom-0 right-0 w-2 h-2 border-b border-r border-primary-foreground/30" />
+              APPLY NOW — FREE
+              <ChevronRight className="inline-block ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
+          </Link>
+          <Link href="/scholarships" className="w-full sm:w-auto">
+            <button className="h-20 px-16 bg-background text-foreground border border-border font-bold text-lg hover:bg-secondary transition-all italic relative group w-full">
+              <div className="absolute top-0 right-0 w-2 h-2 border-t border-r border-border/50" />
+              BROWSE DIRECTORY
+            </button>
+          </Link>
+        </motion.div>
 
-    const handleMouseLeave = () => {
-        mouseX.set(0.5);
-        mouseY.set(0.5);
-    };
-
-    const statItems = stats
-        ? [
-            { value: formatStat(stats.totalStudents), label: 'Students' },
-            { value: stats.activeScholarships.toString(), label: 'Scholarships' },
-            { value: formatAwarded(stats.totalAwarded), label: 'Awarded' },
-        ]
-        : [
-            { value: '—', label: 'Students' },
-            { value: '—', label: 'Scholarships' },
-            { value: '—', label: 'Awarded' },
-        ];
-
-    return (
-        <SpotlightBackground>
-            <section 
-                ref={containerRef}
-                className="relative flex flex-col items-center justify-start px-6 pt-32 pb-20 md:pt-40 overflow-hidden min-h-screen"
-            >
-
-
-            <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col items-center">
+        {/* Dashboard Preview - More Architectural */}
+        <div className="relative w-full max-w-6xl mx-auto">
+            {/* Background Grid Accent */}
+            <div className="absolute -inset-8 border border-primary/5 pointer-events-none" />
+            
+            <div className="relative bg-background border border-border p-4 md:p-10 shadow-2xl overflow-hidden min-h-[600px]">
                 
-                {/* 1. Snappy Staggered Entrance Container */}
-                <motion.div 
-                    initial="hidden" 
-                    animate="visible" 
-                    variants={{
-                        hidden: {},
-                        visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } }
-                    }}
-                    className="flex flex-col items-center text-center max-w-4xl"
-                >
-                    {/* Badge */}
-                    <motion.div 
-                        variants={{ hidden: { opacity: 0, y: 15 }, visible: { opacity: 1, y: 0 } }}
-                        transition={{ duration: 0.5, ease: SNAP_EASE }}
-                        className="mb-8"
-                    >
-                        <Link href="/matching-engine" className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-background hover:bg-muted transition-colors group cursor-pointer shadow-sm">
-                            <span className="flex items-center justify-center w-5 h-5 rounded-full bg-blue-500/10 border border-blue-500/20">
-                                <Sparkles className="w-3 h-3 text-blue-500 dark:text-blue-400" />
-                            </span>
-                            <span className="text-xs font-medium text-muted-foreground tracking-wide group-hover:text-foreground transition-colors">Introducing AI Matching 2.0</span>
-                            <ArrowRight size={14} className="text-muted-foreground group-hover:text-foreground group-hover:translate-x-0.5 transition-all" />
-                        </Link>
-                    </motion.div>
+                {/* Header of Mockup */}
+                <div className="flex items-center justify-between border-b border-border pb-8 mb-12">
+                    <div className="flex items-center gap-6">
+                        <div className="w-10 h-10 border border-border bg-background flex items-center justify-center">
+                            <Activity className="w-5 h-5 text-primary" />
+                        </div>
+                        <div className="text-left">
+                            <p className="text-lg font-bold italic uppercase tracking-tighter">Dashboard Interface</p>
+                        </div>
+                    </div>
+                </div>
 
-                    {/* Title */}
-                    <div className="relative" ref={useRef(null)}>
-                        <motion.h1 
-                            variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-                            transition={{ duration: 0.6, ease: SNAP_EASE }}
-                            className="text-5xl md:text-7xl lg:text-[5.5rem] font-bold tracking-[-0.03em] leading-[1.05] text-foreground mb-6 drop-shadow-sm min-h-[2.1em] md:min-h-[auto]"
-                        >
-                            <VariableProximity
-                                label="Find scholarships matching"
-                                containerRef={containerRef}
-                                radius={150}
-                                fromScale={1}
-                                toScale={1.2}
-                                fromWeight={700}
-                                toWeight={900}
-                                className="block"
-                            />
-                            <br className="hidden md:block" />
-                            <TextType
-                                text={[
-                                    "your exact profile.",
-                                    "your academic journey.",
-                                    "your future success.",
-                                    "your dream career."
-                                ]}
-                                className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500 dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400"
-                                cursorClassName="bg-emerald-500 w-[4px] md:w-[6px] h-[0.9em] translate-y-[0.1em]"
-                                typingSpeed={80}
-                                deletingSpeed={50}
-                                pauseDuration={3000}
-                                loop={true}
-                            />
-                        </motion.h1>
+                {/* Dashboard Grid Content */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                    <div className="md:col-span-2 space-y-8">
+                        <div className="border border-border p-8 bg-secondary/5 h-full relative">
+                            <div className="absolute top-0 right-0 p-4 opacity-10">
+                                <BarChart3 className="w-24 h-24" />
+                            </div>
+                            
+                            <div className="flex justify-between items-start mb-12 relative z-10">
+                                <div>
+                                    <h4 className="text-4xl font-bold tracking-tighter mb-2 uppercase">Success Rate</h4>
+                                    <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em] italic">Searching for scholarships...</p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-4xl font-bold text-primary leading-none">98.4%</p>
+                                    <p className="text-[9px] text-muted-foreground uppercase tracking-widest">Match Score</p>
+                                </div>
+                            </div>
+                            
+                            <div className="space-y-6 relative z-10">
+                                {[
+                                    { label: "Government Funding", width: "88%", color: "primary" },
+                                    { label: "Institutional Grants", width: "72%", color: "border" },
+                                    { label: "Private Foundations", width: "94%", color: "primary" }
+                                ].map((bar, i) => (
+                                    <div key={i} className="space-y-3">
+                                        <div className="flex justify-between text-[11px] font-bold italic uppercase tracking-widest">
+                                            <span>{bar.label}</span>
+                                            <span className="text-primary">{bar.width}</span>
+                                        </div>
+                                        <div className="h-1 bg-border w-full">
+                                            <motion.div 
+                                                initial={{ width: 0 }}
+                                                whileInView={{ width: bar.width }}
+                                                transition={{ duration: 1.5, delay: i * 0.2 }}
+                                                className={`h-full ${bar.color === 'primary' ? 'bg-primary' : 'bg-foreground/40'}`}
+                                            />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Subtitle */}
-                    <motion.div 
-                        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-                        transition={{ duration: 0.6, ease: SNAP_EASE }}
-                        className="mb-10"
-                    >
-                        <TextType 
-                            text="ScholarHub uses a data-driven engine to connect verified students with premium educational grants across India. Apply instantly."
-                            className="text-lg md:text-xl text-muted-foreground font-normal tracking-tight max-w-2xl leading-relaxed"
-                            typingSpeed={20}
-                            showCursor={true}
-                            cursorClassName="bg-muted-foreground/30 w-[2px] h-[1.1em] translate-y-[0.15em]"
-                            loop={false}
-                            startOnVisible={true}
-                        />
-                    </motion.div>
-
-                    {/* Buttons */}
-                    <motion.div 
-                        variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
-                        transition={{ duration: 0.6, ease: SNAP_EASE }}
-                        className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto"
-                    >
-                        <Link href="/register" className="w-full sm:w-auto">
-                            <Button className="w-full sm:w-auto h-12 px-8 bg-primary text-primary-foreground hover:bg-primary/90 font-semibold text-sm rounded-lg transition-all shadow-lg dark:shadow-[0_0_40px_-10px_rgba(255,255,255,0.3)]">
-                                Start Building Profile
-                            </Button>
-                        </Link>
-                        <Link href="/scholarships" className="w-full sm:w-auto">
-                            <Button variant="outline" className="w-full sm:w-auto h-12 px-8 bg-transparent text-foreground border-border hover:bg-accent hover:border-accent-foreground/20 font-semibold text-sm rounded-lg transition-all">
-                                View Scholarships <ChevronRight className="ml-1 w-4 h-4 text-muted-foreground" />
-                            </Button>
-                        </Link>
-                    </motion.div>
-                </motion.div>
-
-                {/* 2. Advanced 3D Interactive Dashboard Mockup (Linear/Vercel Aesthetic) */}
-                <motion.div 
-                    initial={{ opacity: 0, y: 60, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 0.9, delay: 0.2, ease: SNAP_EASE }}
-                    className="w-full mt-24 relative perspective-[2000px]"
-                    onMouseMove={handleMouseMove}
-                    onMouseLeave={handleMouseLeave}
-                >
-                    {/* Underlying Subtle Glow - Purely structured, no AI-blob look */}
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[50%] bg-blue-500/10 blur-[100px] pointer-events-none rounded-[100%]" />
-
-                    {/* The 3D Rotatable Stack */}
-                    <motion.div
-                        style={{
-                            rotateX,
-                            rotateY,
-                            transformStyle: "preserve-3d",
-                        }}
-                        className="relative w-full max-w-5xl mx-auto rounded-[20px] bg-card border border-border shadow-2xl dark:shadow-[0_50px_100px_-20px_rgba(0,0,0,1)] flex flex-col will-change-transform overflow-hidden"
-                    >
-                        {/* Fake Browser/App Header */}
-                        <div className="h-12 w-full border-b border-border flex items-center px-4 bg-muted/30">
-                            <div className="flex gap-2">
-                                <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-[#333]" />
-                                <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-[#333]" />
-                                <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-[#333]" />
-                            </div>
-                            <div className="mx-auto flex items-center gap-2 px-3 py-1.5 rounded-md bg-background border border-border w-64 shadow-sm">
-                                <Search className="w-3 h-3 text-muted-foreground" />
-                                <span className="text-[11px] text-muted-foreground font-mono tracking-tight">scholarhub.in/discover</span>
-                            </div>
+                    <div className="space-y-8">
+                        <div className="border border-border p-8 bg-secondary/5">
+                            <Users className="w-8 h-8 text-primary mb-6" />
+                            <p className="text-5xl font-bold tracking-tighter leading-none mb-2">25K+</p>
+                            <p className="text-[11px] text-muted-foreground uppercase tracking-[0.2em]">Students Joined</p>
                         </div>
-
-                        {/* Interactive Hero Content Area */}
-                        <div className="p-8 md:p-12 flex flex-col lg:flex-row gap-10">
-                            
-                            {/* Left: The "Quick Eligibility" Interactive Module */}
-                            <div className="w-full lg:w-1/3 flex flex-col gap-6" style={{ transform: "translateZ(30px)" }}>
-                                <div className="space-y-2">
-                                    <h3 className="text-foreground font-medium text-lg">Quick Eligibility</h3>
-                                    <p className="text-muted-foreground text-sm">Find exactly what you qualify for.</p>
-                                </div>
-                                
-                                <div className="space-y-4">
-                                    <div className="space-y-1.5">
-                                        <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">Field of Study</label>
-                                        <div className="h-10 w-full bg-background border border-border rounded-md flex items-center px-3 cursor-pointer hover:bg-accent transition-colors shadow-sm">
-                                            <span className="text-foreground text-sm">Computer Science</span>
-                                            <SlidersHorizontal className="w-4 h-4 text-muted-foreground ml-auto" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1.5">
-                                        <label className="text-[11px] font-medium text-muted-foreground uppercase tracking-widest">Current Degree</label>
-                                        <div className="h-10 w-full bg-background border border-border rounded-md flex items-center px-3 cursor-pointer hover:bg-accent transition-colors shadow-sm">
-                                            <span className="text-foreground text-sm">B.Tech (Year 3)</span>
-                                            <SlidersHorizontal className="w-4 h-4 text-muted-foreground ml-auto" />
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Action button in the mockup */}
-                                    <button className="w-full h-10 mt-2 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-md shadow-[0_0_20px_rgba(37,99,235,0.2)] transition-colors flex items-center justify-center gap-2">
-                                        Scan Library 
-                                        <span className="flex h-1.5 w-1.5 relative">
-                                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                                            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-white"></span>
-                                        </span>
-                                    </button>
-                                </div>
+                        <div className="border border-border p-8 bg-primary text-primary-foreground relative overflow-hidden">
+                            <div className="absolute top-0 right-0 -mr-4 -mt-4 opacity-10">
+                                <ShieldCheck className="w-24 h-24" />
                             </div>
-
-                            {/* Right: Feed of highly structured result cards */}
-                            <div className="w-full lg:w-2/3 flex flex-col gap-3" style={{ transform: "translateZ(10px)" }}>
-                                <div className="flex items-center justify-between pb-2 border-b border-border mb-2">
-                                    <span className="text-muted-foreground text-xs font-mono uppercase">Results (1,204)</span>
-                                    <div className="flex gap-2">
-                                        <span className="text-[10px] px-2 py-1 bg-accent text-accent-foreground rounded border border-border shadow-sm">Relevance</span>
-                                    </div>
-                                </div>
-
-                                {/* Mock Card 1 */}
-                                <motion.div 
-                                    whileHover={{ scale: 1.01 }}
-                                    className="p-4 bg-background border border-border rounded-xl flex items-start gap-4 cursor-pointer transition-colors hover:bg-accent/50 shadow-sm"
-                                >
-                                    <div className="w-10 h-10 rounded-lg bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center shrink-0">
-                                        <GraduationCap className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h4 className="text-foreground text-sm font-semibold truncate">Women in STEM Grant 2024</h4>
-                                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 uppercase">Match 98%</span>
-                                        </div>
-                                        <p className="text-muted-foreground text-xs line-clamp-1 mb-3">Supporting female tech leaders focused on cloud infrastructure and AI.</p>
-                                        
-                                        <div className="flex items-center gap-4 text-[11px]">
-                                            <div className="flex items-center gap-1 text-muted-foreground">
-                                                <ShieldCheck className="w-3.5 h-3.5 text-muted-foreground" /> Verified
-                                            </div>
-                                            <div className="text-blue-600 dark:text-blue-400 font-mono">₹5,00,000</div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-
-                                {/* Mock Card 2 */}
-                                <motion.div 
-                                    whileHover={{ scale: 1.01 }}
-                                    className="p-4 bg-background border border-border rounded-xl flex items-start gap-4 cursor-pointer transition-colors hover:bg-accent/50 shadow-sm"
-                                >
-                                    <div className="w-10 h-10 rounded-lg bg-orange-500/10 border border-orange-500/20 flex items-center justify-center shrink-0">
-                                        <Sparkles className="w-5 h-5 text-orange-600 dark:text-orange-400" />
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <h4 className="text-foreground text-sm font-semibold truncate">National Merit Engineering Scholarship</h4>
-                                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 uppercase">Match 92%</span>
-                                        </div>
-                                        <p className="text-muted-foreground text-xs line-clamp-1 mb-3">Awarded to top performers in core engineering disciplines nation-wide.</p>
-                                        
-                                        <div className="flex items-center gap-4 text-[11px]">
-                                            <div className="flex items-center gap-1 text-muted-foreground">
-                                                <ShieldCheck className="w-3.5 h-3.5 text-muted-foreground" /> Verified
-                                            </div>
-                                            <div className="text-blue-600 dark:text-blue-400 font-mono">₹2,50,000</div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-
-                                {/* Fade Out Bottom */}
-                                <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-card to-transparent pointer-events-none rounded-b-[20px]" />
-                            </div>
+                            <ShieldCheck className="w-8 h-8 mb-6" />
+                            <p className="text-5xl font-bold italic tracking-tighter leading-none mb-2">100%</p>
+                            <p className="text-[11px] uppercase tracking-[0.2em] italic opacity-80">Security Audit Pass</p>
                         </div>
-                    </motion.div>
-                </motion.div>
+                    </div>
+                </div>
 
-                {/* Optional: Status Text below Dashboard */}
-                <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.2, duration: 1 }}
-                    className="mt-8 flex items-center gap-2 text-muted-foreground text-[11px] font-mono tracking-tight"
-                >
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600 dark:text-emerald-500" /> System Operational. Engine running at 60ms latency.
-                </motion.div>
-                
+                <div className="mt-16 flex flex-wrap gap-6 border-t border-border pt-10">
+                    {[
+                        { icon: BarChart3, label: "Real-time Stats" },
+                        { icon: PieChart, label: "Fund Management" },
+                        { icon: Activity, label: "Direct Apply" }
+                    ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3 border border-border px-5 py-2 bg-secondary/5 group hover:border-primary transition-colors cursor-default">
+                            <item.icon className="w-4 h-4 text-primary" />
+                            <span className="text-[10px] font-bold uppercase tracking-[0.3em]">{item.label}</span>
+                        </div>
+                    ))}
+                </div>
+
+                {/* Bottom Architectural Overlay */}
+                <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-background to-transparent z-20 pointer-events-none" />
             </div>
+        </div>
 
-            {/* Bottom Gradient Fade */}
-            <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-background/80 to-transparent pointer-events-none z-20" />
-        </section>
-        </SpotlightBackground>
-    );
+      </div>
+
+    </section>
+  );
 }
-

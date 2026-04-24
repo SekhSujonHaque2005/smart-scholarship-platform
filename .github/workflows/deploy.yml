@@ -30,7 +30,6 @@ jobs:
       # 1. Build and Deploy Backend (Including Scraper)
       - name: Build and Push Backend
         run: |
-          # Move scraper into backend context so Docker can see it
           cp -r scraper_service backend/scraper_service
           docker build -t us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/backend:${{ github.sha }} ./backend
           docker push us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/backend:${{ github.sha }}
@@ -67,6 +66,7 @@ jobs:
           service: scholarhub-ai-service
           image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/scholarhub/ai-service:${{ github.sha }}
           region: ${{ env.REGION }}
+          flags: "--memory=2Gi --cpu=1 --timeout=300s"
           env_vars: |
             HF_API_TOKEN=${{ secrets.HF_API_TOKEN }}
             BACKEND_URL=${{ steps.deploy-backend.outputs.url }}/api
@@ -85,6 +85,7 @@ jobs:
           service: scholarhub-frontend
           image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/scholarhub/frontend:${{ github.sha }}
           region: ${{ env.REGION }}
+          flags: "--memory=1Gi"
           env_vars: |
             NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
             NEXT_PUBLIC_API_URL=${{ steps.deploy-backend.outputs.url }}/api

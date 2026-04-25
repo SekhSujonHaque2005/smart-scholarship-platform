@@ -32,8 +32,8 @@ export const TourGuide = () => {
       steps.push({
         element: '#tour-header',
         popover: { 
-          title: 'Main Control Header', 
-          description: 'Access system settings, appearance adjustments, and support services.', 
+          title: 'Welcome to Your Dashboard! 👋', 
+          description: 'Here you can switch between light and dark modes, check alerts, and view your personal account profile.', 
           side: 'bottom' 
         }
       });
@@ -43,8 +43,8 @@ export const TourGuide = () => {
       steps.push({
         element: '#tour-sidebar',
         popover: { 
-          title: 'Navigation Panel', 
-          description: 'Switch between applications, funding ledgers, and configuration parameters.', 
+          title: 'Quick Navigation 🧭', 
+          description: 'Use this sidebar to jump between available scholarships, your applications, and saved documents effortlessly.', 
           side: 'right' 
         }
       });
@@ -54,8 +54,8 @@ export const TourGuide = () => {
       steps.push({
         element: '#tour-trust',
         popover: { 
-          title: 'Trust & Integrity Index', 
-          description: 'Calculates institutional standing based on engagement success.', 
+          title: 'Trust Score Indicator 🛡️', 
+          description: 'Shows the verification status and credibility rating of the platform providers.', 
           side: 'bottom' 
         }
       });
@@ -65,8 +65,8 @@ export const TourGuide = () => {
       steps.push({
         element: '#tour-search',
         popover: { 
-          title: 'Discovery Hub', 
-          description: 'Narrow outcomes via targeted keyword indexing routines.', 
+          title: 'Scholarship Search 🔍', 
+          description: 'Quickly find funding opportunities by typing keywords, locations, or program categories here.', 
           side: 'bottom' 
         }
       });
@@ -77,13 +77,13 @@ export const TourGuide = () => {
       .filter(btn => btn.offsetParent !== null && btn.innerText.trim().length > 2 && btn.id !== 'tour-guide-btn');
     
     buttons.forEach((btn, idx) => {
-      if (idx > 5) return; // Limit to prevent fatigue
+      if (idx > 3) return; // Limit to prevent fatigue
       if (!btn.id) btn.id = `tour-dyn-btn-${idx}`;
       steps.push({
         element: `#${btn.id}`,
         popover: { 
-          title: `Action: ${btn.innerText.trim()}`, 
-          description: 'Triggers immediate platform process execution.', 
+          title: `Feature: ${btn.innerText.trim()} ⚡`, 
+          description: 'Click here to interact and manage your processes on the portal.', 
           side: 'top' 
         }
       });
@@ -94,14 +94,14 @@ export const TourGuide = () => {
       .filter(inp => inp.offsetParent !== null && inp.type !== 'hidden');
 
     inputs.forEach((inp, idx) => {
-      if (idx > 3) return;
+      if (idx > 2) return;
       if (!inp.id) inp.id = `tour-dyn-inp-${idx}`;
-      const label = inp.placeholder || inp.name || `Data Entry #${idx + 1}`;
+      const label = inp.placeholder || inp.name || `Text Field #${idx + 1}`;
       steps.push({
         element: `#${inp.id}`,
         popover: { 
-          title: `Entry: ${label}`, 
-          description: 'Input required values to update query models.', 
+          title: `Fill in: ${label} ✍️`, 
+          description: 'Provide your details in this box to process your request accurately.', 
           side: 'bottom' 
         }
       });
@@ -112,7 +112,7 @@ export const TourGuide = () => {
     const driverObj = driver({
       showProgress: true,
       animate: true,
-      overlayColor: 'rgba(0, 0, 0, 0.8)',
+      overlayColor: 'rgba(0, 0, 0, 0.75)',
       steps: steps.map(step => ({
         element: step.element,
         popover: {

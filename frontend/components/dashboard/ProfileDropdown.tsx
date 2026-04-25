@@ -52,7 +52,7 @@ export const ProfileDropdown = ({
       initial={{ opacity: 0, y: 10, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: 10, scale: 0.95 }}
-      className="absolute top-12 right-0 w-72 bg-card/95 backdrop-blur-xl border border-border rounded-[24px] shadow-2xl z-50 overflow-hidden"
+      className="w-72 bg-card/95 backdrop-blur-xl border border-border rounded-[24px] shadow-2xl z-[9999] overflow-hidden"
     >
       {/* User Info Header */}
       <div className="p-6 bg-secondary/30 border-b border-border">

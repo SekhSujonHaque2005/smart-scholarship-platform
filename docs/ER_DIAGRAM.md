@@ -1,78 +1,283 @@
-# ScholarHub — Entity Relationship (ER) Diagram
+# 🗄️ Database ER Diagram — ScholarHub
 
-This diagram illustrates the database architecture of the ScholarHub platform, built with PostgreSQL and Prisma.
+> **Database**: PostgreSQL (Supabase) · **ORM**: Prisma 7 · **Models**: 14 · **Enums**: 6
+
+---
+
+## Complete Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
-    USER ||--o| STUDENT : "userId"
-    USER ||--o| PROVIDER : "userId"
-    USER ||--o{ NOTIFICATION : "userId"
-    USER ||--o{ MESSAGE : "sender/receiver"
-    
-    STUDENT ||--o{ APPLICATION : "studentId"
-    STUDENT ||--o{ DOCUMENT : "studentId"
-    STUDENT ||--o{ REVIEW : "studentId"
-    
-    PROVIDER ||--o{ SCHOLARSHIP : "providerId"
-    PROVIDER ||--o{ REVIEW : "providerId"
-    PROVIDER ||--o{ TRANSACTION : "providerId"
-    
-    SCHOLARSHIP ||--o{ APPLICATION : "scholarshipId"
-    SCHOLARSHIP ||--o{ TRANSACTION : "scholarshipId"
-    
-    APPLICATION ||--o{ DOCUMENT : "appId"
-    APPLICATION ||--o| FRAUDFLAG : "applicationId"
-    APPLICATION ||--o{ MESSAGE : "applicationId"
-    APPLICATION ||--o{ TRANSACTION : "applicationId"
-
-    USER {
-        string id PK
-        string email UK
-        string password
-        enum role
-        boolean isActive
+    User {
+        String id PK
+        String email UK
+        String password
+        Role role
+        Boolean isActive
+        String resetPasswordToken UK
+        DateTime resetPasswordExpires
+        DateTime createdAt
+        Json preferences
+        String profilePicture
+        Boolean is2FAEnabled
+        String twoFactorOTP
+        DateTime twoFactorExpires
     }
 
-    STUDENT {
-        string id PK
-        string userId FK
-        string name
-        float cgpa
-        string fieldOfStudy
+    Student {
+        String id PK
+        String userId FK_UK
+        String name
+        Float cgpa
+        String incomeLevel
+        String fieldOfStudy
+        String location
+        String gender
+        Boolean profileComplete
     }
 
-    PROVIDER {
-        string id PK
-        string userId FK
-        string orgName
-        int trustScore
+    Provider {
+        String id PK
+        String userId FK_UK
+        String orgName
+        String orgType
+        Int trustScore
+        VerificationStatus verificationStatus
+        DateTime approvedAt
     }
 
-    SCHOLARSHIP {
-        string id PK
-        string providerId FK
-        string title
-        float amount
-        datetime deadline
+    Scholarship {
+        String id PK
+        String providerId FK
+        String title
+        String description
+        Float amount
+        DateTime deadline
+        Json criteriaJson
+        Json requirementsJson
+        ScholarshipStatus status
+        DateTime createdAt
+        String sourceUrl
+        Boolean isExternal
+        String externalId UK
+        String category
     }
 
-    APPLICATION {
-        string id PK
-        string studentId FK
-        string scholarshipId FK
-        enum status
-        datetime submittedAt
+    Application {
+        String id PK
+        String studentId FK
+        String scholarshipId FK
+        ApplicationStatus status
+        Json formData
+        DateTime submittedAt
+        DateTime reviewedAt
+        String remarks
     }
 
-    DOCUMENT {
-        string id PK
-        string fileUrl
-        string docType
+    Document {
+        String id PK
+        String studentId FK
+        String providerId FK
+        String appId FK
+        String fileUrl
+        String publicId
+        String fileName
+        Int fileSize
+        String fileHash
+        String docType
+        DateTime uploadedAt
     }
+
+    Review {
+        String id PK
+        String studentId FK
+        String providerId FK
+        Int rating
+        String comment
+        Boolean isModerated
+        DateTime createdAt
+    }
+
+    Notification {
+        String id PK
+        String userId FK
+        String type
+        String title
+        String message
+        Boolean isRead
+        DateTime createdAt
+    }
+
+    FraudFlag {
+        String id PK
+        String applicationId FK_UK
+        Float fraudScore
+        Json featuresJson
+        String status
+        DateTime flaggedAt
+    }
+
+    AuditLog {
+        String id PK
+        String entityType
+        String entityId
+        String action
+        Json oldVal
+        Json newVal
+        String actorId FK
+        DateTime timestamp
+    }
+
+    NewsletterSubscriber {
+        String id PK
+        String email UK
+        Boolean isActive
+        DateTime createdAt
+    }
+
+    Message {
+        String id PK
+        String applicationId FK
+        String senderId FK
+        String receiverId FK
+        String content
+        Boolean isRead
+        DateTime createdAt
+    }
+
+    Transaction {
+        String id PK
+        String providerId FK
+        Float amount
+        TransactionType type
+        TransactionStatus status
+        String reference
+        String scholarshipId FK
+        String applicationId FK
+        DateTime createdAt
+    }
+
+    User ||--o| Student : "has profile"
+    User ||--o| Provider : "has profile"
+    User ||--o{ Notification : "receives"
+    User ||--o{ AuditLog : "performs"
+    User ||--o{ Message : "sends"
+    User ||--o{ Message : "receives"
+
+    Student ||--o{ Application : "submits"
+    Student ||--o{ Document : "uploads"
+    Student ||--o{ Review : "writes"
+
+    Provider ||--o{ Scholarship : "creates"
+    Provider ||--o{ Review : "receives"
+    Provider ||--o{ Transaction : "manages"
+    Provider ||--o{ Document : "uploads"
+
+    Scholarship ||--o{ Application : "receives"
+    Scholarship ||--o{ Transaction : "tracks"
+
+    Application ||--o{ Document : "has"
+    Application ||--o| FraudFlag : "flagged by"
+    Application ||--o{ Message : "contains"
+    Application ||--o{ Transaction : "triggers"
 ```
 
-## Core Relationships
-1. **User - Roles**: A 1-to-1 relationship between `User` and `Student` or `Provider`.
-2. **Scholarship - Applications**: A 1-to-many relationship where a single scholarship can have multiple student applications.
-3. **Application - Integrity**: Linked to `Document` for verification and `FraudFlag` for AI-based security scoring.
-4. **Communication**: `Messages` are tied to specific `Applications` to ensure context-aware chat between students and providers.
+---
+
+## Database Indexes
+
+Performance-critical indexes configured in the Prisma schema:
+
+| Model | Index | Type | Purpose |
+|-------|-------|------|---------|
+| User | `role` | B-tree | Role-based user lookups |
+| User | `email` | Unique | Authentication lookups |
+| Scholarship | `providerId` | B-tree | Provider's scholarship list |
+| Scholarship | `status` | B-tree | Filter by active/draft/closed |
+| Scholarship | `category` | B-tree | Category filtering |
+| Scholarship | `createdAt` | B-tree | Sort by newest |
+| Application | `studentId + scholarshipId` | Unique Composite | Prevent duplicate applications |
+| Application | `studentId` | B-tree | Student's application list |
+| Application | `scholarshipId` | B-tree | Scholarship's application list |
+| Application | `status` | B-tree | Status filtering |
+| Application | `submittedAt` | B-tree | Chronological sorting |
+| AuditLog | `actorId` | B-tree | Actor history |
+| AuditLog | `timestamp` | B-tree | Chronological queries |
+| AuditLog | `entityType + entityId` | Composite | Entity history |
+| Message | `applicationId` | B-tree | Conversation threads |
+| Message | `senderId` | B-tree | Sent messages |
+| Message | `receiverId` | B-tree | Received messages |
+| Message | `createdAt` | B-tree | Message ordering |
+| Transaction | `providerId` | B-tree | Provider transactions |
+| Transaction | `type` | B-tree | Type filtering |
+| Transaction | `status` | B-tree | Status filtering |
+| Transaction | `createdAt` | B-tree | Chronological sorting |
+
+---
+
+## Enums
+
+```prisma
+enum Role {
+  STUDENT
+  PROVIDER
+  ADMIN
+}
+
+enum VerificationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ScholarshipStatus {
+  DRAFT
+  PENDING_REVIEW
+  ACTIVE
+  CLOSED
+}
+
+enum ApplicationStatus {
+  PENDING
+  UNDER_REVIEW
+  SHORTLISTED
+  INTERVIEWING
+  APPROVED
+  REJECTED
+}
+
+enum TransactionType {
+  DEPOSIT
+  DISBURSEMENT
+}
+
+enum TransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+```
+
+---
+
+## Special Features
+
+### PostgreSQL Full-Text Search
+
+Enabled via `previewFeatures = ["fullTextSearchPostgres"]` in the Prisma schema. Used for scholarship title and description search with `tsquery` syntax.
+
+### JSON Columns
+
+| Column | Model | Purpose |
+|--------|-------|---------|
+| `criteriaJson` | Scholarship | Eligibility criteria (minCgpa, allowedFields, allowedLocations, genderRequirement) |
+| `requirementsJson` | Scholarship | Application requirements |
+| `formData` | Application | Dynamic application form data |
+| `preferences` | User | User settings (theme, notifications) |
+| `featuresJson` | FraudFlag | Fraud detection feature vectors |
+| `oldVal` / `newVal` | AuditLog | Before/after change snapshots |
+
+### Cascade Deletes
+
+- `User → Student`: CASCADE
+- `User → Provider`: CASCADE

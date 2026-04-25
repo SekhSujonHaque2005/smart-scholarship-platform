@@ -41,6 +41,7 @@ jobs:
           service: scholarhub-backend
           image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/scholarhub/backend:${{ github.sha }}
           region: ${{ env.REGION }}
+          flags: "--allow-unauthenticated"
           env_vars: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
             JWT_SECRET=${{ secrets.JWT_SECRET }}
@@ -66,7 +67,7 @@ jobs:
           service: scholarhub-ai-service
           image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/scholarhub/ai-service:${{ github.sha }}
           region: ${{ env.REGION }}
-          flags: "--memory=2Gi --cpu=1 --timeout=300s"
+          flags: "--memory=2Gi --cpu=1 --timeout=300s --allow-unauthenticated"
           env_vars: |
             HF_API_TOKEN=${{ secrets.HF_API_TOKEN }}
             BACKEND_URL=${{ steps.deploy-backend.outputs.url }}/api
@@ -85,7 +86,7 @@ jobs:
           service: scholarhub-frontend
           image: us-central1-docker.pkg.dev/${{ env.PROJECT_ID }}/scholarhub/frontend:${{ github.sha }}
           region: ${{ env.REGION }}
-          flags: "--memory=1Gi"
+          flags: "--memory=1Gi --allow-unauthenticated"
           env_vars: |
             NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
             NEXT_PUBLIC_API_URL=${{ steps.deploy-backend.outputs.url }}/api

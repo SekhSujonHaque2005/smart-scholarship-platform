@@ -81,6 +81,7 @@ jobs:
           docker push us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/frontend:${{ github.sha }}
 
       - name: Deploy Frontend to Cloud Run
+        id: deploy-frontend
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: scholarhub-frontend
@@ -93,3 +94,11 @@ jobs:
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             NODE_ENV=production
+
+      # 4. Self-Heal NextAuth URL (Inject live URL back into the frontend)
+      - name: Update Frontend with its own URL for NextAuth
+        run: |
+          gcloud run services update scholarhub-frontend \
+            --platform managed \
+            --region ${{ env.REGION }} \
+            --update-env-vars NEXTAUTH_URL=${{ steps.deploy-frontend.outputs.url }}

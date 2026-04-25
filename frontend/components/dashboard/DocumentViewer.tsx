@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { X, Download, Maximize2, FileText, ImageIcon, ExternalLink, Loader2 } from 'lucide-react';
+import { X, Download, FileText, ImageIcon, ExternalLink, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DocumentViewerProps {
@@ -50,11 +50,11 @@ export const DocumentViewer = ({ document, onClose }: DocumentViewerProps) => {
               {isPDF ? <FileText size={20} /> : <ImageIcon size={20} />}
             </div>
             <div>
-              <h3 className="text-xl font-black text-foreground tracking-tighter uppercase leading-none">
-                {document.name || 'Secure Document'}
+              <h3 className="text-xl font-bold text-foreground tracking-tight leading-none">
+                {document.name || 'Document'}
               </h3>
-              <p className="text-[10px] font-mono text-muted-foreground uppercase font-black tracking-widest mt-1 opacity-60">
-                 Vault Node: {document.id.slice(-8).toUpperCase()} • {document.docType.replace('_', ' ')}
+              <p className="text-xs text-muted-foreground mt-1 opacity-70">
+                 Document Type: {document.docType.replace('_', ' ')}
               </p>
             </div>
           </div>
@@ -62,11 +62,11 @@ export const DocumentViewer = ({ document, onClose }: DocumentViewerProps) => {
           <div className="flex items-center gap-3">
             <button
               onClick={() => window.open(fileUrl, '_blank')}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-accent border border-border text-[10px] font-mono font-black uppercase tracking-widest text-muted-foreground hover:text-foreground hover:border-indigo-500/30 transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-accent border border-border text-xs font-semibold text-muted-foreground hover:text-foreground hover:border-indigo-500/30 transition-all"
               title="Open in new tab"
             >
               <ExternalLink size={14} />
-              <span className="hidden md:inline">Redirect</span>
+              <span className="hidden md:inline">Open</span>
             </button>
             
             <a
@@ -131,15 +131,14 @@ export const DocumentViewer = ({ document, onClose }: DocumentViewerProps) => {
 
         {/* Footer Info */}
         <div className="px-8 py-4 bg-accent/10 border-t border-border flex items-center justify-between">
-           <div className="flex items-center gap-6 text-[9px] font-mono text-muted-foreground uppercase font-black tracking-widest">
+           <div className="flex items-center gap-6 text-[10px] text-muted-foreground font-medium">
               <div className="flex items-center gap-2">
-                 <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                 Encrypted Connection
+                 <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                 Secure Connection
               </div>
-              <div>Hash: {document.id.toUpperCase()}</div>
            </div>
-           <div className="text-[9px] font-mono text-muted-foreground uppercase font-black opacity-30">
-              ScholarHub Secure Ledger v1.0
+           <div className="text-[10px] text-muted-foreground opacity-40">
+              ScholarHub Documents
            </div>
         </div>
       </motion.div>

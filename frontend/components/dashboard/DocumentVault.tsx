@@ -43,7 +43,7 @@ export const DocumentVault = () => {
       setDocuments(res.data.documents || []);
     } catch (err) {
       console.error('Failed to fetch documents:', err);
-      toast.error('Failed to sync document vault');
+      toast.error('Failed to load documents');
     } finally {
       setLoading(false);
     }
@@ -59,7 +59,7 @@ export const DocumentVault = () => {
 
     // Validate size (e.g., 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('File exceeds 5MB security limit.');
+      toast.error('File exceeds the 5MB size limit.');
       return;
     }
 
@@ -72,25 +72,25 @@ export const DocumentVault = () => {
 
       await api.post('documents/upload', formData);
 
-      toast.success('Document encrypted and stored in vault.');
+      toast.success('Document uploaded successfully.');
       fetchDocuments();
     } catch (err) {
       console.error('Upload failed:', err);
-      toast.error('Failed to secure document in vault.');
+      toast.error('Failed to upload document.');
     } finally {
       setUploading(false);
     }
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm('Permanently purge this document from the secure ledger?')) return;
+    if (!confirm('Are you sure you want to delete this document?')) return;
     try {
       await api.delete(`documents/${id}`);
       setDocuments(documents.filter(d => d.id !== id));
-      toast.success('Document purged successfully.');
+      toast.success('Document deleted successfully.');
     } catch (err) {
       console.error('Delete failed:', err);
-      toast.error('Failed to delete document node.');
+      toast.error('Failed to delete document.');
     }
   };
 
@@ -101,7 +101,7 @@ export const DocumentVault = () => {
         <div className="space-y-2">
           <div className="flex items-center gap-2 mb-1">
              <div className="px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-semibold border border-blue-100">
-                Encrypted Storage
+                Secure Storage
              </div>
           </div>
           <h2 className="text-3xl font-bold tracking-tight text-foreground">Document Vault</h2>
@@ -128,8 +128,8 @@ export const DocumentVault = () => {
       {/* Stats Summary */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
          {[
-           { label: 'Total Storage', value: `${(documents.reduce((acc, d) => acc + (d.fileSize || 0), 0) / (1024 * 1024)).toFixed(2)} MB`, sub: 'Encrypted Documents' },
-           { label: 'Vault Integrity', value: '100%', sub: 'No issues found' },
+           { label: 'Total Storage', value: `${(documents.reduce((acc, d) => acc + (d.fileSize || 0), 0) / (1024 * 1024)).toFixed(2)} MB`, sub: 'Stored Documents' },
+           { label: 'Storage Health', value: '100%', sub: 'No issues found' },
            { label: 'Active Links', value: documents.filter(d => d.appId).length, sub: 'Connected to applications' }
          ].map((stat, i) => (
            <div key={i} className="bg-card border rounded-2xl p-6 space-y-2 shadow-sm">

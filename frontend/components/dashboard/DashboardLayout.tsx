@@ -14,6 +14,7 @@ import { AnimatePresence } from 'framer-motion';
 import { usePathname } from 'next/navigation';
 import api from '@/app/lib/api';
 import { GlobalSearch } from '../provider/GlobalSearch';
+import { TourGuide } from '../ui/TourGuide';
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { user, logout } = useAuthStore();
@@ -62,17 +63,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="flex min-h-screen bg-background selection:bg-blue-500/30 text-foreground relative isolate font-sans">
-      <DashboardSidebar 
-        onLogout={handleLogout} 
-        onTabChange={() => {}} // Managed via file routes
-        activeTab="" 
-        isOpen={mobileSidebarOpen}
-        onClose={() => setMobileSidebarOpen(false)}
-      />
+      <div id="tour-sidebar">
+        <DashboardSidebar 
+          onLogout={handleLogout} 
+          onTabChange={() => {}} // Managed via file routes
+          activeTab="" 
+          isOpen={mobileSidebarOpen}
+          onClose={() => setMobileSidebarOpen(false)}
+        />
+      </div>
 
       <main className="flex-1 p-6 md:p-10 relative z-10 w-full min-h-screen">
         {/* Simple Top Nav for new pages */}
-        <div className="flex items-center justify-between h-14 border-b border-sidebar-border bg-background/50 backdrop-blur-md -mx-10 px-10 mb-8 sticky top-0 z-40">
+        <div id="tour-header" className="flex items-center justify-between h-14 border-b border-sidebar-border bg-background/50 backdrop-blur-md -mx-10 px-10 mb-8 sticky top-0 z-40">
           <div className="flex items-center gap-4">
             <Button 
               variant="ghost" 
@@ -104,7 +107,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </div>
 
             {/* Notifications Bell */}
-            <div className="relative">
+            <div id="tour-notifications" className="relative z-[60]">
               <div 
                 onClick={() => setShowNotifications(!showNotifications)}
                 className={cn(
@@ -128,7 +131,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               </AnimatePresence>
             </div>
 
-            <div className="relative">
+            <div className="relative z-[60]">
               <div 
                 onClick={() => setShowProfile(!showProfile)}
                 className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 overflow-hidden flex items-center justify-center text-white font-black text-xs shadow-lg shadow-blue-500/20 group cursor-pointer hover:scale-105 transition-transform ring-2 ring-white/10"
@@ -154,6 +157,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </main>
 
       <GlobalSearch isOpen={showSearch} onClose={() => setShowSearch(false)} />
+      <TourGuide />
     </div>
   );
 }

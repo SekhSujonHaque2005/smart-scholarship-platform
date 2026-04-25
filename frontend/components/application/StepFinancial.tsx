@@ -41,98 +41,92 @@ export default function StepFinancial({ formData, updateFormData, onNext, onBack
     onNext();
   };
 
-  const inputClass = "h-14 bg-white/[0.02] border border-dashed border-border/60 text-foreground placeholder:text-muted-foreground/30 focus:border-blue-500/40 rounded-2xl font-mono text-xs transition-all shadow-sm px-6";
-
-  const labelClass = "text-[9px] font-mono font-black text-muted-foreground uppercase tracking-[0.3em] ml-2 mb-2 block";
+  const inputClass = "w-full bg-muted/50 border rounded-lg py-2.5 px-4 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all";
+  const labelClass = "text-sm font-medium text-foreground mb-1 ml-1 block";
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-12">
-      <div className="bg-white/[0.01] border border-dashed border-border/60 rounded-[48px] p-12 relative overflow-hidden">
-        {/* Subtle glass effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-500/[0.02] to-transparent -z-10" />
-        
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+      <div className="bg-card border rounded-xl p-6 shadow-sm space-y-6">
         {/* Technical Warning */}
-        <div className="mb-10 p-6 rounded-3xl border border-dashed border-amber-500/20 bg-amber-500/[0.02] flex items-start gap-6">
-          <div className="w-10 h-10 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-500 border border-amber-500/20 shrink-0">
-            <span className="font-mono font-black text-xs">!</span>
+        <div className="p-4 rounded-lg bg-amber-50 border border-amber-100 flex items-start gap-3 text-amber-800 text-sm dark:bg-amber-500/10 dark:border-amber-500/20">
+          <div className="w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-600 font-bold shrink-0 text-xs">
+            !
           </div>
-          <div className="space-y-2">
-            <p className="text-[10px] font-mono font-black text-amber-500 uppercase tracking-[0.4em] leading-none">Security Declaration Required</p>
-            <p className="text-muted-foreground text-[10px] font-mono leading-relaxed uppercase tracking-tight opacity-60">
-              Accuracy of financial data is critical. AI-based verification agents will cross-reference these inputs with official registry documentation.
-              Discrepancies may trigger permanent disqualification.
+          <div className="space-y-1">
+            <p className="font-semibold">Security Declaration Required</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Accuracy of financial data is critical. Please double-check your bank details. 
+              Discrepancies may cause delays or scholarship disqualification.
             </p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Annual Income */}
-          <div className="space-y-3 md:col-span-2">
-            <label className={labelClass}>01. Annual Family Yield Range (₹) *</label>
-            <select {...register('annualIncome')} className="w-full h-14 bg-white/[0.02] border border-dashed border-border/60 rounded-2xl px-6 text-foreground font-mono text-xs uppercase tracking-widest focus:outline-none focus:border-blue-500/40 transition-all cursor-pointer">
-              <option value="" className="bg-background">SELECT_INCOME_RANGE</option>
-              <option value="BELOW_1L" className="bg-background">BELOW ₹1 LAKH</option>
-              <option value="1L_3L" className="bg-background">₹1L — ₹3L</option>
-              <option value="3L_6L" className="bg-background">₹3L — ₹6L</option>
-              <option value="6L_10L" className="bg-background">₹6L — ₹10L</option>
-              <option value="ABOVE_10L" className="bg-background">ABOVE ₹10 LAKH</option>
+          <div className="space-y-1 md:col-span-2">
+            <label className={labelClass}>Annual Family Income Range (₹) *</label>
+            <select {...register('annualIncome')} className="w-full h-10 bg-muted/50 border rounded-lg px-4 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all cursor-pointer">
+              <option value="" className="bg-card">Select Income Range</option>
+              <option value="BELOW_1L" className="bg-card">Below ₹1 Lakh</option>
+              <option value="1L_3L" className="bg-card">₹1L — ₹3L</option>
+              <option value="3L_6L" className="bg-card">₹3L — ₹6L</option>
+              <option value="6L_10L" className="bg-card">₹6L — ₹10L</option>
+              <option value="ABOVE_10L" className="bg-card">Above ₹10 Lakh</option>
             </select>
-            {errors.annualIncome && <p className="text-rose-500 font-mono text-[9px] font-black uppercase tracking-widest ml-2 mt-2">Error: {errors.annualIncome.message as string}</p>}
+            {errors.annualIncome && <p className="text-rose-500 text-xs mt-1 ml-1">{errors.annualIncome.message as string}</p>}
           </div>
 
           {/* Bank Name */}
-          <div className="space-y-3 md:col-span-2">
-            <label className={labelClass}>02. Financial Institution (Bank) *</label>
-            <Input {...register('bankName')} className={inputClass} placeholder="e.g. STATE BANK OF INDIA" />
-            {errors.bankName && <p className="text-rose-500 font-mono text-[9px] font-black uppercase tracking-widest ml-2 mt-2">Error: {errors.bankName.message as string}</p>}
+          <div className="space-y-1 md:col-span-2">
+            <label className={labelClass}>Bank Name *</label>
+            <Input {...register('bankName')} className={inputClass} placeholder="e.g. State Bank of India" />
+            {errors.bankName && <p className="text-rose-500 text-xs mt-1 ml-1">{errors.bankName.message as string}</p>}
           </div>
 
           {/* Account Holder Name */}
-          <div className="space-y-3 md:col-span-2">
-            <label className={labelClass}>03. Registry Account Holder Name *</label>
-            <Input {...register('accountHolderName')} className={inputClass} placeholder="AS PER FINANCIAL RECORDS" />
-            {errors.accountHolderName && <p className="text-rose-500 font-mono text-[9px] font-black uppercase tracking-widest ml-2 mt-2">Error: {errors.accountHolderName.message as string}</p>}
+          <div className="space-y-1 md:col-span-2">
+            <label className={labelClass}>Account Holder Name *</label>
+            <Input {...register('accountHolderName')} className={inputClass} placeholder="As per official bank records" />
+            {errors.accountHolderName && <p className="text-rose-500 text-xs mt-1 ml-1">{errors.accountHolderName.message as string}</p>}
           </div>
 
           {/* Account Number */}
-          <div className="space-y-3">
-            <label className={labelClass}>04. Node Account Number *</label>
-            <Input {...register('bankAccountNumber')} className={inputClass} placeholder="ENTER ACCOUNT DIGITS" />
-            {errors.bankAccountNumber && <p className="text-rose-500 font-mono text-[9px] font-black uppercase tracking-widest ml-2 mt-2">Error: {errors.bankAccountNumber.message as string}</p>}
+          <div className="space-y-1">
+            <label className={labelClass}>Bank Account Number *</label>
+            <Input {...register('bankAccountNumber')} className={inputClass} placeholder="Enter your account number" />
+            {errors.bankAccountNumber && <p className="text-rose-500 text-xs mt-1 ml-1">{errors.bankAccountNumber.message as string}</p>}
           </div>
 
           {/* IFSC Code */}
-          <div className="space-y-3">
-            <label className={labelClass}>05. IFSC Routing Protocol *</label>
+          <div className="space-y-1">
+            <label className={labelClass}>IFSC Code *</label>
             <Input
               {...register('ifscCode')}
               className={cn(inputClass, "uppercase")}
               placeholder="e.g. SBIN0001234"
               maxLength={11}
             />
-            {errors.ifscCode && <p className="text-rose-500 font-mono text-[9px] font-black uppercase tracking-widest ml-2 mt-2">Error: {errors.ifscCode.message as string}</p>}
+            {errors.ifscCode && <p className="text-rose-500 text-xs mt-1 ml-1">{errors.ifscCode.message as string}</p>}
           </div>
         </div>
       </div>
 
       {/* Action triggers */}
       <div className="flex items-center justify-between pt-4">
-        <button 
+        <Button 
           type="button" 
+          variant="outline"
           onClick={onBack}
-          className="group flex items-center gap-3 text-muted-foreground hover:text-foreground transition-all duration-300"
+          className="h-11 px-6 text-sm font-semibold rounded-lg transition-colors"
         >
-          <div className="w-12 h-12 rounded-2xl border border-dashed border-border/60 flex items-center justify-center group-hover:border-blue-500/40 group-hover:text-blue-500 transition-all">
-            <span className="text-sm font-mono font-black">←</span>
-          </div>
-          <span className="text-[10px] font-mono font-black uppercase tracking-[0.3em]">Previous</span>
-        </button>
+          Back
+        </Button>
 
         <Button 
           type="submit" 
-          className="h-16 bg-foreground text-background hover:scale-105 active:scale-95 px-12 rounded-2xl font-mono font-black text-[10px] uppercase tracking-[0.3em] transition-all border border-white/10 shadow-2xl"
+          className="bg-blue-600 text-white hover:bg-blue-700 h-11 px-8 text-sm font-semibold rounded-lg transition-colors shadow-sm"
         >
-          Generate Manifest →
+          Next Step
         </Button>
       </div>
     </form>

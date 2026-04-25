@@ -47,23 +47,23 @@ export const FormBuilder = () => {
   };
 
   return (
-    <div className="space-y-8 bg-[#0D0D0D]/50 border border-white/5 rounded-[48px] p-8 overflow-hidden relative">
-      <div className="absolute top-0 right-0 p-8 opacity-5">
+    <div className="space-y-8 bg-card border shadow-sm rounded-[32px] p-8 overflow-hidden relative">
+      <div className="absolute top-0 right-0 p-8 opacity-[0.02]">
         <Code size={120} />
       </div>
 
       <div className="flex items-center justify-between mb-8 relative z-10">
         <div>
-          <h2 className="text-xl font-black text-white tracking-tight flex items-center gap-2 uppercase">
+          <h2 className="text-xl font-bold text-foreground tracking-tight flex items-center gap-2">
             <Layers size={20} className="text-indigo-500" />
-            Dynamic Form Architect
+            Custom Application Form
           </h2>
-          <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-[0.2em] mt-1">
-            Build custom application input schemas
+          <p className="text-sm text-muted-foreground mt-1">
+            Add custom questions for applicants
           </p>
         </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/5 border border-white/10 text-[9px] font-mono text-zinc-400 uppercase tracking-widest">
-           Status: {fields.length > 0 ? 'ACTIVE_SCHEMA' : 'NULL_SCHEMA'}
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-accent border text-xs text-muted-foreground font-semibold">
+           {fields.length > 0 ? 'Fields Active' : 'Empty Form'}
         </div>
       </div>
 
@@ -79,10 +79,10 @@ export const FormBuilder = () => {
             key={btn.type}
             type="button"
             onClick={() => addField(btn.type as FieldType)}
-            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-white/[0.02] border border-white/5 hover:border-indigo-500/30 hover:bg-indigo-500/5 text-zinc-500 hover:text-white transition-all group"
+            className="flex flex-col items-center gap-2 p-4 rounded-2xl bg-accent/50 border hover:border-indigo-500/30 hover:bg-indigo-500/5 text-muted-foreground hover:text-foreground transition-all group"
           >
             <btn.icon size={20} className="group-hover:scale-110 transition-transform" />
-            <span className="text-[9px] font-mono uppercase tracking-widest">{btn.label}</span>
+            <span className="text-xs font-medium">{btn.label}</span>
           </button>
         ))}
       </div>
@@ -93,10 +93,10 @@ export const FormBuilder = () => {
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="flex flex-col items-center justify-center p-12 border border-dashed border-white/5 rounded-[32px] text-zinc-700"
+              className="flex flex-col items-center justify-center p-12 border border-dashed rounded-[24px] text-muted-foreground"
             >
               <Settings size={40} className="mb-4 opacity-50 stroke-[1.5]" />
-              <p className="text-[10px] font-mono uppercase tracking-[0.2em]">System Awaiting Schema Configuration</p>
+              <p className="text-sm font-medium">Click above to add questions to your form</p>
             </motion.div>
           ) : (
             fields.map((field, idx) => (
@@ -109,11 +109,11 @@ export const FormBuilder = () => {
                 className="flex items-center gap-4 p-5 bg-white/[0.02] border border-white/5 rounded-3xl group"
               >
                 <div className="flex items-center gap-3 shrink-0">
-                  <div className="text-zinc-700">
+                  <div className="text-muted-foreground">
                     <GripVertical size={16} />
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-zinc-900 border border-white/5 flex items-center justify-center text-indigo-400">
-                    <span className="text-[10px] font-mono font-bold">{idx + 1}</span>
+                  <div className="w-10 h-10 rounded-xl bg-accent border flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                    <span className="text-xs font-bold">{idx + 1}</span>
                   </div>
                 </div>
 
@@ -126,12 +126,12 @@ export const FormBuilder = () => {
                       newFields[idx].label = e.target.value;
                       setFields(newFields);
                     }}
-                    className="bg-black/40 border border-white/5 rounded-xl py-2 px-3 text-[11px] font-mono text-white placeholder:text-zinc-700 focus:outline-none focus:border-indigo-500/50 uppercase tracking-tight"
-                    placeholder="FIELD_LABEL..."
+                    className="bg-accent/30 border rounded-xl py-2 px-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-indigo-500/50 tracking-tight"
+                    placeholder="Field Label..."
                   />
-                  <div className="flex items-center justify-between px-3 py-2 bg-black/20 rounded-xl border border-white/5">
-                    <span className="text-[9px] font-mono text-zinc-500 uppercase tracking-widest">{field.type} Protocol</span>
-                    <Settings size={14} className="text-zinc-600 hover:text-white transition-colors cursor-pointer" />
+                  <div className="flex items-center justify-between px-3 py-2 bg-accent/10 rounded-xl border">
+                    <span className="text-xs font-medium text-muted-foreground">{field.type}</span>
+                    <Settings size={14} className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer" />
                   </div>
                 </div>
 
@@ -152,10 +152,10 @@ export const FormBuilder = () => {
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="pt-6 border-t border-white/5 flex justify-end"
+          className="pt-6 border-t flex justify-end"
         >
-          <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-black text-[10px] uppercase tracking-widest hover:bg-indigo-500 transition-all shadow-[0_0_20px_rgba(79,70,229,0.2)]">
-            COMPILE_SCHEMA <CheckCircle2 size={16} />
+          <button className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs hover:bg-indigo-500 transition-all shadow-md">
+            Save Questions <CheckCircle2 size={16} />
           </button>
         </motion.div>
       )}

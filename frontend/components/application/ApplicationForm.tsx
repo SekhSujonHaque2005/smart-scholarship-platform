@@ -9,6 +9,9 @@ import StepFinancial from './StepFinancial';
 import StepDocuments from './StepDocuments';
 import StepReview from './StepReview';
 
+import React from 'react';
+import { User, GraduationCap, IndianRupee, FileText, ShieldCheck } from 'lucide-react';
+
 export interface FormData {
   // Personal
   fullName: string;
@@ -51,11 +54,11 @@ export interface FormData {
 }
 
 const STEPS = [
-  { id: 1, title: 'Personal Info', icon: '👤' },
-  { id: 2, title: 'Academic Details', icon: '🎓' },
-  { id: 3, title: 'Financial Info', icon: '💰' },
-  { id: 4, title: 'Documents', icon: '📄' },
-  { id: 5, title: 'Review & Submit', icon: '✅' },
+  { id: 1, title: 'Personal', icon: User },
+  { id: 2, title: 'Academic', icon: GraduationCap },
+  { id: 3, title: 'Financial', icon: IndianRupee },
+  { id: 4, title: 'Documents', icon: FileText },
+  { id: 5, title: 'Review', icon: ShieldCheck },
 ];
 
 interface Props {
@@ -87,92 +90,42 @@ export default function ApplicationForm({ scholarshipId, scholarshipTitle, onSuc
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Premium Stepper */}
-      <div className="mb-20 px-4">
-        <div className="flex items-center justify-between relative">
-          {/* Background Track */}
-          <div className="absolute top-1/2 left-0 right-0 h-px bg-border/40 -translate-y-1/2 -z-10 border-t border-dashed border-border/60" />
-          
-          {/* Active Progress Line */}
-          <motion.div
-            className="absolute top-1/2 left-0 h-px bg-blue-500 -translate-y-1/2 -z-10 shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-700"
-            initial={{ width: '0%' }}
-            animate={{ width: `${((currentStep - 1) / 4) * 100}%` }}
-          />
-
-          {STEPS.map((step) => (
-            <div key={step.id} className="relative flex flex-col items-center">
-              <motion.div
-                className={cn(
-                  "w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-500 border border-dashed relative group",
-                  currentStep > step.id
-                    ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-500"
-                    : currentStep === step.id
-                    ? "bg-blue-500 text-background border-blue-500 shadow-[0_0_20px_rgba(59,130,246,0.2)] scale-110"
-                    : "bg-background border-border/60 text-muted-foreground"
-                )}
-              >
-                {/* Pulsing indicator for active step */}
-                {currentStep === step.id && (
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full border-2 border-background animate-pulse" />
-                )}
-                
-                <span className="font-mono font-black text-xs uppercase tracking-tighter">
-                  {currentStep > step.id ? 'OK' : `0${step.id}`}
-                </span>
-                
-                {/* Hover Tooltip */}
-                <div className="absolute -bottom-10 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                   <p className="text-[10px] font-mono font-black text-muted-foreground uppercase tracking-widest">{step.title}</p>
-                </div>
-              </motion.div>
-              
-              <div className="mt-6 text-center">
-                <p className={cn(
-                  "text-[10px] font-mono font-black uppercase tracking-[0.2em] transition-colors duration-300",
-                  currentStep === step.id ? "text-blue-500" : "text-muted-foreground opacity-40"
+    <div className="max-w-4xl mx-auto pb-10">
+      {/* Sleek Modern Stepper Indicator */}
+      <div className="flex items-center justify-between mb-16 px-2">
+        {STEPS.map((s, i) => {
+          const Icon = s.icon;
+          return (
+            <React.Fragment key={s.id}>
+              <div className="flex flex-col items-center gap-2 relative">
+                <div className={cn(
+                  "w-10 h-10 rounded-lg border flex items-center justify-center transition-all",
+                  currentStep >= s.id
+                    ? "bg-blue-50 border-blue-200 text-blue-600 dark:bg-blue-500/10 dark:border-blue-500/30"
+                    : "bg-muted border-border text-muted-foreground/40"
                 )}>
-                  {step.title}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Status Breakdown Section */}
-        <div className="mt-16 flex items-center justify-between p-6 rounded-3xl border border-dashed border-border/40 bg-white/[0.01]">
-          <div className="flex items-center gap-6">
-            <div className="space-y-1">
-              <p className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest">Active Step</p>
-              <div className="flex items-center gap-3">
-                <span className="text-xl font-sans font-black tracking-tight text-foreground">{STEPS[currentStep - 1].title}</span>
-                <div className="bg-blue-500/10 text-blue-500 px-2 py-0.5 rounded-sm font-mono text-[9px] font-black uppercase tracking-widest border border-blue-500/20">
-                  {currentStep} / 5
+                  <Icon size={18} />
                 </div>
+                <span className={cn(
+                  "text-xs font-semibold absolute -bottom-6 whitespace-nowrap tracking-tight",
+                  currentStep === s.id ? "text-foreground" : "text-muted-foreground/50"
+                )}>
+                  {s.title}
+                </span>
               </div>
-            </div>
-          </div>
-          <div className="h-10 w-px bg-border/40 hidden md:block" />
-          <div className="space-y-1 hidden md:block">
-            <p className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest">Global Protocol</p>
-            <p className="text-[10px] font-mono text-foreground uppercase tracking-widest">ID: SCH-{scholarshipId.slice(-6).toUpperCase()}</p>
-          </div>
-          <div className="h-10 w-px bg-border/40 hidden md:block" />
-          <div className="flex items-center gap-4">
-             <div className="text-right">
-                <p className="text-[9px] font-mono font-black text-muted-foreground uppercase tracking-widest mb-1">Completion</p>
-                <div className="w-24 h-1.5 bg-white/5 rounded-full overflow-hidden border border-dashed border-border/40">
-                  <motion.div 
-                    className="h-full bg-blue-500"
+              {i < STEPS.length - 1 && (
+                <div className="flex-1 h-[2px] bg-border mx-4 rounded-full relative overflow-hidden">
+                  <motion.div
+                    className="absolute top-0 left-0 h-full bg-blue-500 rounded-full"
                     initial={{ width: 0 }}
-                    animate={{ width: `${(currentStep / 5) * 100}%` }}
+                    animate={{ width: currentStep > s.id ? '100%' : '0%' }}
+                    transition={{ duration: 0.3 }}
                   />
                 </div>
-             </div>
-             <span className="text-xs font-mono font-black text-foreground">{Math.round((currentStep / 5) * 100)}%</span>
-          </div>
-        </div>
+              )}
+            </React.Fragment>
+          );
+        })}
       </div>
 
       {/* Step Content */}

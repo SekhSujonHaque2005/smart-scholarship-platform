@@ -130,12 +130,12 @@ export const GlobalSearch = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
               <input
                 ref={inputRef}
                 type="text"
-                placeholder="Search protocols, candidates, or system commands..."
+                placeholder="Search scholarships or applications..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                className="flex-1 bg-transparent border-none outline-none text-foreground font-mono text-sm placeholder:text-muted-foreground"
+                className="flex-1 bg-transparent border-none outline-none text-foreground text-sm placeholder:text-muted-foreground"
               />
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-accent border border-border text-[9px] font-mono text-muted-foreground uppercase font-black">
+              <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-accent border border-border text-[10px] text-muted-foreground uppercase font-semibold">
                 <Command size={10} /> Esc
               </div>
             </div>
@@ -145,7 +145,7 @@ export const GlobalSearch = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
               {isLoading ? (
                 <div className="py-12 flex flex-col items-center justify-center gap-4">
                   <Loader2 className="animate-spin text-indigo-500" size={32} />
-                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest animate-pulse">Scanning Neural Network...</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-widest animate-pulse font-medium">Searching...</p>
                 </div>
               ) : results.length > 0 ? (
                 <div className="space-y-6 pb-4">
@@ -156,8 +156,8 @@ export const GlobalSearch = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
 
                     return (
                       <div key={type} className="space-y-2">
-                        <div className="px-3 text-[9px] font-mono text-muted-foreground uppercase tracking-[0.2em] font-black opacity-60">
-                          {type === 'scholarship' ? 'Programs & Protocols' : 'Candidate Submissions'}
+                        <div className="px-3 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                          {type === 'scholarship' ? 'Scholarship Programs' : 'Applications'}
                         </div>
                         <div className="space-y-1">
                           {categoryResults.map((result) => (
@@ -175,14 +175,14 @@ export const GlobalSearch = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                                   <div className="text-sm font-bold text-foreground group-hover:text-indigo-500 transition-colors uppercase tracking-tight">
                                     {result.title}
                                   </div>
-                                  <div className="text-[10px] font-mono text-muted-foreground uppercase tracking-wider">
+                                  <div className="text-[10px] text-muted-foreground uppercase tracking-wider">
                                     {result.subtitle}
                                   </div>
                                 </div>
                               </div>
                               <div className="flex items-center gap-3">
                                 {result.status && (
-                                  <div className="px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-[8px] font-mono uppercase tracking-widest font-black">
+                                  <div className="px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 text-[9px] uppercase tracking-wider font-bold">
                                     {result.status}
                                   </div>
                                 )}
@@ -201,8 +201,8 @@ export const GlobalSearch = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                     <FileText size={32} />
                   </div>
                   <div>
-                    <p className="text-xs font-mono text-foreground uppercase tracking-widest font-black">No matches found</p>
-                    <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest mt-1">Try adjusting your search parameters</p>
+                    <p className="text-sm font-bold text-foreground uppercase tracking-wider">No matches found</p>
+                    <p className="text-xs text-muted-foreground tracking-wide mt-1">Try adjusting your search parameters</p>
                   </div>
                 </div>
               ) : (
@@ -221,7 +221,7 @@ export const GlobalSearch = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                       <p className="text-[8px] font-mono uppercase tracking-widest">Tab: Filter</p>
                     </div>
                   </div>
-                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.2em] font-black">
+                  <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider">
                     Quickly navigate through organization data
                   </p>
                 </div>
@@ -231,17 +231,17 @@ export const GlobalSearch = ({ isOpen, onClose }: { isOpen: boolean; onClose: ()
             {/* Footer */}
             <div className="p-4 bg-accent/30 border-t border-border flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1 text-[9px] font-mono text-muted-foreground uppercase tracking-widest">
+                <div className="flex items-center gap-1 text-[10px] text-muted-foreground uppercase font-semibold">
                   <span className="px-1 py-0.5 rounded bg-card border border-border">↑↓</span>
                   <span>Navigate</span>
                 </div>
-                <div className="flex items-center gap-1 text-[9px] font-mono text-muted-foreground uppercase tracking-widest">
+                <div className="flex items-center gap-1 text-[10px] text-muted-foreground uppercase font-semibold">
                   <span className="px-1 py-0.5 rounded bg-card border border-border">Enter</span>
                   <span>Select</span>
                 </div>
               </div>
-              <div className="text-[9px] font-mono text-muted-foreground uppercase tracking-widest opacity-50">
-                ScholarHub Console Search v1.0
+              <div className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium opacity-60">
+                ScholarHub Search
               </div>
             </div>
           </motion.div>

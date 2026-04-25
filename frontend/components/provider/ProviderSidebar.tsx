@@ -43,17 +43,16 @@ const SidebarItem = ({ icon: Icon, label, href, active, collapsed, onClick }: Si
 
   const content = (
     <motion.div
-      whileHover={{ backgroundColor: 'rgba(255, 255, 255, 0.05)' }}
       className={cn(
         "flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-300 cursor-pointer mb-1 group relative",
         active 
-          ? "bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-500 dark:text-indigo-400 shadow-[0_0_20px_rgba(99,102,241,0.1)] border border-indigo-500/20" 
-          : "text-muted-foreground hover:text-foreground hover:bg-accent/50",
+          ? "bg-indigo-600/10 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 shadow-sm border border-indigo-500/20" 
+          : "text-zinc-600 dark:text-zinc-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-accent/50",
         collapsed && "justify-center px-0"
       )}
       onClick={onClick}
     >
-      <Icon size={18} className={cn("transition-colors duration-300 shrink-0", active ? "text-indigo-400" : "group-hover:text-white")} />
+      <Icon size={18} className={cn("transition-colors duration-300 shrink-0", active ? "text-indigo-600 dark:text-indigo-400" : "group-hover:text-indigo-600 dark:group-hover:text-indigo-400")} />
       
       <AnimatePresence>
         {!collapsed && (
@@ -62,7 +61,7 @@ const SidebarItem = ({ icon: Icon, label, href, active, collapsed, onClick }: Si
             initial="collapsed"
             animate="expanded"
             exit="collapsed"
-            className="font-mono text-[11px] uppercase tracking-wider whitespace-nowrap"
+            className="font-medium text-[13px] whitespace-nowrap"
           >
             {label}
           </motion.span>
@@ -250,8 +249,8 @@ export const ProviderSidebar = ({
           </Link>
           {isExpanded && (
             <div className="ml-3 flex flex-col">
-              <span className="text-[10px] font-mono text-indigo-500 tracking-tighter leading-none mb-1 font-black">PROVIDER</span>
-              <span className="text-[10px] font-mono text-zinc-500 dark:text-zinc-400 tracking-[0.2em] leading-none uppercase font-black opacity-100 dark:opacity-100">Console v1.0</span>
+              <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400 tracking-tight leading-none mb-1">PROVIDER</span>
+              <span className="text-[10px] text-zinc-500 dark:text-zinc-400 tracking-wider leading-none font-medium">Dashboard</span>
             </div>
           )}
         </div>
@@ -266,9 +265,9 @@ export const ProviderSidebar = ({
                     initial={{ opacity: 0, x: -10 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -10 }}
-                    className="px-3 mb-3 text-[9px] font-mono text-zinc-500 dark:text-muted-foreground uppercase tracking-[0.2em] flex items-center gap-2 font-black"
+                    className="px-3 mb-3 text-[10px] font-bold text-zinc-700 dark:text-zinc-300 uppercase tracking-[0.15em] flex items-center gap-2"
                   >
-                    <span className="w-1.5 h-[1px] bg-border" />
+                    <span className="w-1.5 h-[2px] bg-indigo-500 rounded-full" />
                     {section.title}
                   </motion.div>
                 )}
@@ -317,12 +316,12 @@ export const ProviderSidebar = ({
           <button
             onClick={handleLogout}
             className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 mt-2 rounded-lg transition-all duration-200 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 group font-black",
+              "w-full flex items-center gap-3 px-3 py-2.5 mt-2 rounded-lg transition-all duration-200 text-zinc-600 dark:text-zinc-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-500/10 group font-medium",
               !isExpanded && "justify-center px-0"
             )}
           >
             <LogOut size={16} className="group-hover:-translate-x-1 transition-transform" />
-            {isExpanded && <span className="text-[10px] font-mono uppercase tracking-widest opacity-100 dark:opacity-100">Terminate Session</span>}
+            {isExpanded && <span className="text-xs font-medium">Sign Out</span>}
           </button>
         </div>
       </motion.aside>

@@ -162,23 +162,6 @@ export default function ApplyPage() {
               </motion.div>
             </div>
           </div>
-
-          <div className="hidden lg:block shrink-0">
-            <div className="p-5 rounded-xl border bg-card shadow-sm space-y-3 min-w-[200px]">
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Status</p>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
-                  <p className="text-sm font-semibold text-foreground">Session Active</p>
-                </div>
-              </div>
-              <div className="h-px bg-border" />
-              <div className="space-y-1">
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Protocol</p>
-                <p className="text-sm font-semibold text-blue-600 dark:text-blue-500">SECURE_FLOW_v2</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Form Container */}

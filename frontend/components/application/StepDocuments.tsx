@@ -120,25 +120,22 @@ export default function StepDocuments({ formData, updateFormData, onNext, onBack
   };
 
   return (
-    <div className="space-y-12">
-      <div className="bg-white/[0.01] border border-dashed border-border/60 rounded-[48px] p-12 relative overflow-hidden">
-        {/* Subtle glass effect */}
-        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/[0.02] to-transparent -z-10" />
-
+    <div className="space-y-8">
+      <div className="bg-card border rounded-xl p-6 shadow-sm space-y-6">
         {/* Technical Storage Info */}
-        <div className="mb-10 p-6 rounded-3xl border border-dashed border-blue-500/20 bg-blue-500/[0.02] flex items-start gap-6">
-          <div className="w-10 h-10 rounded-2xl bg-blue-500/10 flex items-center justify-center text-blue-500 border border-blue-500/20 shrink-0">
-            <Upload size={18} />
+        <div className="p-4 rounded-lg bg-blue-50 border border-blue-100 flex items-start gap-3 text-blue-800 text-sm dark:bg-blue-500/10 dark:border-blue-500/20">
+          <div className="w-6 h-6 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-600 shrink-0">
+            <Upload size={14} />
           </div>
-          <div className="space-y-2">
-            <p className="text-[10px] font-mono font-black text-blue-500 uppercase tracking-[0.4em] leading-none">Cloud Storage Protocol v4.0</p>
-            <p className="text-muted-foreground text-[10px] font-mono leading-relaxed uppercase tracking-tight opacity-60">
-              Uplaod high-fidelity scans (JPG/PNG/PDF). All binary data is committed to encrypted shards on our distributed ledger. Total node capacity: 5MB/file.
+          <div className="space-y-1">
+            <p className="font-semibold">Document Upload Guide</p>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Please upload clear, high-resolution copies (JPG, PNG, or PDF). Maximum file size allowed is 5MB per document.
             </p>
           </div>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           {DOC_FIELDS.map((field, index) => {
             const isUploaded = !!formData[field.urlKey];
             const isUploading = uploading === field.key;
@@ -147,53 +144,53 @@ export default function StepDocuments({ formData, updateFormData, onNext, onBack
               <motion.div
                 key={field.key}
                 layout
-                className={`border border-dashed rounded-3xl p-6 transition-all duration-300 relative overflow-hidden ${
+                className={`border rounded-lg p-4 transition-all duration-300 relative overflow-hidden ${
                   isUploaded
-                    ? 'border-emerald-500/30 bg-emerald-500/[0.02]'
-                    : 'border-border/60 bg-white/[0.01]'
-                } group hover:border-blue-500/40`}
+                    ? 'border-emerald-200 bg-emerald-50/30 dark:border-emerald-500/20 dark:bg-emerald-500/5'
+                    : 'border-border bg-muted/20'
+                }`}
               >
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                  <div className="flex items-center gap-6">
-                    <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-xl transition-all ${isUploaded ? 'bg-emerald-500/10 text-emerald-500 border border-dashed border-emerald-500/30' : 'bg-background border border-dashed border-border/60 text-muted-foreground'}`}>
-                      <span className="font-mono font-black text-xs">{(index + 1).toString().padStart(2, '0')}</span>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${isUploaded ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/10' : 'bg-muted text-muted-foreground border border-border'}`}>
+                      {index + 1}
                     </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                        <p className="text-foreground font-mono font-black text-[11px] uppercase tracking-widest">
-                          {field.label.replace(' ', '_')}
+                    <div className="space-y-0.5">
+                      <div className="flex items-center gap-2">
+                        <p className="text-foreground text-sm font-medium">
+                          {field.label}
                           {field.required && <span className="text-rose-500 ml-1">*</span>}
                         </p>
                         {isUploaded && (
-                          <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
-                            <CheckCircle2 size={10} className="text-emerald-500" />
-                            <span className="text-[8px] font-mono font-black text-emerald-500 uppercase tracking-widest">COMMITTED</span>
+                          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-100 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20">
+                            <CheckCircle2 size={10} className="text-emerald-600" />
+                            <span className="text-[10px] font-semibold text-emerald-600">Uploaded</span>
                           </div>
                         )}
                       </div>
-                      <p className="text-muted-foreground text-[9px] font-mono uppercase tracking-tight opacity-50">{field.description}</p>
+                      <p className="text-muted-foreground text-xs">{field.description}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 self-end md:self-auto">
                     {isUploaded && (
                        <a 
                         href={formData[field.urlKey] as string} 
                         target="_blank" 
                         rel="noreferrer" 
-                        className="h-12 flex items-center px-6 rounded-xl text-[9px] font-mono font-black uppercase tracking-widest text-muted-foreground hover:text-foreground border border-dashed border-border/60 hover:border-border transition-all"
+                        className="h-9 flex items-center px-4 rounded-lg text-xs font-semibold text-muted-foreground hover:text-foreground border border-border hover:bg-muted transition-all"
                        >
                         Preview
                        </a>
                     )}
-                    <label className={`cursor-pointer px-8 h-12 flex items-center justify-center rounded-xl text-[9px] font-mono font-black uppercase tracking-[0.2em] transition-all border ${
+                    <label className={`cursor-pointer px-5 h-9 flex items-center justify-center rounded-lg text-xs font-semibold transition-all border shadow-sm ${
                       isUploading
-                        ? 'bg-muted text-muted-foreground border-dashed border-border/60 cursor-wait'
+                        ? 'bg-muted text-muted-foreground border-border cursor-wait'
                         : isUploaded
-                        ? 'bg-emerald-500 text-background border-emerald-500/50'
-                        : 'bg-foreground text-background border-white/10 hover:scale-105 active:scale-95'
+                        ? 'bg-white border-emerald-200 text-emerald-700 hover:bg-emerald-50 dark:bg-muted dark:text-foreground'
+                        : 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
                     }`}>
-                      {isUploading ? 'SYNCHRONIZING...' : isUploaded ? 'REPLACE_NODE' : 'UPLOAD_DATA'}
+                      {isUploading ? 'Uploading...' : isUploaded ? 'Replace' : 'Upload'}
                       <input
                         type="file"
                         accept={field.accept}
@@ -209,9 +206,9 @@ export default function StepDocuments({ formData, updateFormData, onNext, onBack
                 </div>
 
                 {errors[field.key] && (
-                  <div className="mt-6 p-4 rounded-xl border border-dashed border-rose-500/20 bg-rose-500/[0.02] flex items-center gap-3 text-rose-500">
+                  <div className="mt-3 p-3 rounded-lg border border-rose-200 bg-rose-50 flex items-center gap-2 text-rose-600 text-xs dark:bg-rose-500/10 dark:border-rose-500/20">
                     <AlertCircle size={14} />
-                    <p className="text-[9px] font-mono font-black uppercase tracking-widest">ERROR_LOG: {errors[field.key]}</p>
+                    <p>{errors[field.key]}</p>
                   </div>
                 )}
               </motion.div>
@@ -222,22 +219,20 @@ export default function StepDocuments({ formData, updateFormData, onNext, onBack
 
       {/* Action triggers */}
       <div className="flex items-center justify-between pt-4">
-        <button 
+        <Button 
           type="button" 
+          variant="outline"
           onClick={onBack}
-          className="group flex items-center gap-3 text-muted-foreground hover:text-foreground transition-all duration-300"
+          className="h-11 px-6 text-sm font-semibold rounded-lg transition-colors"
         >
-          <div className="w-12 h-12 rounded-2xl border border-dashed border-border/60 flex items-center justify-center group-hover:border-blue-500/40 group-hover:text-blue-500 transition-all">
-            <span className="text-sm font-mono font-black">←</span>
-          </div>
-          <span className="text-[10px] font-mono font-black uppercase tracking-[0.3em]">Previous</span>
-        </button>
+          Back
+        </Button>
 
         <Button 
           onClick={handleNext} 
-          className="h-16 bg-foreground text-background hover:scale-105 active:scale-95 px-12 rounded-2xl font-mono font-black text-[10px] uppercase tracking-[0.3em] transition-all border border-white/10 shadow-2xl"
+          className="bg-blue-600 text-white hover:bg-blue-700 h-11 px-8 text-sm font-semibold rounded-lg transition-colors shadow-sm"
         >
-          Final Review →
+          Next Step
         </Button>
       </div>
     </div>

@@ -91,24 +91,18 @@ export default function StepReview({ formData, scholarshipId, scholarshipTitle, 
     }
   };
 
-  const Section = ({ title, items, icon, index }: { title: string; items: [string, string][]; icon: string; index: number }) => (
-    <div className="bg-white/[0.01] border border-dashed border-border/60 rounded-[40px] p-10 relative overflow-hidden group">
-      <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity">
-        <span className="text-6xl">{icon}</span>
-      </div>
-      
-      <div className="flex items-center gap-4 mb-10">
-        <div className="w-10 h-10 rounded-2xl bg-foreground/5 flex items-center justify-center border border-dashed border-border/60">
-           <span className="font-mono font-black text-[10px]">0{index}</span>
-        </div>
-        <h3 className="text-[10px] font-mono font-black text-foreground uppercase tracking-[0.4em]">{title}</h3>
+  const Section = ({ title, items, icon }: { title: string; items: [string, string][]; icon: any }) => (
+    <div className="bg-card border rounded-xl p-6 shadow-sm space-y-4">
+      <div className="flex items-center gap-2 pb-2 border-b">
+        <span className="text-muted-foreground text-lg">{icon}</span>
+        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         {items.map(([label, value]) => (
-          <div key={label} className="space-y-2">
-            <p className="text-[9px] text-muted-foreground font-mono font-black uppercase tracking-widest opacity-40">{label.replace(' ', '_')}</p>
-            <p className="text-foreground text-[11px] font-mono font-black uppercase tracking-tight break-all border-l-2 border-blue-500/20 pl-3">{value || 'NULL'}</p>
+          <div key={label} className="space-y-0.5">
+            <p className="text-xs text-muted-foreground font-medium">{label}</p>
+            <p className="text-foreground text-sm font-semibold break-all">{value || 'N/A'}</p>
           </div>
         ))}
       </div>
@@ -116,149 +110,114 @@ export default function StepReview({ formData, scholarshipId, scholarshipTitle, 
   );
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-8">
       {/* Scholarship Summary */}
-      <div className="bg-blue-500/[0.02] border border-dashed border-blue-500/30 rounded-[32px] p-8 flex items-center justify-between">
-        <div className="space-y-2">
-          <p className="text-[9px] text-blue-500 font-mono font-black uppercase tracking-[0.4em] leading-none">Submitting to Repository</p>
-          <p className="text-foreground font-sans font-black text-3xl tracking-tighter leading-tight italic">{scholarshipTitle}</p>
+      <div className="bg-blue-50/50 border border-blue-100 dark:bg-blue-500/5 dark:border-blue-500/20 rounded-xl p-6 flex items-center justify-between">
+        <div className="space-y-1">
+          <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold uppercase tracking-wider">Applying For</p>
+          <p className="text-foreground font-bold text-xl tracking-tight">{scholarshipTitle}</p>
         </div>
-        <div className="w-16 h-16 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-500 border border-dashed border-blue-500/20 shadow-[0_0_20px_rgba(59,130,246,0.1)]">
-           <ShieldCheck size={32} strokeWidth={1} />
+        <div className="w-12 h-12 rounded-xl bg-blue-100 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 border border-blue-200 dark:border-blue-500/30">
+           <ShieldCheck size={24} />
         </div>
-      </div>
-
-      {/* Stats Summary Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-         {[
-           ['Data_Packet', '22/22', 'emerald'],
-           ['Binary_Assets', '04/04', 'blue'],
-           ['System_Grade', 'A_PROTOCOL', 'indigo'],
-           ['Priority_lvl', 'HIGH_IO', 'rose']
-         ].map(([label, value, color]) => (
-           <div key={label} className="bg-white/[0.01] border border-dashed border-border/40 p-6 rounded-3xl group hover:border-blue-500/30 transition-all">
-              <p className="text-[8px] text-muted-foreground font-mono font-black uppercase tracking-widest mb-3 opacity-40">{label}</p>
-              <p className={cn("text-xl font-mono font-black tracking-tighter", `text-${color}-500`)}>{value}</p>
-           </div>
-         ))}
       </div>
 
       {/* Sections */}
       <Section
-        index={1}
-        title="Identity Manifest"
+        title="Personal Details"
         icon="👤"
         items={[
           ['Full Name', formData.fullName],
-          ['DOB', formData.dateOfBirth],
+          ['Date of Birth', formData.dateOfBirth],
           ['Gender', formData.gender],
-          ['Phone Node', formData.phone],
-          ['City Node', formData.city],
-          ['State Node', formData.state],
+          ['Phone', formData.phone],
+          ['City', formData.city],
+          ['State', formData.state],
           ['Pincode', formData.pincode],
         ]}
       />
 
       <Section
-        index={2}
-        title="Scholastic Registry"
+        title="Academic Details"
         icon="🎓"
         items={[
           ['Institution', formData.institution],
-          ['Course_ID', formData.course],
-          ['Study_Cycle', `${formData.yearOfStudy} Year`],
-          ['Efficiency_Idx', formData.cgpa],
-          ['Certification_Yield', `${formData.boardPercentage}%`],
-          ['Admission_Cycle', formData.admissionYear],
+          ['Course', formData.course],
+          ['Year of Study', `${formData.yearOfStudy} Year`],
+          ['CGPA', formData.cgpa],
+          ['Board %', `${formData.boardPercentage}%`],
+          ['Admission Year', formData.admissionYear],
         ]}
       />
 
       <Section
-        index={3}
-        title="Fiscal Allocation"
+        title="Financial Allocation"
         icon="💰"
         items={[
-          ['Annual_Yield', formData.annualIncome],
-          ['Bank_Entity', formData.bankName],
-          ['Account_Owner', formData.accountHolderName],
-          ['Routing_Protocol', formData.ifscCode],
+          ['Annual Income', formData.annualIncome],
+          ['Bank Name', formData.bankName],
+          ['Account Holder', formData.accountHolderName],
+          ['IFSC Code', formData.ifscCode],
         ]}
       />
 
-      {/* Resource Checksum Grid */}
-      <div className="bg-white/[0.01] border border-dashed border-border/60 rounded-[40px] p-10">
-        <div className="flex items-center gap-4 mb-10">
-          <div className="w-10 h-10 rounded-2xl bg-foreground/5 flex items-center justify-center border border-dashed border-border/60">
-             <span className="font-mono font-black text-[10px]">04</span>
-          </div>
-          <h3 className="text-[10px] font-mono font-black text-foreground uppercase tracking-[0.4em]">Resource Checksum</h3>
+      {/* Documents Checksum */}
+      <div className="bg-card border rounded-xl p-6 shadow-sm space-y-4">
+        <div className="flex items-center gap-2 pb-2 border-b">
+          <span className="text-muted-foreground text-lg">📄</span>
+          <h3 className="text-sm font-semibold text-foreground">Uploaded Documents</h3>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
           {[
-            ['PHOTO_BYTE', formData.profilePhotoUrl],
-            ['SCORE_MAP', formData.marksheetUrl],
-            ['YIELD_CERT', formData.incomeCertificateUrl],
-            ['ID_REF', formData.idProofUrl],
-            ['NODE_PASS', formData.bankPassbookUrl],
+            ['Profile Photo', formData.profilePhotoUrl],
+            ['Marksheet', formData.marksheetUrl],
+            ['Income Certificate', formData.incomeCertificateUrl],
+            ['ID Proof', formData.idProofUrl],
+            ['Bank Passbook', formData.bankPassbookUrl],
           ].map(([label, url]) => (
             <div key={label} className={cn(
-              "flex flex-col items-center justify-center p-6 border border-dashed rounded-3xl transition-all",
-              url ? 'border-emerald-500/30 bg-emerald-500/[0.02]' : 'border-border/40 bg-white/[0.01] opacity-30 shadow-inner'
+              "flex flex-col items-center justify-center p-4 border rounded-lg transition-all",
+              url 
+                ? 'border-emerald-200 bg-emerald-50/30 dark:border-emerald-500/20 dark:bg-emerald-500/5' 
+                : 'border-border bg-muted/20 opacity-50'
             )}>
-              <div className="text-2xl mb-4">{url ? '📎' : '⚠️'}</div>
-              <span className="text-[8px] font-mono font-black uppercase tracking-[0.3em] text-foreground text-center">{label}</span>
+              <div className="text-xl mb-2">{url ? '📎' : '⚠️'}</div>
+              <span className="text-xs font-semibold text-foreground text-center">{label}</span>
             </div>
           ))}
         </div>
-      </div>
-
-      {/* Legal Hash */}
-      <div className="bg-white/[0.01] border border-dashed border-border/60 rounded-[40px] p-10 relative overflow-hidden group">
-         <div className="absolute top-0 right-0 p-10 opacity-5 group-hover:opacity-10 transition-opacity">
-            <ShieldCheck size={120} strokeWidth={0.5} />
-         </div>
-         <div className="relative z-10 max-w-2xl">
-            <div className="flex items-center gap-4 mb-6">
-               <Info size={16} className="text-blue-500" />
-               <p className="text-[10px] font-mono font-black uppercase tracking-[0.4em] text-foreground">Legal Commitment Protocol</p>
-            </div>
-            <p className="text-[11px] text-muted-foreground font-mono leading-relaxed italic uppercase tracking-tight opacity-60">
-              "Encryption hash generated. I hereby certify that the binary data submitted is authentic. Any violation of protocol 402 section 9 will result in immediate de-registration and recursive legal action under federal nodes."
-            </p>
-         </div>
       </div>
 
       {/* AI Diagnostic Terminal */}
       <AnimatePresence>
         {(fraudCheck.checking || fraudCheck.result) && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             className={cn(
-              "rounded-[32px] p-8 border border-dashed shadow-2xl relative overflow-hidden",
-              fraudCheck.checking && "bg-blue-600 border-blue-400 text-white",
-              fraudCheck.result === 'clean' && "bg-emerald-600 border-emerald-400 text-white",
-              fraudCheck.result === 'flagged' && "bg-rose-600 border-rose-400 text-white"
+              "rounded-xl p-4 border shadow-sm text-sm",
+              fraudCheck.checking && "bg-blue-50 border-blue-200 text-blue-800 dark:bg-blue-950 dark:border-blue-800 dark:text-blue-200",
+              fraudCheck.result === 'clean' && "bg-emerald-50 border-emerald-200 text-emerald-800 dark:bg-emerald-950 dark:border-emerald-800 dark:text-emerald-200",
+              fraudCheck.result === 'flagged' && "bg-rose-50 border-rose-200 text-rose-800 dark:bg-rose-950 dark:border-rose-800 dark:text-rose-200"
             )}
           >
-            <div className="flex items-center gap-6">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center backdrop-blur-md border border-white/20">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-white/80 dark:bg-black/20 flex items-center justify-center backdrop-blur-md border border-border">
                 {fraudCheck.checking ? (
-                  <Loader2 className="animate-spin" size={24} />
+                  <Loader2 className="animate-spin text-blue-600" size={16} />
                 ) : fraudCheck.result === 'clean' ? (
-                  <CheckCircle2 size={24} />
+                  <CheckCircle2 size={16} className="text-emerald-600" />
                 ) : (
-                  <AlertTriangle size={24} />
+                  <AlertTriangle size={16} className="text-rose-600" />
                 )}
               </div>
-              <div className="space-y-1">
-                <p className="font-mono font-black text-xs uppercase tracking-[0.4em]">System_Diagnostic: {fraudCheck.checking ? 'RUNNING' : 'COMPLETED'}</p>
-                <p className="text-[10px] font-mono font-black uppercase tracking-widest opacity-80">{fraudCheck.message}</p>
+              <div className="space-y-0.5">
+                <p className="font-semibold">{fraudCheck.checking ? 'Verifying Data...' : 'Verification Complete'}</p>
+                <p className="text-xs opacity-90">{fraudCheck.message}</p>
               </div>
             </div>
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 blur-3xl rounded-full translate-x-12 -translate-y-12" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -268,46 +227,44 @@ export default function StepReview({ formData, scholarshipId, scholarshipTitle, 
         <motion.div 
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="bg-rose-500/10 border border-dashed border-rose-500/40 rounded-3xl p-8 flex items-start gap-6"
+          className="bg-rose-50 border border-rose-200 text-rose-700 rounded-xl p-4 flex items-start gap-3 text-sm"
         >
-          <div className="w-10 h-10 rounded-2xl bg-rose-500/20 flex items-center justify-center text-rose-500 border border-rose-500/30">
-             <span className="font-mono font-black text-sm">!</span>
+          <div className="w-6 h-6 rounded-full bg-rose-100 flex items-center justify-center text-rose-600 font-bold shrink-0 text-xs">
+             !
           </div>
-          <div className="space-y-2">
-            <p className="text-rose-500 text-[10px] font-mono font-black uppercase tracking-[0.4em]">Critical_Error_Log</p>
-            <p className="text-rose-500/80 text-[10px] font-mono font-black uppercase tracking-tight leading-relaxed">{error}</p>
+          <div className="space-y-1">
+            <p className="font-semibold">Submission Error</p>
+            <p className="text-xs text-rose-600/80 leading-relaxed">{error}</p>
           </div>
         </motion.div>
       )}
 
       {/* Primary Action Dock */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-8 bg-white/[0.02] border border-dashed border-border/60 p-10 rounded-[48px] shadow-2xl mt-20">
-        <button
+      <div className="flex items-center justify-between pt-6 border-t">
+        <Button
           type="button"
+          variant="outline"
           onClick={onBack}
           disabled={submitting}
-          className="group flex items-center gap-4 text-muted-foreground hover:text-foreground transition-all duration-300 disabled:opacity-30"
+          className="h-11 px-6 text-sm font-semibold rounded-lg transition-colors"
         >
-          <div className="w-12 h-12 rounded-2xl border border-dashed border-border/60 flex items-center justify-center group-hover:border-blue-500/40 group-hover:text-blue-500 transition-all">
-            <span className="text-sm font-mono font-black">←</span>
-          </div>
-          <span className="text-[10px] font-mono font-black uppercase tracking-[0.4em]">Modify_Dataset</span>
-        </button>
+          Back
+        </Button>
 
         <Button
           onClick={handleSubmit}
           disabled={submitting}
-          className="h-20 bg-foreground text-background hover:scale-105 active:scale-95 px-16 rounded-[28px] font-mono font-black text-[12px] uppercase tracking-[0.4em] transition-all border border-white/10 shadow-[0_20px_40px_rgba(0,0,0,0.3)] flex items-center gap-4 disabled:opacity-50"
+          className="h-11 bg-blue-600 hover:bg-blue-700 text-white px-8 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2 shadow-sm"
         >
           {submitting ? (
             <>
-              <Loader2 className="animate-spin" size={18} />
-              <span>COMMITING_BYTES...</span>
+              <Loader2 className="animate-spin" size={16} />
+              <span>Submitting...</span>
             </>
           ) : (
             <>
-              <span>SYNC_TO_CLOUD</span>
-              <ShieldCheck size={18} />
+              <span>Submit Application</span>
+              <ShieldCheck size={16} />
             </>
           )}
         </Button>

@@ -239,7 +239,7 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
       </div>
 
       {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row items-center gap-4 bg-card border rounded-2xl p-2 md:p-3 shadow-sm">
+      <div id="tour-search" className="flex flex-col md:flex-row items-center gap-4 bg-card border rounded-2xl p-2 md:p-3 shadow-sm">
         
         {/* Search Input Section */}
         <div className="relative flex-1 min-w-[300px] w-full">

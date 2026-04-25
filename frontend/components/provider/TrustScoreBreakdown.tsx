@@ -31,17 +31,17 @@ export const TrustScoreBreakdown = ({
       score: verificationScore,
       icon: ShieldCheck,
       color: "text-indigo-500",
-      description: verificationStatus === 'APPROVED' ? "Legacy entity status confirmed." : "Identity verification in progress."
+      description: verificationStatus === 'APPROVED' ? "Organization verified successfully." : "Identity verification in progress."
     },
     {
-      label: "Student Consensus",
+      label: "Student Reviews",
       score: consensusScore,
       icon: Users,
       color: "text-amber-500",
       description: `${totalReviews} verified student testimonials recorded.`
     },
     {
-      label: "Protocol Activity",
+      label: "Platform Activity",
       score: activityScore,
       icon: Activity,
       color: "text-emerald-500",
@@ -84,7 +84,7 @@ export const TrustScoreBreakdown = ({
         <div className="flex-1 space-y-4 w-full">
            <div>
               <h3 className="text-base font-semibold text-foreground">Trust Breakdown</h3>
-              <p className="text-sm font-medium text-muted-foreground">Audit & Consensus</p>
+              <p className="text-sm font-medium text-muted-foreground">Trust score overview</p>
            </div>
            
            <div className="space-y-4">
@@ -114,15 +114,15 @@ export const TrustScoreBreakdown = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-6 border-t border-border">
          <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50 border">
             <div className="mt-0.5"><Info size={16} className="text-blue-500 shrink-0" /></div>
-            <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-               Scores are calculated using the ScholarHub Consensus Protocol v2.1. Verified payouts significantly boost academic veracity ratings.
-            </p>
+             <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                Scores are calculated based on verification status, student feedback, and platform engagement.
+             </p>
          </div>
          <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/50 border">
             <div className="mt-0.5"><CheckCircle2 size={16} className="text-emerald-500 shrink-0" /></div>
-            <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-               This entity has successfully synchronized with the Smart Verification Layer. External audits are performed biannually.
-            </p>
+             <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                This organization has successfully passed our platform trust background checks.
+             </p>
          </div>
       </div>
     </div>

@@ -20,6 +20,7 @@ import { ThemeToggle } from '../ui/theme-toggle';
 import { GlobalSearch } from './GlobalSearch';
 import { useRouter } from 'next/navigation';
 import api from '@/app/lib/api';
+import { TourGuide } from '../ui/TourGuide';
 
 interface ProviderLayoutProps {
   children: React.ReactNode;
@@ -67,11 +68,13 @@ export const ProviderLayout = ({ children }: ProviderLayoutProps) => {
       </div>
 
       <div className="flex relative z-10">
-        <ProviderSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        <div id="tour-sidebar">
+          <ProviderSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
+        </div>
 
         <main className="flex-1 flex flex-col min-w-0 min-h-screen">
           {/* Header */}
-          <header className="h-16 sticky top-0 bg-background/60 backdrop-blur-xl border-b border-border px-4 lg:px-8 flex items-center justify-between z-30">
+          <header id="tour-header" className="h-16 sticky top-0 bg-background/60 backdrop-blur-xl border-b border-border px-4 lg:px-8 flex items-center justify-between z-30">
             <div className="flex items-center gap-4">
               <button 
                 onClick={() => setIsSidebarOpen(true)}
@@ -90,7 +93,7 @@ export const ProviderLayout = ({ children }: ProviderLayoutProps) => {
 
             <div className="flex items-center gap-3">
               {/* Trust Score Badge */}
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/50 dark:bg-white/5 border border-border">
+              <div id="tour-trust" className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/50 dark:bg-white/5 border border-border">
                 <ShieldCheck size={14} className="text-emerald-500" />
                 <span className="text-[10px] font-mono text-emerald-500 uppercase tracking-tight font-black">Trust Score: {profile?.trustScore || 0}/100</span>
               </div>
@@ -105,7 +108,7 @@ export const ProviderLayout = ({ children }: ProviderLayoutProps) => {
                 </button>
                 <div className="w-[1px] h-4 bg-border mx-0.5" />
                 
-                <div className="relative">
+                <div className="relative z-50">
                   <button 
                     onClick={() => setShowNotifications(!showNotifications)}
                     className="p-2 text-muted-foreground hover:text-foreground transition-all hover:bg-accent rounded-md relative"
@@ -130,7 +133,7 @@ export const ProviderLayout = ({ children }: ProviderLayoutProps) => {
               </div>
 
               {/* User Avatar Short with Dropdown */}
-              <div className="relative">
+              <div className="relative z-50">
                 <button 
                   onClick={() => setShowProfile(!showProfile)}
                   className="w-8 h-8 rounded-lg bg-card border border-border flex items-center justify-center text-[10px] font-bold text-muted-foreground hover:border-foreground/20 transition-all font-black overflow-hidden"
@@ -187,6 +190,7 @@ export const ProviderLayout = ({ children }: ProviderLayoutProps) => {
       </div>
 
       <GlobalSearch isOpen={showSearch} onClose={() => setShowSearch(false)} />
+      <TourGuide />
     </div>
   );
 };

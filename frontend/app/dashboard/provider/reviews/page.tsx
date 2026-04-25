@@ -95,7 +95,7 @@ const ReviewCard = ({ review }: any) => {
   );
 };
 
-export default function ReputationLedgerPage() {
+export default function StudentFeedbackPage() {
   const [reviews, setReviews] = useState<any[]>([]);
   const [stats, setStats] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -124,7 +124,7 @@ export default function ReputationLedgerPage() {
       });
     } catch (error) {
       console.error('Failed to fetch reputation data:', error);
-      toast.error('Failed to sync prestige ledger');
+      toast.error('Failed to load reviews');
     } finally {
       setLoading(false);
     }
@@ -142,7 +142,7 @@ export default function ReputationLedgerPage() {
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <div className="flex items-center gap-2 mb-2">
-              <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-500 text-xs font-semibold">Prestige Ledger</span>
+              <span className="px-3 py-1 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 text-xs font-semibold">Reviews</span>
             </div>
             <h1 className="text-3xl font-bold tracking-tight text-foreground">
               Student Feedback
@@ -168,22 +168,22 @@ export default function ReputationLedgerPage() {
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <StatCard 
-            label="Average Sentiment" 
+            label="Average Rating" 
             value={stats?.avgRating?.toFixed(1) || '0.0'} 
-            description="Mean rating across all student nodes."
+            description="Average rating from students."
             icon={Star}
             trend={2.4}
           />
           <StatCard 
-            label="Total Testimonials" 
+            label="Total Reviews" 
             value={stats?.total || '0'} 
-            description="Active consensus records in ledger."
+            description="Total feedback received."
             icon={MessageSquare}
           />
           <StatCard 
             label="Trust Index" 
             value={`${stats?.trustScore || 0}%`} 
-            description="Aggregated platform credibility score."
+            description="Platform reliability score."
             icon={ShieldCheck}
             trend={5.1}
           />
@@ -195,7 +195,7 @@ export default function ReputationLedgerPage() {
               <div className="bg-card border rounded-2xl p-6 space-y-6 shadow-sm">
                  <div className="flex items-center gap-2">
                     <Filter size={16} className="text-muted-foreground" />
-                    <h3 className="text-sm font-semibold text-foreground">Protocol Filters</h3>
+                    <h3 className="text-sm font-semibold text-foreground">Filters</h3>
                  </div>
                  <div className="space-y-2">
                     {['ALL', '5', '4', '3', '2', '1'].map((val) => (
@@ -219,10 +219,10 @@ export default function ReputationLedgerPage() {
                  <div className="absolute top-0 right-0 p-4 opacity-5 transition-transform">
                     <TrendingUp size={64} />
                  </div>
-                 <h4 className="text-sm font-semibold text-foreground mb-1">Prestige Goal</h4>
+                 <h4 className="text-sm font-semibold text-foreground mb-1">Rating Goal</h4>
                  <div className="text-2xl font-bold mb-2">PLATINUM</div>
                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    Maintain a 4.5+ average to unlock featured placement in student matrices.
+                    Maintain a 4.5+ average to get featured on the scholarship platform.
                  </p>
               </div>
            </div>
@@ -232,7 +232,7 @@ export default function ReputationLedgerPage() {
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
                   <Loader2 className="animate-spin text-indigo-500" size={40} />
-                  <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-black">Decrypting feedback ledger...</p>
+                  <p className="text-xs font-medium text-muted-foreground">Loading reviews...</p>
                 </div>
               ) : filteredReviews.length > 0 ? (
                 <div className="space-y-4">
@@ -244,9 +244,9 @@ export default function ReputationLedgerPage() {
                 <div className="bg-card border border-dashed rounded-2xl p-20 text-center space-y-4 shadow-sm">
                   <MessageSquare className="mx-auto text-muted-foreground/50" size={48} />
                   <div className="space-y-1">
-                    <h3 className="text-lg font-semibold text-foreground mb-2">Platform Prestige</h3>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">No reviews yet</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto mb-4">
-                      Your reputation is calculated based on verified student payouts and positive endorsements.
+                      Your reputation grows as students leave positive feedback.
                     </p>
                   </div>
                 </div>

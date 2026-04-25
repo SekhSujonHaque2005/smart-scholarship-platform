@@ -66,13 +66,13 @@ export const KanbanBoard = ({ initialApplications, onStatusUpdate }: any) => {
       try {
         await api.patch(`applications/${(movedItem as any).id}/review`, { 
           status: destination.droppableId,
-          remarks: `Stage migrated via Selection War-Room Kanban at ${new Date().toLocaleTimeString()}`
+          remarks: `Application status updated via dashboard at ${new Date().toLocaleTimeString()}`
         });
-        toast.success(`Candidate migrated to ${destination.droppableId.replace('_', ' ')}`);
+        toast.success(`Candidate moved to ${destination.droppableId.replace('_', ' ')}`);
         if (onStatusUpdate) onStatusUpdate();
       } catch (err) {
         console.error('Migration failed:', err);
-        toast.error('Protocol disruption: Failed to sync migration to ledger.');
+        toast.error('Failed to update application status. Please try again.');
         // Revert state on error
         setColumns(columns); 
       }
@@ -147,7 +147,7 @@ export const KanbanBoard = ({ initialApplications, onStatusUpdate }: any) => {
                               {/* Quick Risk Indicator */}
                               {(app.fraudFlag?.fraudScore > 0.5) && (
                                 <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-rose-500/5 border border-rose-500/20 text-rose-400 text-[8px] font-mono font-black uppercase tracking-widest">
-                                  <AlertCircle size={10} /> High Risk Anomaly Detected
+                                  <AlertCircle size={10} /> Profile Warning Detected
                                 </div>
                               )}
                             </div>

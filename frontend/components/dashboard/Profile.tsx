@@ -142,10 +142,10 @@ export const Profile = () => {
       setProfilePicture(null);
       updateUser({ profilePicture: undefined }); // undefined or null depending on your User type
       setShowAvatarMenu(false);
-      toast.success('Identity entry removed from ledger.');
+      toast.success('Profile picture removed.');
     } catch (err) {
       console.error('Failed to remove avatar', err);
-      toast.error('Failed to purge entry from central node.');
+      toast.error('Failed to remove profile picture.');
     } finally {
       setUploadingAvatar(false);
     }

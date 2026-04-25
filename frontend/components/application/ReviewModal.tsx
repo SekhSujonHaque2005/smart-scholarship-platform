@@ -100,25 +100,25 @@ export const ReviewModal = ({
                     <CheckCircle2 size={40} />
                   </div>
                   <div className="space-y-2">
-                    <h2 className="text-3xl font-black text-foreground tracking-tighter uppercase leading-none">Transmission Success</h2>
-                    <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-[0.2em] font-bold">Trust score recalculated dynamically.</p>
+                    <h2 className="text-3xl font-bold text-foreground tracking-tight leading-none">Review Submitted</h2>
+                    <p className="text-xs text-muted-foreground font-medium">Thank you for your feedback.</p>
                   </div>
                 </motion.div>
               ) : (
                 <div className="space-y-8">
                   <div className="space-y-2">
-                    <h2 className="text-4xl font-black text-foreground tracking-tighter uppercase leading-none">
+                    <h2 className="text-4xl font-bold text-foreground tracking-tight">
                       Rate <span className="text-indigo-500">Provider</span>
                     </h2>
-                    <p className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-black opacity-80">
-                      System Node: {providerName}
+                    <p className="text-sm text-muted-foreground font-medium">
+                      {providerName}
                     </p>
                   </div>
 
                   <form onSubmit={handleSubmit} className="space-y-8">
                     {/* Star Rating Section */}
                     <div className="space-y-3">
-                      <label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-black opacity-60">Verification Level</label>
+                      <label className="text-xs font-semibold text-muted-foreground">Select Rating</label>
                       <div className="flex items-center gap-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <motion.button
@@ -146,13 +146,13 @@ export const ReviewModal = ({
 
                     {/* Comment Section */}
                     <div className="space-y-3">
-                      <label className="text-[10px] font-mono text-muted-foreground uppercase tracking-widest font-black opacity-60">Testimonial Data</label>
+                      <label className="text-xs font-semibold text-muted-foreground">Feedback</label>
                       <textarea
                         value={comment}
                         onChange={(e) => setComment(e.target.value)}
-                        placeholder="INPUT FEEDBACK FOR THE PRESTIGE LEDGER..."
+                        placeholder="Write your feedback here..."
                         rows={4}
-                        className="w-full bg-accent/30 border border-init border-border rounded-3xl py-4 px-6 text-sm font-bold text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-indigo-500/50 transition-all resize-none shadow-sm"
+                        className="w-full bg-accent/30 border border-init border-border rounded-3xl py-4 px-6 text-sm text-foreground placeholder:text-muted-foreground/40 focus:outline-none focus:border-indigo-500/50 transition-all resize-none shadow-sm"
                       />
                     </div>
 
@@ -160,9 +160,9 @@ export const ReviewModal = ({
                       <motion.p 
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
-                        className="text-[10px] font-mono text-rose-500 uppercase tracking-widest font-black"
+                        className="text-xs font-semibold text-rose-500"
                       >
-                        [ERROR]: {error}
+                        {error}
                       </motion.p>
                     )}
 
@@ -171,14 +171,14 @@ export const ReviewModal = ({
                         type="submit"
                         disabled={loading || rating === 0}
                         className={cn(
-                          "w-full h-14 rounded-3xl font-black text-[10px] uppercase tracking-[0.2em] transition-all shadow-[0_10px_30px_rgba(79,70,229,0.3)]",
+                          "w-full h-14 rounded-3xl font-bold text-sm uppercase tracking-wide transition-all shadow-md",
                           loading || rating === 0
                             ? "bg-muted text-muted-foreground cursor-not-allowed"
                             : "bg-indigo-600 text-white hover:bg-indigo-500"
                         )}
                       >
                         {loading ? <Loader2 className="animate-spin mr-2" size={16} /> : <Send className="mr-2" size={16} />}
-                        {loading ? 'Transmitting...' : 'Upload Review'}
+                        {loading ? 'Submitting...' : 'Submit Review'}
                       </Button>
                     </div>
                   </form>

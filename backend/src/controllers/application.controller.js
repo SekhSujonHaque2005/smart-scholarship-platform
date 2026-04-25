@@ -219,7 +219,7 @@ const getApplicationById = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const application = await prisma.application.findUnique({
+    let application = await prisma.application.findUnique({
       where: { id },
       include: {
         student: { select: { id: true, userId: true, name: true, cgpa: true, fieldOfStudy: true, location: true } },
@@ -230,6 +230,27 @@ const getApplicationById = async (req, res) => {
 
     if (!application) {
       return res.status(404).json({ message: 'Application not found' });
+    }
+
+    // Fallback to fetching student's vault documents if no app-specific docs found
+    if (!application.documents || application.documents.length === 0) {
+      const vaultDocs = await prisma.document.findMany({
+        where: { studentId: application.studentId, appId: null }
+      });
+      const mappedDocs = vaultDocs.map(doc => ({
+        id: doc.id,
+        name: doc.fileName || doc.docType || 'Document',
+        url: doc.fileUrl,
+        type: doc.docType,
+        uploadedAt: doc.uploadedAt
+      }));
+      application = { ...application, documents: mappedDocs };
+    } else {
+      application.documents = application.documents.map(doc => ({
+        ...doc,
+        name: doc.fileName || doc.docType || 'Document',
+        url: doc.fileUrl
+      }));
     }
 
     res.status(200).json(application);

@@ -27,7 +27,7 @@ jobs:
       - name: Configure Docker for GCP
         run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
-      # 1. Build and Deploy Backend (Including Scraper)
+      # 1. Build and Push Backend (Including Scraper)
       - name: Build and Push Backend
         run: |
           cp -r scraper_service backend/scraper_service
@@ -95,10 +95,15 @@ jobs:
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             NODE_ENV=production
 
-      # 4. Self-Heal NextAuth URL (Inject live URL back into the frontend)
-      - name: Update Frontend with its own URL for NextAuth
+      # 4. Final Wiring: Connect NextAuth and CORS
+      - name: Wiring Frontend and Backend
         run: |
+          # Fix NextAuth Redirects
           gcloud run services update scholarhub-frontend \
-            --platform managed \
-            --region ${{ env.REGION }} \
+            --platform managed --region ${{ env.REGION }} \
             --update-env-vars NEXTAUTH_URL=${{ steps.deploy-frontend.outputs.url }}
+          
+          # Fix Backend CORS to allow Frontend traffic
+          gcloud run services update scholarhub-backend \
+            --platform managed --region ${{ env.REGION }} \
+            --update-env-vars FRONTEND_URL=${{ steps.deploy-frontend.outputs.url }}

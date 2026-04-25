@@ -208,7 +208,7 @@ const getAllScholarships = async (req, res) => {
 };
 
 const moderateScholarship = async (req, res) => {
-  const { scholarshipId } = req.params;
+  const { id: scholarshipId } = req.params;
   const { status, remarks } = req.body; // APPROVED, REJECTED
   try {
     const scholarship = await prisma.scholarship.update({
@@ -229,7 +229,7 @@ const moderateScholarship = async (req, res) => {
         title: `Scholarship ${status}`,
         message: status === 'APPROVED' 
           ? `Your scholarship "${scholarship.title}" has been approved!` 
-          : `Scholarship "${scholarship.title}" needs revision. Remarks: ${remarks}`
+          : `Scholarship "${scholarship.title}" needs revision. Remarks: ${remarks || 'No remarks provided.'}`
       }
     });
 
@@ -272,7 +272,7 @@ const updateScholarship = async (req, res) => {
 };
 
 const deleteScholarship = async (req, res) => {
-  const { scholarshipId } = req.params;
+  const { id: scholarshipId } = req.params;
   try {
     await prisma.scholarship.delete({ where: { id: scholarshipId } });
     res.json({ message: 'Scholarship deleted permanently' });

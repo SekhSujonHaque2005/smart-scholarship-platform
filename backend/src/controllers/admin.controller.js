@@ -354,8 +354,12 @@ const triggerScraper = async (req, res) => {
     console.error('Error creating audit log for scraper trigger:', err);
   }
 
-  const scraperDir = require('path').join(__dirname, '..', '..', '..', 'scraper_service');
+  let scraperDir = require('path').join(__dirname, '..', '..', '..', 'scraper_service');
+  if (!require('fs').existsSync(scraperDir)) {
+    scraperDir = require('path').join(__dirname, '..', '..', 'scraper_service');
+  }
   exec(`python main.py --live`, { cwd: scraperDir }, (error, stdout, stderr) => {
+
     if (error) {
       console.error('[Admin] Scraper error:', error.message);
     }

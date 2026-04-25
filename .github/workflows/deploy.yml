@@ -78,6 +78,7 @@ jobs:
         run: |
           docker build \
             --build-arg NEXT_PUBLIC_API_URL=${{ steps.deploy-backend.outputs.url }}/api \
+            --build-arg NEXT_PUBLIC_AI_URL=${{ steps.deploy-ai.outputs.url }} \
             -t us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/frontend:${{ github.sha }} ./frontend
           docker push us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/frontend:${{ github.sha }}
 
@@ -92,9 +93,11 @@ jobs:
           env_vars: |
             NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
             NEXT_PUBLIC_API_URL=${{ steps.deploy-backend.outputs.url }}/api
+            NEXT_PUBLIC_AI_URL=${{ steps.deploy-ai.outputs.url }}
             GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             NODE_ENV=production
+
 
       # 4. Final Wiring: Connect NextAuth and CORS for all services
       - name: Wiring Frontend and Backend
@@ -104,10 +107,11 @@ jobs:
             --platform managed --region ${{ env.REGION }} \
             --update-env-vars NEXTAUTH_URL=${{ steps.deploy-frontend.outputs.url }}
           
-          # Fix Backend CORS to allow Frontend traffic
+          # Fix Backend CORS and AI connection
           gcloud run services update scholarhub-backend \
             --platform managed --region ${{ env.REGION }} \
-            --update-env-vars FRONTEND_URL=${{ steps.deploy-frontend.outputs.url }}
+            --update-env-vars FRONTEND_URL=${{ steps.deploy-frontend.outputs.url }},AI_SERVICE_URL=${{ steps.deploy-ai.outputs.url }}
+
 
           # Fix AI Service CORS to allow Frontend traffic
           gcloud run services update scholarhub-ai-service \

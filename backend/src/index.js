@@ -137,10 +137,12 @@ if (require.main === module) {
 
   // Run scholarship scraper every day at 6 AM
   cron.schedule('0 6 * * *', () => {
-    console.log('[Cron] Triggering scholarship scraper...');
-    const { exec } = require('child_process');
-    const scraperDir = require('path').join(__dirname, '..', '..', 'scraper_service');
+    let scraperDir = require('path').join(__dirname, '..', '..', 'scraper_service');
+    if (!require('fs').existsSync(scraperDir)) {
+      scraperDir = require('path').join(__dirname, '..', 'scraper_service');
+    }
     exec(`python main.py --live`, { cwd: scraperDir }, (error, stdout, stderr) => {
+
       if (error) {
         console.error('[Cron] Scraper error:', error.message);
         return;

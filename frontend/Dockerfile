@@ -14,11 +14,15 @@ COPY . .
 # Set environment variables for build time
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Receive the API URL from the build-arg (Passed by GitHub Actions)
+# Receive the API URLs from the build-arg (Passed by GitHub Actions)
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 
+ARG NEXT_PUBLIC_AI_URL
+ENV NEXT_PUBLIC_AI_URL=$NEXT_PUBLIC_AI_URL
+
 RUN npm run build
+
 
 # Step 3: Production runner
 FROM node:20-alpine AS runner

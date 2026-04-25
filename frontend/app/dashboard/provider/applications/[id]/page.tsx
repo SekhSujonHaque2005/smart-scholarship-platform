@@ -100,9 +100,11 @@ export default function ApplicationDetailPage() {
     try {
       const criteriaStr = typeof application.scholarship?.criteriaJson === 'object'
         ? JSON.stringify(application.scholarship.criteriaJson) : '';
-      const res = await fetch('http://localhost:8000/api/generate/review-summary', {
+      const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000';
+      const res = await fetch(`${aiUrl}/api/generate/review-summary`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+
         body: JSON.stringify({
           studentName: application.student?.name || '',
           studentField: application.student?.fieldOfStudy || '',

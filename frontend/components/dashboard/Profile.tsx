@@ -284,9 +284,11 @@ export const Profile = () => {
                     const fields = ['cgpa', 'fieldOfStudy', 'incomeLevel', 'location', 'gender'];
                     const filled = fields.filter(f => profileData?.[f]);
                     const strength = Math.round((filled.length / fields.length) * 100);
-                    const res = await fetch('http://localhost:8000/api/generate/profile-suggestions', {
+                    const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000';
+                    const res = await fetch(`${aiUrl}/api/generate/profile-suggestions`, {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
+
                       body: JSON.stringify({
                         name: profileData?.name || user?.name || '',
                         cgpa: profileData?.cgpa?.toString() || '',

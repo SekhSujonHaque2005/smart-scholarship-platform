@@ -18,13 +18,15 @@ export default function NewsletterAlerts() {
     setError('');
 
     try {
-      const response = await fetch('http://localhost:5000/api/newsletter/subscribe', {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const response = await fetch(`${apiUrl}/newsletter/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email }),
       });
+
 
       const data = await response.json();
 

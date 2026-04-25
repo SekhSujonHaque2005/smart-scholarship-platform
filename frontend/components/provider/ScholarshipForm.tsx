@@ -306,11 +306,13 @@ export const ScholarshipForm = ({ initialData, mode = 'create' }: { initialData?
                       setAiGenerating(true);
                       setErrorStatus(null);
                       try {
-                        const res = await fetch('http://localhost:8000/api/generate/description', {
+                        const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000';
+                        const res = await fetch(`${aiUrl}/api/generate/description`, {
                           method: 'POST',
                           headers: { 'Content-Type': 'application/json' },
                           body: JSON.stringify({ title, category: category || 'General' }),
                         });
+
                         if (!res.ok) {
                           const err = await res.json();
                           throw new Error(err.detail || 'Generation failed');

@@ -92,7 +92,8 @@ export default function ScholarshipDetailPage() {
     if (!scholarship) return;
     setAiTipsLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/generate/tips', {
+      const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000';
+      const res = await fetch(`${aiUrl}/api/generate/tips`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -118,10 +119,12 @@ export default function ScholarshipDetailPage() {
     if (!scholarship) return;
     setAiEligibilityLoading(true);
     try {
-      const res = await fetch('http://localhost:8000/api/generate/eligibility-check', {
+      const aiUrl = process.env.NEXT_PUBLIC_AI_URL || 'http://localhost:8000';
+      const res = await fetch(`${aiUrl}/api/generate/eligibility-check`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+
           scholarshipTitle: scholarship.title,
           scholarshipCriteria: getCriteriaString(),
           studentField: studentProfile?.fieldOfStudy || '',

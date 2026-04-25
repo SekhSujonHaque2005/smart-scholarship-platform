@@ -10,6 +10,8 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+
 // Send email helper
 const sendEmail = async (to, subject, html) => {
     try {
@@ -111,7 +113,7 @@ const notifyApplicationSubmitted = async (studentUserId, scholarshipTitle) => {
             greeting: `Hi ${user.student?.name || 'Scholar'},`,
             body: `Excellent work! Your application for <strong>${scholarshipTitle}</strong> has been successfully transmitted to the provider. We've added it to your dashboard for real-time tracking.`,
             ctaText: 'Track Application',
-            ctaUrl: 'http://localhost:3000/dashboard/applications'
+            ctaUrl: `${FRONTEND_URL}/dashboard/applications`
         });
 
         await sendEmail(user.email, '✅ Application Submitted - ScholarHub', html);
@@ -152,7 +154,7 @@ const notifyApplicationStatus = async (studentUserId, scholarshipTitle, status, 
                 <p>You can view more details or complete any next steps on your dashboard.</p>
             `,
             ctaText: 'View Details',
-            ctaUrl: 'http://localhost:3000/dashboard/applications'
+            ctaUrl: `${FRONTEND_URL}/dashboard/applications`
         });
 
         await sendEmail(user.email, `${config.emoji} Application ${status} - ScholarHub`, html);
@@ -185,7 +187,7 @@ const notifyProviderVerified = async (providerUserId, status) => {
                 ? 'Your organization has been officially verified! You now have full clearance to publish scholarships, review candidates, and disburse tokens on the ScholarHub network.'
                 : 'Our compliance team was unable to verify your submitted credentials at this time. Please ensure your documents are clear and valid, then re-submit or contact security support.',
             ctaText: isApproved ? 'Access Dashboard' : 'View Support',
-            ctaUrl: 'http://localhost:3000/dashboard/provider'
+            ctaUrl: `${FRONTEND_URL}/dashboard/provider`
         });
 
         await sendEmail(
@@ -259,7 +261,7 @@ const sendDeadlineReminders = async () => {
                         greeting: `Hi ${user.student?.name || 'Scholar'},`,
                         body: `This is a friendly reminder that the deadline for <strong>${scholarship.title}</strong> is approaching fast. You have <strong>${daysLeft} day(s)</strong> left to submit your application and secure your funding.`,
                         ctaText: 'Apply Now',
-                        ctaUrl: `http://localhost:3000/scholarships/${scholarship.id}`
+                        ctaUrl: `${FRONTEND_URL}/scholarships/${scholarship.id}`
                     });
 
                     await sendEmail(user.email, `⏰ Deadline Warning: ${scholarship.title}`, html);
@@ -402,7 +404,7 @@ const notifyExternalScholarships = async (newScholarships) => {
               <!-- ─── CTA BUTTON ─── -->
               <tr>
                 <td style="padding: 10px 30px 35px 30px; text-align: center;">
-                  <a href="http://localhost:3000/dashboard" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; padding: 16px 48px; text-decoration: none; font-weight: 800; font-size: 16px; border-radius: 10px; letter-spacing: 0.3px; box-shadow: 0 4px 14px rgba(37,99,235,0.4);">Explore All Scholarships →</a>
+                  <a href="${FRONTEND_URL}/dashboard" style="display: inline-block; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: #ffffff; padding: 16px 48px; text-decoration: none; font-weight: 800; font-size: 16px; border-radius: 10px; letter-spacing: 0.3px; box-shadow: 0 4px 14px rgba(37,99,235,0.4);">Explore All Scholarships →</a>
                 </td>
               </tr>
 
@@ -416,7 +418,7 @@ const notifyExternalScholarships = async (newScholarships) => {
                         <p style="margin: 0 0 4px 0; font-size: 20px;">🔓</p>
                         <p style="margin: 0 0 6px 0; font-size: 15px; font-weight: 700; color: #0f172a;">Unlock 50+ more matches</p>
                         <p style="margin: 0 0 16px 0; font-size: 13px; color: #64748b;">Create a free profile and get AI-powered scholarship matches.</p>
-                        <a href="http://localhost:3000/register" style="color: #2563eb; font-weight: 700; text-decoration: none; font-size: 14px; border: 2px solid #2563eb; padding: 10px 28px; border-radius: 8px; display: inline-block;">Create Your Profile →</a>
+                        <a href="${FRONTEND_URL}/register" style="color: #2563eb; font-weight: 700; text-decoration: none; font-size: 14px; border: 2px solid #2563eb; padding: 10px 28px; border-radius: 8px; display: inline-block;">Create Your Profile →</a>
                       </td>
                     </tr>
                   </table>

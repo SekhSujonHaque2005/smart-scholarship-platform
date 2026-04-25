@@ -180,39 +180,6 @@ erDiagram
     Application ||--o| FraudFlag : "flagged by"
     Application ||--o{ Message : "contains"
     Application ||--o{ Transaction : "triggers"
-```
-
----
-
-## Database Indexes
-
-Performance-critical indexes configured in the Prisma schema:
-
-| Model | Index | Type | Purpose |
-|-------|-------|------|---------|
-| User | `role` | B-tree | Role-based user lookups |
-| User | `email` | Unique | Authentication lookups |
-| Scholarship | `providerId` | B-tree | Provider's scholarship list |
-| Scholarship | `status` | B-tree | Filter by active/draft/closed |
-| Scholarship | `category` | B-tree | Category filtering |
-| Scholarship | `createdAt` | B-tree | Sort by newest |
-| Application | `studentId + scholarshipId` | Unique Composite | Prevent duplicate applications |
-| Application | `studentId` | B-tree | Student's application list |
-| Application | `scholarshipId` | B-tree | Scholarship's application list |
-| Application | `status` | B-tree | Status filtering |
-| Application | `submittedAt` | B-tree | Chronological sorting |
-| AuditLog | `actorId` | B-tree | Actor history |
-| AuditLog | `timestamp` | B-tree | Chronological queries |
-| AuditLog | `entityType + entityId` | Composite | Entity history |
-| Message | `applicationId` | B-tree | Conversation threads |
-| Message | `senderId` | B-tree | Sent messages |
-| Message | `receiverId` | B-tree | Received messages |
-| Message | `createdAt` | B-tree | Message ordering |
-| Transaction | `providerId` | B-tree | Provider transactions |
-| Transaction | `type` | B-tree | Type filtering |
-| Transaction | `status` | B-tree | Status filtering |
-| Transaction | `createdAt` | B-tree | Chronological sorting |
-
 ---
 
 ## Enums

@@ -27,7 +27,7 @@ jobs:
       - name: Configure Docker for GCP
         run: gcloud auth configure-docker us-central1-docker.pkg.dev
 
-      # 1. Build and Push Backend (Including Scraper)
+      # 1. Build and Deploy Backend (Including Scraper)
       - name: Build and Push Backend
         run: |
           cp -r scraper_service backend/scraper_service
@@ -62,6 +62,7 @@ jobs:
           docker push us-central1-docker.pkg.dev/$PROJECT_ID/scholarhub/ai-service:${{ github.sha }}
 
       - name: Deploy AI Service to Cloud Run
+        id: deploy-ai
         uses: google-github-actions/deploy-cloudrun@v2
         with:
           service: scholarhub-ai-service
@@ -95,7 +96,7 @@ jobs:
             GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}
             NODE_ENV=production
 
-      # 4. Final Wiring: Connect NextAuth and CORS
+      # 4. Final Wiring: Connect NextAuth and CORS for all services
       - name: Wiring Frontend and Backend
         run: |
           # Fix NextAuth Redirects
@@ -105,5 +106,10 @@ jobs:
           
           # Fix Backend CORS to allow Frontend traffic
           gcloud run services update scholarhub-backend \
+            --platform managed --region ${{ env.REGION }} \
+            --update-env-vars FRONTEND_URL=${{ steps.deploy-frontend.outputs.url }}
+
+          # Fix AI Service CORS to allow Frontend traffic
+          gcloud run services update scholarhub-ai-service \
             --platform managed --region ${{ env.REGION }} \
             --update-env-vars FRONTEND_URL=${{ steps.deploy-frontend.outputs.url }}

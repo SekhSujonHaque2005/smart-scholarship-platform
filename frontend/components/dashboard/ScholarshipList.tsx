@@ -52,7 +52,7 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
   
   // Memoized filtered scholarships for instant UI updates (Wishlist/Category/Sort)
   const filteredScholarships = React.useMemo(() => {
-    let results = [...rawScholarships];
+    let results = Array.isArray(rawScholarships) ? [...rawScholarships] : [];
 
     // Client-side category filter
     if (filters.category !== 'All') {
@@ -68,7 +68,7 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
 
     // Client-side saved/wishlist filter
     if (onlySaved) {
-      results = results.filter((s: any) => savedIds.has(s.id));
+      results = results.filter((s: any) => savedIds && typeof savedIds.has === 'function' ? savedIds.has(s.id) : false);
     }
 
     // Client-side sort logic
@@ -184,7 +184,7 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
         scholarshipId,
         formData: {} 
       });
-      setAppliedIds(prev => new Set([...prev, scholarshipId]));
+      setAppliedIds(prev => new Set([...(prev instanceof Set || Array.isArray(prev) ? prev : []), scholarshipId]));
     } catch (error: any) {
       console.error('Apply error:', error);
       alert(error.response?.data?.message || 'Failed to apply. Please try again.');

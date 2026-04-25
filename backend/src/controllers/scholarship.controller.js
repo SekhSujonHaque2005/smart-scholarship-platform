@@ -55,7 +55,7 @@ const getAllScholarships = async (req, res) => {
         if (student && scholarships.length > 0) {
           // 🛡️ Check cache first to prevent hammering AI service
           const cacheKey = `matches_${student.id}_${scholarships.map(s => s.id).sort().join('_').slice(0, 50)}`;
-          const cachedResults = cache.get(cacheKey);
+          const cachedResults = await cache.get(cacheKey);
 
           if (cachedResults) {
             scholarshipsWithScores = cachedResults;
@@ -81,7 +81,7 @@ const getAllScholarships = async (req, res) => {
               scholarshipsWithScores.sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0));
 
               // Store in cache for 30 minutes
-              cache.set(cacheKey, scholarshipsWithScores, 1800);
+              await cache.set(cacheKey, scholarshipsWithScores, 1800);
               
             } catch (aiError) {
                console.error('AI match service failed, falling back to local computation:', aiError.message);

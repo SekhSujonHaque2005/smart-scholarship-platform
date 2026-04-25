@@ -117,8 +117,17 @@ export const ScholarshipList = ({ searchTerm: externalSearch = '', onlySaved = f
 
   // Load persistence
   useEffect(() => {
-    const saved = localStorage.getItem('savedScholarships');
-    if (saved) setSavedIds(new Set(JSON.parse(saved)));
+    try {
+      const saved = localStorage.getItem('savedScholarships');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setSavedIds(new Set(parsed));
+        }
+      }
+    } catch (error) {
+      console.error('Error parsing savedScholarships from localStorage:', error);
+    }
   }, []);
 
   const getDaysLeft = (deadline: string) => {

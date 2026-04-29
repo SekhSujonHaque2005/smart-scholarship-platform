@@ -141,6 +141,8 @@ const getMyApplications = async (req, res) => {
       include: {
         scholarship: {
           select: {
+            id: true,
+            providerId: true,
             title: true,
             amount: true,
             deadline: true,

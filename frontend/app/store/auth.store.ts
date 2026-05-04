@@ -7,6 +7,7 @@ interface User {
   avatar?: string;
   profilePicture?: string;
   role: 'STUDENT' | 'PROVIDER' | 'ADMIN';
+  is2FAEnabled?: boolean;
   createdAt?: string;
 }
 

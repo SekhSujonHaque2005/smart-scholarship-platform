@@ -162,6 +162,7 @@ const login = async (req, res) => {
         id: user.id, 
         email: user.email, 
         role: user.role,
+        is2FAEnabled: user.is2FAEnabled,
         name: user.role === 'STUDENT' ? user.student?.name : user.provider?.orgName 
       }
     });
@@ -241,6 +242,7 @@ const getMe = async (req, res) => {
       role: user.role,
       preferences: user.preferences,
       profilePicture: user.profilePicture,
+      is2FAEnabled: user.is2FAEnabled,
       profile: user.student || user.provider,
       profileStrength,
       missingFields
@@ -337,7 +339,7 @@ const googleAuth = async (req, res) => {
       message: 'Google auth successful',
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, role: user.role }
+      user: { id: user.id, email: user.email, role: user.role, is2FAEnabled: user.is2FAEnabled }
     });
 
   } catch (error) {
@@ -570,6 +572,7 @@ const verify2FA = async (req, res) => {
         id: user.id, 
         email: user.email, 
         role: user.role,
+        is2FAEnabled: user.is2FAEnabled,
         name: user.role === 'STUDENT' ? user.student?.name : user.provider?.orgName 
       }
     });
